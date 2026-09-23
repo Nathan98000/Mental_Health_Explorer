@@ -1,7 +1,32 @@
 import { EstimateCard } from '../components/EstimateCard'
-import { TrendChart } from '../components/TrendChart'
-import { MDE_SERIES, MDE_SEVERE_SERIES, teenDepressionTrend, teenMde2021, teenMde2024 } from '../data/preview'
+import { TrendChart, type TrendRow } from '../components/TrendChart'
+import { overallByYear, overallTrendTest, type EstimateShard } from '../lib/data'
 import { formatPct, oneInN } from '../lib/format'
+import { useEstimates } from '../lib/useEstimates'
+
+const MDE_SERIES = 'Major depressive episode'
+const MDE_SEVERE_SERIES = 'With severe impairment'
+const HOME_INDICATORS = ['mde_py', 'mde_severe'] as const
+
+/** "That's down from 21% (about 1 in 5) in 2021." when the change is significant; otherwise a plain comparison. */
+function comparison(shard: EstimateShard): string | undefined {
+  const years = overallByYear(shard)
+  if (years.length < 2) return undefined
+  const first = years[0]
+  const last = years[years.length - 1]
+  const then = oneInN(first.p)
+  const about = then ? ` (about ${then})` : ''
+  const test = overallTrendTest(shard, first.year, last.year)
+  if (test && test.pValue < 0.05) {
+    return `That's ${test.diff < 0 ? 'down' : 'up'} from ${formatPct(first.p)}${about} in ${first.year}.`
+  }
+  return `Compared with ${formatPct(first.p)}${about} in ${first.year}.`
+}
+
+function trendRows(mde: EstimateShard, severe: EstimateShard): TrendRow[] {
+  const rows = (shard: EstimateShard, series: string) => overallByYear(shard).map((y) => ({ year: y.year, series, p: y.p, lo: y.lo, hi: y.hi }))
+  return [...rows(mde, MDE_SERIES), ...rows(severe, MDE_SEVERE_SERIES)]
+}
 
 const upcoming = [
   { title: 'Explore any measure', body: 'Depression, suicidal thoughts, substance use, school and family life — for teens and young adults.', shape: 'circle' },
@@ -35,8 +60,41 @@ function Shape({ kind }: { kind: (typeof upcoming)[number]['shape'] }) {
   )
 }
 
+function FirstLook({ mde, severe }: { mde: EstimateShard; severe: EstimateShard }) {
+  const years = overallByYear(mde)
+  const latest = years[years.length - 1]
+  const firstYear = years[0]?.year
+  const lastYear = latest?.year
+  return (
+    <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+      <div className="lg:self-start">
+        {latest ? (
+          <EstimateCard
+            measure="had a major depressive episode in the past year"
+            population="teens ages 12–17"
+            year={latest.year}
+            p={latest.p}
+            lo={latest.lo}
+            hi={latest.hi}
+            n={latest.n}
+            comparison={comparison(mde)}
+          />
+        ) : null}
+      </div>
+      <div className="rounded-3xl bg-surface p-6 ring-1 ring-line">
+        <TrendChart
+          title={`Teens with a major depressive episode, ${firstYear}–${lastYear}`}
+          rows={trendRows(mde, severe)}
+          series={[MDE_SERIES, MDE_SEVERE_SERIES]}
+          caption="Share of U.S. teens ages 12–17, past year. Shaded bands show 95% confidence intervals. “Severe impairment” means depression seriously interfered with home, school, family or social life."
+        />
+      </div>
+    </div>
+  )
+}
+
 export function Home() {
-  const then = oneInN(teenMde2021.p)
+  const estimates = useEstimates('teen', HOME_INDICATORS)
   return (
     <>
       <section className="relative overflow-hidden rounded-[2rem] bg-surface-tint px-6 py-12 sm:px-10 sm:py-16">
@@ -64,28 +122,17 @@ export function Home() {
 
       <section className="mt-10" aria-labelledby="first-look">
         <h2 id="first-look" className="m-0 font-display text-2xl font-extrabold text-ink">A first look: teen depression</h2>
-        <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-          <div className="lg:self-start">
-          <EstimateCard
-            measure="had a major depressive episode in the past year"
-            population="teens ages 12–17"
-            year={teenMde2024.year}
-            p={teenMde2024.p}
-            lo={teenMde2024.lo}
-            hi={teenMde2024.hi}
-            n={teenMde2024.n}
-            comparison={`That's down from ${formatPct(teenMde2021.p)}${then ? ` (about ${then})` : ''} in 2021.`}
-          />
-          </div>
-          <div className="rounded-3xl bg-surface p-6 ring-1 ring-line">
-            <TrendChart
-              title="Teens with a major depressive episode, 2021–2024"
-              rows={teenDepressionTrend}
-              series={[MDE_SERIES, MDE_SEVERE_SERIES]}
-              caption="Share of U.S. teens ages 12–17, past year. Shaded bands show 95% confidence intervals. “Severe impairment” means depression seriously interfered with home, school, family or social life."
-            />
-          </div>
-        </div>
+        {estimates.status === 'loading' ? (
+          <p className="mt-5 rounded-3xl bg-surface p-6 text-ink-2 ring-1 ring-line" role="status">
+            Loading the latest estimates…
+          </p>
+        ) : estimates.status === 'error' ? (
+          <p className="mt-5 rounded-3xl bg-surface p-6 text-ink-2 ring-1 ring-line" role="alert">
+            The estimates could not be loaded. Please try again later.
+          </p>
+        ) : (
+          <FirstLook mde={estimates.shards.mde_py} severe={estimates.shards.mde_severe} />
+        )}
       </section>
 
       <section className="mt-14" aria-labelledby="coming-soon">
