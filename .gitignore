@@ -1,0 +1,17 @@
+# Raw survey data and secrets never enter the repo
+*.tsv
+NSDUH_*.txt
+github_token.txt
+.env
+.env.*
+
+# Local build artifacts
+node_modules/
+dist/
+.vite/
+coverage/
+__pycache__/
+*.pyc
+.pytest_cache/
+pipeline/.cache/
+.DS_Store
