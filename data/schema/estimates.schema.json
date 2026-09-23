@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nathan98000/Mental_Health_Explorer/data/schema/estimates.schema.json",
+  "title": "Estimate shard",
+  "description": "data/estimates/{cohort}/{indicator}.json: weighted proportions for one indicator in one cohort, for every year set and cell, with trend and group tests. Written by python -m pipeline.cube.",
+  "type": "object",
+  "properties": {
+    "cohort": { "$ref": "#/$defs/cohort" },
+    "indicator": { "$ref": "#/$defs/slug" },
+    "years": { "type": "array", "items": { "$ref": "#/$defs/year" }, "minItems": 1, "uniqueItems": true, "description": "Collected single years, ascending" },
+    "year_sets": {
+      "type": "object",
+      "description": "Each single year (ANALWT2_C1), `all` collected years (ANALWT2_Ck) and `recent2`, the two latest (ANALWT2_C2)",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "years": { "type": "array", "items": { "$ref": "#/$defs/year" }, "minItems": 1 },
+          "weight": { "type": "string", "pattern": "^ANALWT2_C[1-4]$" }
+        },
+        "required": ["years", "weight"],
+        "additionalProperties": false
+      }
+    },
+    "crosses": { "type": "array", "items": { "type": "string" }, "description": "Year sets that carry two-way crosses (all of them unless a shard had to be trimmed to fit the size limit)" },
+    "cells": {
+      "type": "object",
+      "description": "Column-wise cells: overall (group null), one-way levels (group2 null) and two-way crosses. Suppressed cells carry null p, lo, hi, se and pop.",
+      "properties": {
+        "year_set": { "type": "array", "items": { "type": "string" } },
+        "group": { "type": "array", "items": { "$ref": "#/$defs/nullable_slug" } },
+        "level": { "type": "array", "items": { "$ref": "#/$defs/nullable_slug" } },
+        "group2": { "type": "array", "items": { "$ref": "#/$defs/nullable_slug" } },
+        "level2": { "type": "array", "items": { "$ref": "#/$defs/nullable_slug" } },
+        "p": { "type": "array", "items": { "$ref": "#/$defs/nullable_proportion" } },
+        "lo": { "type": "array", "items": { "$ref": "#/$defs/nullable_proportion" } },
+        "hi": { "type": "array", "items": { "$ref": "#/$defs/nullable_proportion" } },
+        "se": { "type": "array", "items": { "$ref": "#/$defs/nullable_proportion" } },
+        "n": { "type": "array", "items": { "type": "integer", "minimum": 0 }, "description": "Unweighted respondents in the denominator" },
+        "pop": { "type": "array", "items": { "type": ["integer", "null"], "minimum": 0, "multipleOf": 1000 }, "description": "Estimated number with a yes (annual average for pooled year sets), rounded to the nearest 1,000" },
+        "suppressed": { "type": "array", "items": { "type": "boolean" } },
+        "reason": { "type": "array", "items": { "type": ["string", "null"] } }
+      },
+      "required": ["year_set", "group", "level", "group2", "level2", "p", "lo", "hi", "se", "n", "pop", "suppressed", "reason"],
+      "additionalProperties": false
+    },
+    "trend_tests": {
+      "type": "object",
+      "description": "Column-wise: for overall and every one-way level, every pair of collected single years; diff = p(year_b) - p(year_a) with a linearized SE and a two-sided t test on 50 df. Null when either estimate is suppressed.",
+      "properties": {
+        "group": { "type": "array", "items": { "$ref": "#/$defs/nullable_slug" } },
+        "level": { "type": "array", "items": { "$ref": "#/$defs/nullable_slug" } },
+        "year_a": { "type": "array", "items": { "$ref": "#/$defs/year" } },
+        "year_b": { "type": "array", "items": { "$ref": "#/$defs/year" } },
+        "diff": { "type": "array", "items": { "type": ["number", "null"], "minimum": -1, "maximum": 1 } },
+        "se": { "type": "array", "items": { "$ref": "#/$defs/nullable_proportion" } },
+        "p_value": { "type": "array", "items": { "$ref": "#/$defs/nullable_probability" } }
+      },
+      "required": ["group", "level", "year_a", "year_b", "diff", "se", "p_value"],
+      "additionalProperties": false
+    },
+    "group_tests": {
+      "type": "array",
+      "description": "One entry per year set and one-way group: adjusted Wald F for equal proportions across the levels that are not suppressed, each level vs. the overall estimate, and pairwise level tests (to be read only when overall_significant).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "year_set": { "type": "string" },
+          "group": { "$ref": "#/$defs/slug" },
+          "levels": { "type": "array", "items": { "$ref": "#/$defs/slug" }, "minItems": 1 },
+          "tested": { "type": "array", "items": { "$ref": "#/$defs/slug" } },
+          "f": { "type": ["number", "null"], "minimum": 0 },
+          "df": { "type": ["array", "null"], "items": { "type": "integer", "minimum": 1 }, "minItems": 2, "maxItems": 2 },
+          "p_value": { "$ref": "#/$defs/nullable_probability" },
+          "overall_significant": { "type": "boolean" },
+          "vs_overall": {
+            "type": "object",
+            "properties": {
+              "diff": { "type": "array", "items": { "type": ["number", "null"], "minimum": -1, "maximum": 1 } },
+              "p_value": { "type": "array", "items": { "$ref": "#/$defs/nullable_probability" } }
+            },
+            "required": ["diff", "p_value"],
+            "additionalProperties": false
+          },
+          "pairwise_p": { "type": "array", "items": { "type": "array", "items": { "$ref": "#/$defs/nullable_probability" } } }
+        },
+        "required": ["year_set", "group", "levels", "tested", "f", "df", "p_value", "overall_significant", "vs_overall", "pairwise_p"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["cohort", "indicator", "years", "year_sets", "crosses", "cells", "trend_tests", "group_tests"],
+  "additionalProperties": false,
+  "$defs": {
+    "cohort": { "type": "string", "enum": ["teen", "young_adult"] },
+    "slug": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "nullable_slug": { "type": ["string", "null"], "pattern": "^[a-z][a-z0-9_]*$" },
+    "year": { "type": "integer", "enum": [2021, 2022, 2023, 2024] },
+    "nullable_proportion": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+    "nullable_probability": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+  }
+}

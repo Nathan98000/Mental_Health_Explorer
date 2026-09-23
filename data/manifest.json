@@ -1,0 +1,243 @@
+{
+ "catalog_hash": "4a3bb26452fd6afabe424bc91ee18c0868aba0175b7b49502ebbf811d86d9fc1",
+ "files": {
+  "availability.json": {
+   "bytes": 16581,
+   "sha256": "0e499f3bea3c67878513b8d46728082343862c706d2681ddbfa50a639c6b63cb"
+  },
+  "estimates/teen/alcohol_pm.json": {
+   "bytes": 232417,
+   "sha256": "095770f5188adf0944bbc6f7fbb6043894ff445d7f1d89239fff940000ff6546"
+  },
+  "estimates/teen/binge_pm.json": {
+   "bytes": 232413,
+   "sha256": "44bc14a3b0e713cfc9a7722b10760d8dbd2d5da9668e0d7410ff187d0401f95a"
+  },
+  "estimates/teen/difficulty_concentrating.json": {
+   "bytes": 233341,
+   "sha256": "8b974592845473fc27f8c985a3da8efd5936d157cf57b013e89e012917822637"
+  },
+  "estimates/teen/fair_poor_health.json": {
+   "bytes": 232710,
+   "sha256": "e7b32d4b9d51989293bb7a6c695ce263a066d430b12fc68f9b9b6ab28fb14ce6"
+  },
+  "estimates/teen/frequent_arguments_parent.json": {
+   "bytes": 232907,
+   "sha256": "7912da492e6e79f8f7a4dad789b295c783cc97e91956dcf7add5d74ae04367b4"
+  },
+  "estimates/teen/grades_d_or_lower.json": {
+   "bytes": 232565,
+   "sha256": "ebb618eb3ee4048e0965d6e53c9b885ca151afa1524bf5364dda55e4c05f879c"
+  },
+  "estimates/teen/illicit_py.json": {
+   "bytes": 232899,
+   "sha256": "30e4175cec079379464f702a21fc84ad7ee07c060c79d46dc3ad03fb39b730f5"
+  },
+  "estimates/teen/liked_school.json": {
+   "bytes": 234748,
+   "sha256": "0b84616a75fa60017a89c36224a4b6969390ba260d6e978072bbe6a305256a35"
+  },
+  "estimates/teen/marijuana_pm.json": {
+   "bytes": 232286,
+   "sha256": "8c447ba75ab560fe3af7b53ec3b79d248596e14a371c702241dbcc077a6b4f16"
+  },
+  "estimates/teen/marijuana_py.json": {
+   "bytes": 232382,
+   "sha256": "b86fb81983cd165178dca13d099e7dddc2879ddeee51fd251e4fcaa14478e7be"
+  },
+  "estimates/teen/mde_and_sud.json": {
+   "bytes": 232362,
+   "sha256": "e6620381faae26ffec39cb71d3df4bfb47d3aacd0abb8475cde050397269a45c"
+  },
+  "estimates/teen/mde_any_treatment.json": {
+   "bytes": 236196,
+   "sha256": "1f6dab822da8fbc163ed7428f69f714e198b9fad0fef3bb42267e18d78672de4"
+  },
+  "estimates/teen/mde_lifetime.json": {
+   "bytes": 233300,
+   "sha256": "2be2ca62b7036cba184a47976dc66bbe88726481b79d6831862e0cfebe38ba5a"
+  },
+  "estimates/teen/mde_or_sud.json": {
+   "bytes": 233196,
+   "sha256": "8429e471e855e8d4d7d1a7b04590a4e9ac935518f700496d9e34e717ea85c8d6"
+  },
+  "estimates/teen/mde_py.json": {
+   "bytes": 233062,
+   "sha256": "428036369975c8ce764e3f5ca03132c77c2daad6032284f7b0201783da4094e5"
+  },
+  "estimates/teen/mde_rx.json": {
+   "bytes": 234884,
+   "sha256": "5cc46dd0e9186083fd539baa1ce82740ed8af48c9ba515011b5baf0c66677d30"
+  },
+  "estimates/teen/mde_saw_professional.json": {
+   "bytes": 236080,
+   "sha256": "a2782455c6800ab10800b34886982cbf6c82339947fe7b6df99ae24ba062f2a3"
+  },
+  "estimates/teen/mde_severe.json": {
+   "bytes": 232919,
+   "sha256": "11a0db3ad982e4de0d2d58d4a05223fbeac650b8a1f27db7562f7c582e0cdd90"
+  },
+  "estimates/teen/mh_er.json": {
+   "bytes": 190465,
+   "sha256": "48c54bf87392424f651878c7f13ee5ea1f9fd42ed7986c0ee0e305e1f5a133e2"
+  },
+  "estimates/teen/mh_phone_video.json": {
+   "bytes": 190775,
+   "sha256": "e5fae8f95a761e5916193fbbe1149ffb9975ffd42efac455cbe584ee29bb3674"
+  },
+  "estimates/teen/mh_rx.json": {
+   "bytes": 190623,
+   "sha256": "a36c5a5a9d3613ea97d80787da875bae0677539536c46f77189cf9c67eaf488c"
+  },
+  "estimates/teen/mh_school_counseling.json": {
+   "bytes": 150630,
+   "sha256": "d0b6e24d53f9cbf96dab56a29a035b5b82a02c210de0210a0cf4183854e9787a"
+  },
+  "estimates/teen/mh_treatment.json": {
+   "bytes": 150837,
+   "sha256": "e98fe390f2f9c58c8282ce985038f3e19d11e1a85e1aa64ec1b91532fdab251e"
+  },
+  "estimates/teen/nicotine_vape_pm.json": {
+   "bytes": 190255,
+   "sha256": "438a4f3ee9e3c5b79ed56eb15a2604adda79701caa5ef645c8b04ef524dcf059"
+  },
+  "estimates/teen/nicotine_vape_py.json": {
+   "bytes": 190621,
+   "sha256": "2e75785ce8b21937ed0c96f8dd057f0d91628c9ef0c12a0efcb33d7b70cdf916"
+  },
+  "estimates/teen/no_one_to_talk_to.json": {
+   "bytes": 232926,
+   "sha256": "8258609f7028ad7b47792904772e5d79e599065e41b7f722fa6e67ff1ce3db89"
+  },
+  "estimates/teen/parents_check_homework.json": {
+   "bytes": 234364,
+   "sha256": "ab3624c5baaaae7ceb1437ab4ab19ceb8e0ac9ebcb2fa27693a726b6f0914b1c"
+  },
+  "estimates/teen/parents_help_homework.json": {
+   "bytes": 234102,
+   "sha256": "e54b1c573494330939a0030da7e721b8064f522def0a010a4b1d2f985f170a16"
+  },
+  "estimates/teen/parents_proud.json": {
+   "bytes": 234210,
+   "sha256": "351bc7778524b8d202044235f5e5ded7d75b99a4db2d1e50238d467046bacf71"
+  },
+  "estimates/teen/religion_important.json": {
+   "bytes": 234341,
+   "sha256": "082279f9bf896a3b75d76e890295893631560af3074fd888683b920cce06661a"
+  },
+  "estimates/teen/serious_fight.json": {
+   "bytes": 232755,
+   "sha256": "441989e180fc62debe0ce4db995178c80b7068496dbe65bca60aa6baeb5fd2a5"
+  },
+  "estimates/teen/sud_py.json": {
+   "bytes": 232832,
+   "sha256": "12ebd845040e8d1248c1abc1793f203f8328f6aa47ddb639e656a3f2fb559c17"
+  },
+  "estimates/teen/suicide_plan.json": {
+   "bytes": 232663,
+   "sha256": "3f4c19bdd7ca9205b8d2df5a60e8a5627ad1b032966e573210883ec017b8000f"
+  },
+  "estimates/teen/suicide_thoughts.json": {
+   "bytes": 232932,
+   "sha256": "1ca7b6ea8b75a129e9e7a560abf5c747c8d0d9d4cbed3352e7cd4956efcac05c"
+  },
+  "estimates/teen/teacher_praise.json": {
+   "bytes": 234109,
+   "sha256": "3b308cda75e1885aabfbfaac1fe6ddfb9eaf5d53d71a652ad0e67de7238aae08"
+  },
+  "estimates/teen/tobacco_or_vape_py.json": {
+   "bytes": 190701,
+   "sha256": "03d8379c95ebf6232ab88569dfe55ccfeb359540cca34a170bb91f75b1b02733"
+  },
+  "estimates/teen/two_plus_activities.json": {
+   "bytes": 233933,
+   "sha256": "e388a29532bdc4f817f8ca20ee1dae64457e8d7504ea1e7baaa1e76ca2134e7a"
+  },
+  "estimates/young_adult/alcohol_pm.json": {
+   "bytes": 329858,
+   "sha256": "8a5f647e63d118b9c54536d0ecdeb76556ef4dd8441d4b139d07bca6a472ce53"
+  },
+  "estimates/young_adult/ami_and_sud.json": {
+   "bytes": 329225,
+   "sha256": "4f7bb28f9f9cc7d9c29b833be8fa45f4cb10bd19958f562256e6b46c3f9c4d51"
+  },
+  "estimates/young_adult/ami_py.json": {
+   "bytes": 330204,
+   "sha256": "2a252f1de3ab5918e822ba4fc34cd7d08c817456a1349ca8506fef40f6fb7ee6"
+  },
+  "estimates/young_adult/binge_pm.json": {
+   "bytes": 329394,
+   "sha256": "41263cc0f89799f7840ce5d16e8d3b16d84324e0cb5e81ea1b4741ad7f7493b1"
+  },
+  "estimates/young_adult/fair_poor_health.json": {
+   "bytes": 329098,
+   "sha256": "01a99e089f85fb26235cc3715f9123c6881676c51930827886fb88698b31b714"
+  },
+  "estimates/young_adult/illicit_py.json": {
+   "bytes": 330271,
+   "sha256": "41757e65aa470522c40c211fe88b10470753bee0b25d506b78a7615bb3bb5920"
+  },
+  "estimates/young_adult/marijuana_pm.json": {
+   "bytes": 329935,
+   "sha256": "0ae66b7496719406572170f0320820a7408f0ac6795d3911c015897d4108508f"
+  },
+  "estimates/young_adult/marijuana_py.json": {
+   "bytes": 330193,
+   "sha256": "79a2753dc0f8cdf650755f08110f6079d8714a770bae5e03d7e58cac9383d555"
+  },
+  "estimates/young_adult/mde_any_treatment.json": {
+   "bytes": 334134,
+   "sha256": "b8c9d7c38b6be67d722de5e0adb27166374f5833f750c33b245d3ad9212ebf42"
+  },
+  "estimates/young_adult/mde_py.json": {
+   "bytes": 329423,
+   "sha256": "b3054a153f50c53f6d796716512312b8c93c10fffe1dc62d73fde7063c7a61cf"
+  },
+  "estimates/young_adult/mde_severe.json": {
+   "bytes": 329182,
+   "sha256": "b03156c85cb04c813ef8f85ed2b91d4a23508cfe154483067d6371768e881076"
+  },
+  "estimates/young_adult/mh_treatment.json": {
+   "bytes": 213922,
+   "sha256": "7d0c76c11889fb7455b7a9481ea56a7e451027fb9a4a1cfdaf76bba55cdc837d"
+  },
+  "estimates/young_adult/nicotine_vape_pm.json": {
+   "bytes": 270797,
+   "sha256": "f76cc1d3f34ef64aa45561adb698c7f4c2f42631b20820ddda40d09ba8a57fd9"
+  },
+  "estimates/young_adult/nicotine_vape_py.json": {
+   "bytes": 271080,
+   "sha256": "3c6741bb486db0b76cc0733b0af385dfed59e6abed17f4cc34cfe09fe43615a9"
+  },
+  "estimates/young_adult/smi_py.json": {
+   "bytes": 329089,
+   "sha256": "cbdab1cb5a03483235fd66bebfba8a7b8c559301c702da985d96a8b030106f24"
+  },
+  "estimates/young_adult/spd_py.json": {
+   "bytes": 330182,
+   "sha256": "57426f1ed9117f178d7d72dd910dca2edabd1ec850c42de5ebd11a1b7c5f62bd"
+  },
+  "estimates/young_adult/sud_py.json": {
+   "bytes": 329790,
+   "sha256": "b8c047f9a4cd78562ac9f45e29ad46e849f1d0fa4cc385ffeca9dd585698f065"
+  },
+  "estimates/young_adult/suicide_attempt.json": {
+   "bytes": 327914,
+   "sha256": "1c7bb6f2f5987bd3d0910d46fde980b0d70c21872ea7ecf5f020a8e315d57fcb"
+  },
+  "estimates/young_adult/suicide_plan.json": {
+   "bytes": 328691,
+   "sha256": "eab2dfdc06341ab729ce48f9bc407cc233497efbbe65200d2706aaab34f8f1af"
+  },
+  "estimates/young_adult/suicide_thoughts.json": {
+   "bytes": 329403,
+   "sha256": "805083a31e86871b5187dd2e9edacf6e0322f08f030563a5a4e5ab826663a2a1"
+  },
+  "estimates/young_adult/tobacco_or_vape_py.json": {
+   "bytes": 271086,
+   "sha256": "4642cd0030732977f2532daa8de2e2035b6c7b1c3649e429509784f9d9aa629a"
+  }
+ },
+ "generated": "2026-09-23",
+ "pipeline_sha": "8e2e6156dff4026456bd2410182d1c7800f1369a"
+}
