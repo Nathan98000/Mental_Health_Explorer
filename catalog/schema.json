@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nathan98000/Mental_Health_Explorer/catalog/schema.json",
+  "title": "Mental Health Explorer catalog",
+  "description": "Shape of catalog/indicators.yaml and catalog/groups.yaml. Codes come from the combined 2021-2024 NSDUH PUF codebook.",
+  "type": "object",
+  "properties": {
+    "indicators": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/indicator" } },
+    "groups": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/group" } }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "slug": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "variable": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$", "description": "A column of the NSDUH public use file" },
+    "cohort": { "type": "string", "enum": ["teen", "young_adult"] },
+    "codes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "integer" } },
+    "year": { "type": "integer", "enum": [2021, 2022, 2023, 2024] },
+    "indicator": {
+      "type": "object",
+      "properties": {
+        "id": { "$ref": "#/$defs/slug", "description": "Unique within a cohort; the same id in both cohorts means the same concept" },
+        "cohort": { "$ref": "#/$defs/cohort" },
+        "topic": { "type": "string", "enum": ["depression_suicide", "mental_illness", "care", "substance_use", "school_family_peers", "health"] },
+        "label": { "type": "string", "minLength": 1, "description": "Short title, e.g. chart headings" },
+        "phrase": { "type": "string", "minLength": 1, "description": "Completes 'About 1 in 7 teens ...', e.g. 'had a major depressive episode in the past year'" },
+        "definition": { "type": "string", "minLength": 1, "description": "Plain-language definition of a yes" },
+        "source": { "$ref": "#/$defs/variable" },
+        "yes": { "$ref": "#/$defs/codes", "description": "Source codes counted as 1" },
+        "no": { "$ref": "#/$defs/codes", "description": "Source codes counted as 0; everything else is missing" },
+        "universe": {
+          "type": "object",
+          "description": "Denominator restriction: each variable must take one of the listed codes, e.g. {YMDEYR: [1]}",
+          "propertyNames": { "pattern": "^[A-Z][A-Z0-9_]*$" },
+          "additionalProperties": { "$ref": "#/$defs/codes" },
+          "minProperties": 1
+        },
+        "years": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/year" }, "description": "Years the item was collected; checked against the data" },
+        "caveats": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "codebook": { "$ref": "#/$defs/variable", "description": "Entry name in the PUF codebook (normally the source variable)" },
+        "status": { "type": "string", "enum": ["launch", "later"] }
+      },
+      "required": ["id", "cohort", "topic", "label", "phrase", "definition", "source", "yes", "no", "years", "caveats", "codebook", "status"],
+      "additionalProperties": false
+    },
+    "group": {
+      "type": "object",
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "label": { "type": "string", "minLength": 1 },
+        "source": {
+          "oneOf": [
+            { "$ref": "#/$defs/variable" },
+            { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "$ref": "#/$defs/variable" } }
+          ],
+          "description": "One PUF variable, or several when a level is a combination of their codes"
+        },
+        "cohorts": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/cohort" } },
+        "crosses_only": { "type": "boolean", "description": "True when the group is only for two-way crosses, not a standalone breakdown" },
+        "levels": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/level" } }
+      },
+      "required": ["id", "label", "source", "cohorts", "levels"],
+      "additionalProperties": false
+    },
+    "level": {
+      "type": "object",
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "label": { "type": "string", "minLength": 1 },
+        "codes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Source codes for this level; with several source variables, each item is one code per source, in order",
+          "items": {
+            "oneOf": [
+              { "type": "integer" },
+              { "type": "array", "minItems": 2, "items": { "type": "integer" } }
+            ]
+          }
+        }
+      },
+      "required": ["id", "label", "codes"],
+      "additionalProperties": false
+    }
+  }
+}

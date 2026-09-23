@@ -1,4 +1,6 @@
 duckdb>=1.1
+jsonschema>=4
 numpy>=1.26
 pandas>=2.1
 pytest>=8
+pyyaml>=6

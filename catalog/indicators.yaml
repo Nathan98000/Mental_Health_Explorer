@@ -1,0 +1,958 @@
+# Indicator catalog. Every code is taken from the combined 2021-2024 NSDUH PUF codebook
+# (nsduh-2021_2024-ds0001-info-codebook_v1.pdf); validation/ checks the codes and the
+# unweighted frequencies against it. `yes`/`no` are the source codes that become 1/0;
+# every other value (blank = out of universe, -9 = not collected that year, 85-99 = item
+# nonresponse) is missing. `universe` restricts the denominator. `years` are the years
+# the item was collected, checked against the data. Ids are unique within a cohort; the
+# same id in both cohorts means the same concept measured by that cohort's item.
+indicators:
+  # ============================ Teens (ages 12-17) ============================
+  # ---- Depression and suicide ----
+  - id: mde_py
+    cohort: teen
+    topic: depression_suicide
+    label: Major depressive episode in the past year
+    phrase: had a major depressive episode in the past year
+    definition: >-
+      Had a period of at least two weeks in the past 12 months with a depressed mood or
+      loss of interest or pleasure in daily activities, plus most of the other symptoms of
+      depression, based on DSM criteria.
+    source: YMDEYR
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: YMDEYR
+    status: launch
+
+  - id: mde_lifetime
+    cohort: teen
+    topic: depression_suicide
+    label: Major depressive episode at some point in life
+    phrase: have had a major depressive episode at some point in their life
+    definition: >-
+      Ever had a period of at least two weeks with a depressed mood or loss of interest or
+      pleasure in daily activities, plus most of the other symptoms of depression, based on
+      DSM criteria.
+    source: YMDELT
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: YMDELT
+    status: launch
+
+  - id: mde_severe
+    cohort: teen
+    topic: depression_suicide
+    label: Major depressive episode with severe impairment
+    phrase: had a major depressive episode with severe impairment in the past year
+    definition: >-
+      Had a major depressive episode in the past year that severely interfered with chores
+      at home, school or work, family relationships, or social life (Sheehan Disability
+      Scale). The denominator is all teens.
+    source: MDEIMPY
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: MDEIMPY
+    status: launch
+
+  - id: suicide_thoughts
+    cohort: teen
+    topic: depression_suicide
+    label: Seriously thought about suicide in the past year
+    phrase: seriously thought about killing themselves in the past year
+    definition: Seriously thought about trying to kill themselves at any time in the past 12 months.
+    source: YUSUITHKYR
+    "yes": [1]
+    "no": [2, 3, 4]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - "Teens who answered \"I'm not sure\" or \"I don't want to answer\" are counted as no, as in SAMHSA's published estimates."
+      - Beginning in 2022 the teen suicide questions were moved to a different section of the interview, which may affect comparisons with 2021.
+    codebook: YUSUITHKYR
+    status: launch
+
+  - id: suicide_plan
+    cohort: teen
+    topic: depression_suicide
+    label: Made a suicide plan in the past year
+    phrase: made a plan to kill themselves in the past year
+    definition: Made any plans to kill themselves in the past 12 months.
+    source: YUSUIPLNYR
+    "yes": [1]
+    "no": [2, 3, 4]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - "Teens who answered \"I'm not sure\" or \"I don't want to answer\" are counted as no, as in SAMHSA's published estimates."
+      - Beginning in 2022 the teen suicide questions were moved to a different section of the interview, which may affect comparisons with 2021.
+    codebook: YUSUIPLNYR
+    status: launch
+
+  - id: mde_or_sud
+    cohort: teen
+    topic: depression_suicide
+    label: Major depressive episode or substance use disorder
+    phrase: had a major depressive episode or a substance use disorder in the past year
+    definition: >-
+      Had a major depressive episode in the past year, a substance use disorder in the past
+      year (DSM-5, alcohol or drugs), or both.
+    source: YMDERSUD5ANY
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: YMDERSUD5ANY
+    status: launch
+
+  - id: mde_and_sud
+    cohort: teen
+    topic: depression_suicide
+    label: Major depressive episode and substance use disorder
+    phrase: had both a major depressive episode and a substance use disorder in the past year
+    definition: >-
+      Had a major depressive episode and a substance use disorder (DSM-5, alcohol or drugs)
+      in the same past year.
+    source: YMSUD5YANY
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: YMSUD5YANY
+    status: launch
+
+  # ---- Care ----
+  - id: mde_any_treatment
+    cohort: teen
+    topic: care
+    label: Treatment or medication for depression (teens with a past-year MDE)
+    phrase: got treatment or medication for depression in the past year
+    definition: >-
+      Among teens who had a major depressive episode in the past year, saw or talked to a
+      health professional about depression or took prescription medication for it in the
+      past 12 months.
+    source: YMDETXRX
+    "yes": [1]
+    "no": [0]
+    universe: { YMDEYR: [1] }
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - The denominator is teens with a past-year major depressive episode.
+    codebook: YMDETXRX
+    status: launch
+
+  - id: mde_saw_professional
+    cohort: teen
+    topic: care
+    label: Saw a professional for depression (teens with a past-year MDE)
+    phrase: saw or talked to a health professional about depression in the past year
+    definition: >-
+      Among teens who had a major depressive episode in the past year, saw or talked to a
+      medical doctor or other professional about their depression in the past 12 months.
+    source: YTXMDEYR
+    "yes": [1]
+    "no": [0]
+    universe: { YMDEYR: [1] }
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - The denominator is teens with a past-year major depressive episode.
+    codebook: YTXMDEYR
+    status: launch
+
+  - id: mde_rx
+    cohort: teen
+    topic: care
+    label: Prescription medication for depression (teens with a past-year MDE)
+    phrase: took prescription medication for depression in the past year
+    definition: >-
+      Among teens who had a major depressive episode in the past year, took prescription
+      medication for depression in the past 12 months.
+    source: YRXMDEYR
+    "yes": [1]
+    "no": [0]
+    universe: { YMDEYR: [1] }
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - The denominator is teens with a past-year major depressive episode.
+    codebook: YRXMDEYR
+    status: launch
+
+  - id: mh_treatment
+    cohort: teen
+    topic: care
+    label: Any mental health treatment in the past year
+    phrase: received mental health treatment in the past year
+    definition: >-
+      Received any mental health treatment in the past 12 months: inpatient care, outpatient
+      care or counseling (including at school), treatment by phone or video, or prescription
+      medication for mental health.
+    source: MHTRTPY
+    "yes": [1]
+    "no": [0]
+    years: [2022, 2023]
+    caveats:
+      - The mental health treatment questions were redesigned in 2022; this summary measure is available only for 2022 and 2023 in the combined file.
+    codebook: MHTRTPY
+    status: launch
+
+  - id: mh_school_counseling
+    cohort: teen
+    topic: care
+    label: Mental health care at school
+    phrase: got mental health treatment or counseling at school in the past year
+    definition: Received mental health treatment or counseling from a school health center or school counselor in the past 12 months.
+    source: IRMHTOUTSCHL
+    "yes": [1]
+    "no": [0]
+    years: [2022, 2023]
+    caveats:
+      - Available only for 2022 and 2023 in the combined file.
+    codebook: IRMHTOUTSCHL
+    status: launch
+
+  - id: mh_phone_video
+    cohort: teen
+    topic: care
+    label: Mental health care by phone or video
+    phrase: got mental health treatment by phone or video in the past year
+    definition: Received mental health treatment or counseling by phone or video in the past 12 months.
+    source: IRMHTPHVID
+    "yes": [1]
+    "no": [0]
+    years: [2022, 2023, 2024]
+    caveats:
+      - Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA.
+    codebook: IRMHTPHVID
+    status: launch
+
+  - id: mh_er
+    cohort: teen
+    topic: care
+    label: Emergency room visit for mental health
+    phrase: were seen in an emergency room for mental health in the past year
+    definition: Were seen in an emergency room or emergency department for mental health reasons in the past 12 months.
+    source: IRMHTERED
+    "yes": [1]
+    "no": [0]
+    years: [2022, 2023, 2024]
+    caveats:
+      - Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA.
+    codebook: IRMHTERED
+    status: launch
+
+  - id: mh_rx
+    cohort: teen
+    topic: care
+    label: Prescription medication for mental health
+    phrase: took prescription medication for their mental health in the past year
+    definition: Took prescription medication to help with emotions, nerves, or mental health in the past 12 months.
+    source: IRMHTRXMED
+    "yes": [1]
+    "no": [0]
+    years: [2022, 2023, 2024]
+    caveats:
+      - Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA.
+    codebook: IRMHTRXMED
+    status: launch
+
+  - id: mh_unmet_need
+    cohort: teen
+    topic: care
+    label: Wanted mental health treatment but did not get it
+    phrase: sought or felt they needed mental health treatment but did not get it in the past year
+    definition: >-
+      Among teens who did not receive mental health treatment in the past 12 months, sought
+      treatment or thought they should get it.
+    source: MHTSKTHPY
+    "yes": [1]
+    "no": [2]
+    years: [2022, 2023]
+    caveats:
+      - The denominator is teens who did not receive any mental health treatment in the past year.
+      - Available only for 2022 and 2023 in the combined file.
+    codebook: MHTSKTHPY
+    status: later
+
+  # ---- Substance use ----
+  - id: alcohol_pm
+    cohort: teen
+    topic: substance_use
+    label: Alcohol use in the past month
+    phrase: drank alcohol in the past month
+    definition: Drank alcohol in the past 30 days.
+    source: ALCMON
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: ALCMON
+    status: launch
+
+  - id: binge_pm
+    cohort: teen
+    topic: substance_use
+    label: Binge drinking in the past month
+    phrase: binge drank in the past month
+    definition: >-
+      Drank five or more drinks (males) or four or more drinks (females) on the same
+      occasion on at least one day in the past 30 days.
+    source: BNGDRKMON
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: BNGDRKMON
+    status: launch
+
+  - id: marijuana_py
+    cohort: teen
+    topic: substance_use
+    label: Marijuana use in the past year
+    phrase: used marijuana in the past year
+    definition: Used marijuana or hashish in the past 12 months.
+    source: MRJYR
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: MRJYR
+    status: launch
+
+  - id: marijuana_pm
+    cohort: teen
+    topic: substance_use
+    label: Marijuana use in the past month
+    phrase: used marijuana in the past month
+    definition: Used marijuana or hashish in the past 30 days.
+    source: MRJMON
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: MRJMON
+    status: launch
+
+  - id: nicotine_vape_py
+    cohort: teen
+    topic: substance_use
+    label: Nicotine vaping in the past year
+    phrase: vaped nicotine in the past year
+    definition: Vaped nicotine in the past 12 months.
+    source: NICVAPYR
+    "yes": [1]
+    "no": [0]
+    years: [2022, 2023, 2024]
+    caveats:
+      - Nicotine vaping questions were added in 2022.
+    codebook: NICVAPYR
+    status: launch
+
+  - id: nicotine_vape_pm
+    cohort: teen
+    topic: substance_use
+    label: Nicotine vaping in the past month
+    phrase: vaped nicotine in the past month
+    definition: Vaped nicotine in the past 30 days.
+    source: NICVAPMON
+    "yes": [1]
+    "no": [0]
+    years: [2022, 2023, 2024]
+    caveats:
+      - Nicotine vaping questions were added in 2022.
+    codebook: NICVAPMON
+    status: launch
+
+  - id: tobacco_or_vape_py
+    cohort: teen
+    topic: substance_use
+    label: Tobacco or nicotine vaping in the past year
+    phrase: used tobacco or vaped nicotine in the past year
+    definition: Used any tobacco product (cigarettes, cigars, pipe tobacco, or smokeless tobacco) or vaped nicotine in the past 12 months.
+    source: TOBVNICYR
+    "yes": [1]
+    "no": [0]
+    years: [2022, 2023, 2024]
+    caveats:
+      - Nicotine vaping questions were added in 2022, so this combined measure starts in 2022.
+    codebook: TOBVNICYR
+    status: launch
+
+  - id: illicit_py
+    cohort: teen
+    topic: substance_use
+    label: Illicit drug use in the past year
+    phrase: used an illicit drug in the past year
+    definition: >-
+      Used marijuana, cocaine (including crack), heroin, hallucinogens, inhalants, or
+      methamphetamine, or misused prescription pain relievers, tranquilizers, stimulants,
+      or sedatives in the past 12 months.
+    source: ILLYR
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: ILLYR
+    status: launch
+
+  - id: sud_py
+    cohort: teen
+    topic: substance_use
+    label: Substance use disorder in the past year
+    phrase: had a substance use disorder in the past year
+    definition: Met DSM-5 criteria for an alcohol or drug use disorder (including marijuana) in the past 12 months.
+    source: UD5ILALANY
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: UD5ILALANY
+    status: launch
+
+  # ---- School, family, peers ----
+  - id: liked_school
+    cohort: teen
+    topic: school_family_peers
+    label: Liked going to school
+    phrase: liked or kind of liked going to school in the past year
+    definition: Said they liked going to school a lot or kind of liked it during the past 12 months.
+    source: SCHFELT
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - Asked only of teens who attended school in the past year.
+    codebook: SCHFELT
+    status: launch
+
+  - id: grades_d_or_lower
+    cohort: teen
+    topic: school_family_peers
+    label: Grade average of D or lower
+    phrase: had a grade average of D or lower in their last grading period
+    definition: Reported a grade average of D or lower for the last semester or grading period completed.
+    source: AVGGRADE
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - Asked only of teens who attended school in the past year.
+    codebook: AVGGRADE
+    status: launch
+
+  - id: teacher_praise
+    cohort: teen
+    topic: school_family_peers
+    label: Teachers said they were doing a good job
+    phrase: had a teacher tell them they were doing a good job in the past year
+    definition: Said a teacher let them know they were doing a good job with their schoolwork always or sometimes in the past 12 months.
+    source: TCHGJOB
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - Asked only of teens who attended school in the past year.
+    codebook: TCHGJOB
+    status: launch
+
+  - id: parents_proud
+    cohort: teen
+    topic: school_family_peers
+    label: Parents said they were proud of them
+    phrase: had parents tell them they were proud of something they did in the past year
+    definition: Said their parents told them they were proud of something they had done always or sometimes in the past 12 months.
+    source: PRPROUD2
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: PRPROUD2
+    status: launch
+
+  - id: parents_check_homework
+    cohort: teen
+    topic: school_family_peers
+    label: Parents checked homework
+    phrase: had parents check that their homework was done in the past year
+    definition: Said their parents checked whether their homework was done always or sometimes in the past 12 months.
+    source: PARCHKHW
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - Asked only of teens who attended school in the past year.
+    codebook: PARCHKHW
+    status: launch
+
+  - id: parents_help_homework
+    cohort: teen
+    topic: school_family_peers
+    label: Parents helped with homework
+    phrase: had parents help with their homework in the past year
+    definition: Said their parents helped them with their homework always or sometimes in the past 12 months.
+    source: PARHLPHW
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - Asked only of teens who attended school in the past year.
+    codebook: PARHLPHW
+    status: launch
+
+  - id: frequent_arguments_parent
+    cohort: teen
+    topic: school_family_peers
+    label: Frequent arguments with a parent
+    phrase: argued or fought with a parent 10 or more times in the past year
+    definition: Argued or had a fight with at least one of their parents 10 or more times in the past 12 months.
+    source: ARGUPAR
+    "yes": [2]
+    "no": [1]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: ARGUPAR
+    status: launch
+
+  - id: two_plus_activities
+    cohort: teen
+    topic: school_family_peers
+    label: Two or more youth activities
+    phrase: took part in two or more youth activities in the past year
+    definition: >-
+      Participated in two or more kinds of activities in the past 12 months: school-based,
+      community-based, church or faith-based, or other activities such as sports teams.
+    source: YTHACT2
+    "yes": [2]
+    "no": [1]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: YTHACT2
+    status: launch
+
+  - id: religion_important
+    cohort: teen
+    topic: school_family_peers
+    label: Religious beliefs very important
+    phrase: said religious beliefs are a very important part of their life
+    definition: Agreed or strongly agreed that their religious beliefs are a very important part of their life.
+    source: RLGIMPT
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: RLGIMPT
+    status: launch
+
+  - id: serious_fight
+    cohort: teen
+    topic: school_family_peers
+    label: Serious fight at school or work
+    phrase: got into a serious fight at school or work in the past year
+    definition: Got into a serious fight at school or work one or more times in the past 12 months.
+    source: YOFIGHT2
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: YOFIGHT2
+    status: launch
+
+  - id: no_one_to_talk_to
+    cohort: teen
+    topic: school_family_peers
+    label: No one to talk to about serious problems
+    phrase: had no one to talk to about serious problems
+    definition: Said they talk to no one about serious problems (rather than a parent, boyfriend or girlfriend, another adult, or someone else).
+    source: TALKPROB
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: TALKPROB
+    status: launch
+
+  # ---- Health ----
+  - id: fair_poor_health
+    cohort: teen
+    topic: health
+    label: Fair or poor overall health
+    phrase: rated their overall health as fair or poor
+    definition: Rated their overall health as fair or poor rather than good, very good, or excellent.
+    source: HEALTH2
+    "yes": [4]
+    "no": [1, 2, 3]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: HEALTH2
+    status: launch
+
+  - id: difficulty_concentrating
+    cohort: teen
+    topic: health
+    label: Serious difficulty remembering or concentrating
+    phrase: had a lot of difficulty remembering or concentrating
+    definition: >-
+      Said they have a lot of difficulty remembering or concentrating, or cannot do it at
+      all (Washington Group disability question). Some difficulty counts as no.
+    source: LVLDIFMEM2
+    "yes": [3]
+    "no": [1, 2]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - "\"Some difficulty\" counts as no, following the Washington Group threshold for functional difficulty; item nonresponse is excluded."
+    codebook: LVLDIFMEM2
+    status: launch
+
+  # ========================= Young adults (ages 18-25) =========================
+  # ---- Depression and suicide ----
+  - id: mde_py
+    cohort: young_adult
+    topic: depression_suicide
+    label: Major depressive episode in the past year
+    phrase: had a major depressive episode in the past year
+    definition: >-
+      Had a period of at least two weeks in the past 12 months with a depressed mood or
+      loss of interest or pleasure in daily activities, plus most of the other symptoms of
+      depression, based on DSM criteria.
+    source: AMDEYR
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: AMDEYR
+    status: launch
+
+  - id: mde_severe
+    cohort: young_adult
+    topic: depression_suicide
+    label: Major depressive episode with severe impairment
+    phrase: had a major depressive episode with severe impairment in the past year
+    definition: >-
+      Had a major depressive episode in the past year that severely interfered with home
+      management, work, close relationships, or social life (Sheehan Disability Scale). The
+      denominator is all young adults.
+    source: AMDEIMP
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: AMDEIMP
+    status: launch
+
+  - id: suicide_thoughts
+    cohort: young_adult
+    topic: depression_suicide
+    label: Seriously thought about suicide in the past year
+    phrase: seriously thought about killing themselves in the past year
+    definition: Seriously thought about trying to kill themselves at any time in the past 12 months.
+    source: IRSUICTHNK
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - Item nonresponse is statistically imputed by SAMHSA.
+    codebook: IRSUICTHNK
+    status: launch
+
+  - id: suicide_plan
+    cohort: young_adult
+    topic: depression_suicide
+    label: Made a suicide plan in the past year
+    phrase: made a plan to kill themselves in the past year
+    definition: Made any plans to kill themselves in the past 12 months.
+    source: IRSUIPLANYR
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - Item nonresponse is statistically imputed by SAMHSA.
+    codebook: IRSUIPLANYR
+    status: launch
+
+  - id: suicide_attempt
+    cohort: young_adult
+    topic: depression_suicide
+    label: Attempted suicide in the past year
+    phrase: attempted suicide in the past year
+    definition: Tried to kill themselves in the past 12 months.
+    source: IRSUITRYYR
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - Item nonresponse is statistically imputed by SAMHSA.
+    codebook: IRSUITRYYR
+    status: launch
+
+  # ---- Mental illness ----
+  - id: spd_py
+    cohort: young_adult
+    topic: mental_illness
+    label: Serious psychological distress in the past year
+    phrase: had serious psychological distress in the past year
+    definition: >-
+      Scored 13 or higher on the Kessler-6 scale of psychological distress for the month in
+      the past 12 months when they felt their worst.
+    source: SPDPSTYR
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: SPDPSTYR
+    status: launch
+
+  - id: ami_py
+    cohort: young_adult
+    topic: mental_illness
+    label: Any mental illness in the past year
+    phrase: had a mental illness in the past year
+    definition: >-
+      Had a diagnosable mental, behavioral, or emotional disorder in the past year, other
+      than a developmental or substance use disorder, of any severity.
+    source: AMIPY
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - Estimated from a statistical model of survey scales calibrated to clinical interviews, not from a diagnosis.
+    codebook: AMIPY
+    status: launch
+
+  - id: smi_py
+    cohort: young_adult
+    topic: mental_illness
+    label: Serious mental illness in the past year
+    phrase: had a serious mental illness in the past year
+    definition: >-
+      Had a diagnosable mental, behavioral, or emotional disorder in the past year that
+      substantially interfered with or limited one or more major life activities.
+    source: SMIPY
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - Estimated from a statistical model of survey scales calibrated to clinical interviews, not from a diagnosis.
+    codebook: SMIPY
+    status: launch
+
+  - id: ami_and_sud
+    cohort: young_adult
+    topic: mental_illness
+    label: Mental illness and substance use disorder
+    phrase: had both a mental illness and a substance use disorder in the past year
+    definition: Had any mental illness and a substance use disorder (DSM-5, alcohol or drugs) in the same past year.
+    source: AMISUD5ANY
+    "yes": [1]
+    "no": [2]
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - Mental illness is estimated from a statistical model of survey scales calibrated to clinical interviews.
+    codebook: AMISUD5ANY
+    status: launch
+
+  # ---- Care ----
+  - id: mde_any_treatment
+    cohort: young_adult
+    topic: care
+    label: Treatment or medication for depression (young adults with a past-year MDE)
+    phrase: got treatment or medication for depression in the past year
+    definition: >-
+      Among young adults who had a major depressive episode in the past year, saw or talked
+      to a health professional about depression or took prescription medication for it in
+      the past 12 months.
+    source: AMDETXRX
+    "yes": [1]
+    "no": [0]
+    universe: { AMDEYR: [1] }
+    years: [2021, 2022, 2023, 2024]
+    caveats:
+      - The denominator is young adults with a past-year major depressive episode.
+    codebook: AMDETXRX
+    status: launch
+
+  - id: mh_treatment
+    cohort: young_adult
+    topic: care
+    label: Any mental health treatment in the past year
+    phrase: received mental health treatment in the past year
+    definition: >-
+      Received any mental health treatment in the past 12 months: inpatient care, outpatient
+      care or counseling, treatment by phone or video, or prescription medication for
+      mental health.
+    source: MHTRTPY
+    "yes": [1]
+    "no": [0]
+    years: [2022, 2023]
+    caveats:
+      - The mental health treatment questions were redesigned in 2022; this summary measure is available only for 2022 and 2023 in the combined file.
+    codebook: MHTRTPY
+    status: launch
+
+  - id: mh_unmet_need
+    cohort: young_adult
+    topic: care
+    label: Wanted mental health treatment but did not get it
+    phrase: sought or felt they needed mental health treatment but did not get it in the past year
+    definition: >-
+      Among young adults who did not receive mental health treatment in the past 12 months,
+      sought treatment or thought they should get it.
+    source: MHTSKTHPY
+    "yes": [1]
+    "no": [2]
+    years: [2022, 2023]
+    caveats:
+      - The denominator is young adults who did not receive any mental health treatment in the past year.
+      - Available only for 2022 and 2023 in the combined file.
+    codebook: MHTSKTHPY
+    status: later
+
+  # ---- Substance use ----
+  - id: alcohol_pm
+    cohort: young_adult
+    topic: substance_use
+    label: Alcohol use in the past month
+    phrase: drank alcohol in the past month
+    definition: Drank alcohol in the past 30 days.
+    source: ALCMON
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: ALCMON
+    status: launch
+
+  - id: binge_pm
+    cohort: young_adult
+    topic: substance_use
+    label: Binge drinking in the past month
+    phrase: binge drank in the past month
+    definition: >-
+      Drank five or more drinks (males) or four or more drinks (females) on the same
+      occasion on at least one day in the past 30 days.
+    source: BNGDRKMON
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: BNGDRKMON
+    status: launch
+
+  - id: marijuana_py
+    cohort: young_adult
+    topic: substance_use
+    label: Marijuana use in the past year
+    phrase: used marijuana in the past year
+    definition: Used marijuana or hashish in the past 12 months.
+    source: MRJYR
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: MRJYR
+    status: launch
+
+  - id: marijuana_pm
+    cohort: young_adult
+    topic: substance_use
+    label: Marijuana use in the past month
+    phrase: used marijuana in the past month
+    definition: Used marijuana or hashish in the past 30 days.
+    source: MRJMON
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: MRJMON
+    status: launch
+
+  - id: nicotine_vape_py
+    cohort: young_adult
+    topic: substance_use
+    label: Nicotine vaping in the past year
+    phrase: vaped nicotine in the past year
+    definition: Vaped nicotine in the past 12 months.
+    source: NICVAPYR
+    "yes": [1]
+    "no": [0]
+    years: [2022, 2023, 2024]
+    caveats:
+      - Nicotine vaping questions were added in 2022.
+    codebook: NICVAPYR
+    status: launch
+
+  - id: nicotine_vape_pm
+    cohort: young_adult
+    topic: substance_use
+    label: Nicotine vaping in the past month
+    phrase: vaped nicotine in the past month
+    definition: Vaped nicotine in the past 30 days.
+    source: NICVAPMON
+    "yes": [1]
+    "no": [0]
+    years: [2022, 2023, 2024]
+    caveats:
+      - Nicotine vaping questions were added in 2022.
+    codebook: NICVAPMON
+    status: launch
+
+  - id: tobacco_or_vape_py
+    cohort: young_adult
+    topic: substance_use
+    label: Tobacco or nicotine vaping in the past year
+    phrase: used tobacco or vaped nicotine in the past year
+    definition: Used any tobacco product (cigarettes, cigars, pipe tobacco, or smokeless tobacco) or vaped nicotine in the past 12 months.
+    source: TOBVNICYR
+    "yes": [1]
+    "no": [0]
+    years: [2022, 2023, 2024]
+    caveats:
+      - Nicotine vaping questions were added in 2022, so this combined measure starts in 2022.
+    codebook: TOBVNICYR
+    status: launch
+
+  - id: illicit_py
+    cohort: young_adult
+    topic: substance_use
+    label: Illicit drug use in the past year
+    phrase: used an illicit drug in the past year
+    definition: >-
+      Used marijuana, cocaine (including crack), heroin, hallucinogens, inhalants, or
+      methamphetamine, or misused prescription pain relievers, tranquilizers, stimulants,
+      or sedatives in the past 12 months.
+    source: ILLYR
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: ILLYR
+    status: launch
+
+  - id: sud_py
+    cohort: young_adult
+    topic: substance_use
+    label: Substance use disorder in the past year
+    phrase: had a substance use disorder in the past year
+    definition: Met DSM-5 criteria for an alcohol or drug use disorder (including marijuana) in the past 12 months.
+    source: UD5ILALANY
+    "yes": [1]
+    "no": [0]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: UD5ILALANY
+    status: launch
+
+  # ---- Health ----
+  - id: fair_poor_health
+    cohort: young_adult
+    topic: health
+    label: Fair or poor overall health
+    phrase: rated their overall health as fair or poor
+    definition: Rated their overall health as fair or poor rather than good, very good, or excellent.
+    source: HEALTH2
+    "yes": [4]
+    "no": [1, 2, 3]
+    years: [2021, 2022, 2023, 2024]
+    caveats: []
+    codebook: HEALTH2
+    status: launch

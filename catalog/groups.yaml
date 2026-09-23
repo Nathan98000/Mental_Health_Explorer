@@ -1,0 +1,113 @@
+# Breakdown groups. Codes come from the combined 2021-2024 PUF codebook. Respondents whose
+# source code is not listed under any level (e.g. POVERTY3 blank for college dorm residents,
+# IMOTHER/IFATHER = 3 "don't know") get a missing group value.
+groups:
+  - id: age_band
+    label: Age
+    source: AGE3
+    cohorts: [teen, young_adult]
+    levels:
+      - { id: age_12_13, label: "12–13", codes: [1] }
+      - { id: age_14_15, label: "14–15", codes: [2] }
+      - { id: age_16_17, label: "16–17", codes: [3] }
+      - { id: age_18_20, label: "18–20", codes: [4] }
+      - { id: age_21_23, label: "21–23", codes: [5] }
+      - { id: age_24_25, label: "24–25", codes: [6] }
+
+  - id: sex
+    label: Sex
+    source: IRSEX
+    cohorts: [teen, young_adult]
+    levels:
+      - { id: male, label: Male, codes: [1] }
+      - { id: female, label: Female, codes: [2] }
+
+  - id: race_ethnicity
+    label: Race and ethnicity
+    source: NEWRACE2
+    cohorts: [teen, young_adult]
+    levels:
+      - { id: white, label: White (non-Hispanic), codes: [1] }
+      - { id: black, label: Black (non-Hispanic), codes: [2] }
+      - { id: aian, label: American Indian or Alaska Native (non-Hispanic), codes: [3] }
+      - { id: nhopi, label: Native Hawaiian or Pacific Islander (non-Hispanic), codes: [4] }
+      - { id: asian, label: Asian (non-Hispanic), codes: [5] }
+      - { id: multiracial, label: Two or more races (non-Hispanic), codes: [6] }
+      - { id: hispanic, label: Hispanic or Latino, codes: [7] }
+
+  - id: race_ethnicity_5
+    label: Race and ethnicity (5 groups)
+    source: NEWRACE2
+    cohorts: [teen, young_adult]
+    crosses_only: true
+    levels:
+      - { id: white, label: White (non-Hispanic), codes: [1] }
+      - { id: black, label: Black (non-Hispanic), codes: [2] }
+      - { id: asian, label: Asian (non-Hispanic), codes: [5] }
+      - { id: hispanic, label: Hispanic or Latino, codes: [7] }
+      - { id: another_or_multiracial, label: Another race or multiracial, codes: [3, 4, 6] }
+
+  - id: poverty
+    label: Family income relative to the poverty line
+    source: POVERTY3
+    cohorts: [teen, young_adult]
+    levels:
+      - { id: below_poverty, label: Below the poverty line, codes: [1] }
+      - { id: up_to_2x_poverty, label: Up to twice the poverty line, codes: [2] }
+      - { id: above_2x_poverty, label: More than twice the poverty line, codes: [3] }
+
+  - id: family_income
+    label: Family income
+    source: IRFAMIN3
+    cohorts: [teen, young_adult]
+    levels:
+      - { id: under_20k, label: "Less than $20,000", codes: [1, 2] }
+      - { id: from_20k_to_49k, label: "$20,000–$49,999", codes: [3, 4, 5] }
+      - { id: from_50k_to_74k, label: "$50,000–$74,999", codes: [6] }
+      - { id: from_75k, label: "$75,000 or more", codes: [7] }
+
+  - id: insurance
+    label: Health insurance
+    source: IRINSUR4
+    cohorts: [teen, young_adult]
+    levels:
+      - { id: insured, label: Has health insurance, codes: [1] }
+      - { id: uninsured, label: No health insurance, codes: [2] }
+
+  - id: metro
+    label: Where they live
+    source: COUTYP4
+    cohorts: [teen, young_adult]
+    levels:
+      - { id: large_metro, label: Large metro area, codes: [1] }
+      - { id: small_metro, label: Small metro area, codes: [2] }
+      - { id: nonmetro, label: Nonmetro (rural) area, codes: [3] }
+
+  - id: parents_in_home
+    label: Parents in the home
+    source: [IMOTHER, IFATHER]
+    cohorts: [teen]
+    levels:
+      - { id: both_parents, label: Both parents, codes: [[1, 1]] }
+      - { id: one_parent, label: One parent, codes: [[1, 2], [2, 1]] }
+      - { id: neither_parent, label: Neither parent, codes: [[2, 2]] }
+
+  - id: education
+    label: Education
+    source: EDUHIGHCAT
+    cohorts: [young_adult]
+    levels:
+      - { id: less_than_high_school, label: Less than high school, codes: [1] }
+      - { id: high_school_graduate, label: High school graduate, codes: [2] }
+      - { id: some_college, label: Some college or associate degree, codes: [3] }
+      - { id: college_graduate, label: College graduate, codes: [4] }
+
+  - id: employment
+    label: Employment
+    source: IRWRKSTAT18
+    cohorts: [young_adult]
+    levels:
+      - { id: full_time, label: Employed full time, codes: [1] }
+      - { id: part_time, label: Employed part time, codes: [2] }
+      - { id: unemployed, label: Unemployed, codes: [3] }
+      - { id: not_in_labor_force, label: Other (including students and not in the labor force), codes: [4] }
