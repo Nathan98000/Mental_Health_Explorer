@@ -35,7 +35,7 @@ export function TrendChart({ title, rows, series, caption }: Props) {
 
   useEffect(() => {
     const el = plotRef.current
-    if (!el || showTable) return
+    if (!el || showTable || rows.length === 0) return
     const colors = series.map((_, i) => theme.series[i % theme.series.length])
     const years = [...new Set(rows.map((r) => r.year))].sort((a, b) => a - b)
     const lastYear = years[years.length - 1]
@@ -102,8 +102,8 @@ export function TrendChart({ title, rows, series, caption }: Props) {
         {series.map((s, i) => (
           <li key={s} className="flex items-center gap-2">
             <svg width="22" height="10" aria-hidden="true">
-              <line x1="1" y1="5" x2="21" y2="5" stroke={theme.series[i]} strokeWidth="2" />
-              <circle cx="11" cy="5" r="4" fill={theme.series[i]} />
+              <line x1="1" y1="5" x2="21" y2="5" stroke={theme.series[i % theme.series.length]} strokeWidth="2" />
+              <circle cx="11" cy="5" r="4" fill={theme.series[i % theme.series.length]} />
             </svg>
             {s}
           </li>

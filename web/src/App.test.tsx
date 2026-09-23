@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import App from './App'
+import { SITE_NAME } from './lib/site'
 
 function renderAt(path: string) {
   return render(
@@ -13,6 +14,7 @@ function renderAt(path: string) {
 describe('App', () => {
   it('renders the home page with the headline estimate', () => {
     renderAt('/')
+    expect(screen.getByRole('link', { name: SITE_NAME })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 1, name: /how are young people/i })).toBeInTheDocument()
     const card = within(screen.getByRole('article'))
     expect(card.getByText('15%')).toBeInTheDocument()

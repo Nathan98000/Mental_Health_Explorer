@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { SITE_NAME } from '../lib/site'
 
 export function Header() {
   return (
@@ -10,7 +11,7 @@ export function Header() {
           <path d="M32 15v6M19 21l4 4M45 21l-4 4" stroke="var(--sun)" strokeWidth="4" strokeLinecap="round" />
           <path d="M12 43h40" stroke="var(--page)" strokeWidth="4" strokeLinecap="round" />
         </svg>
-        <span className="font-display text-xl font-extrabold tracking-tight">Mental Health Explorer</span>
+        <span className="font-display text-xl font-extrabold tracking-tight">{SITE_NAME}</span>
       </Link>
       <span className="rounded-full bg-surface-cool px-3 py-1 text-xs font-semibold text-ink-2">Preview</span>
     </header>
