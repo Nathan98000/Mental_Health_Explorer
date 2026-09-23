@@ -1,0 +1,1086 @@
+{
+ "teen": {
+  "mde_py": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10317
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11526
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11068
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 10917
+   }
+  },
+  "mde_lifetime": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10399
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11579
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11164
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 10980
+   }
+  },
+  "mde_severe": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10304
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11511
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11060
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 10904
+   }
+  },
+  "suicide_thoughts": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10702
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11921
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11522
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11299
+   }
+  },
+  "suicide_plan": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10701
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11921
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11522
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11299
+   }
+  },
+  "mde_or_sud": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10354
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11579
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11126
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 10961
+   }
+  },
+  "mde_and_sud": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10317
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11526
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11068
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 10917
+   }
+  },
+  "mde_any_treatment": {
+   "2021": {
+    "collected": true,
+    "n_valid": 2010
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 2267
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 2059
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 1775
+   }
+  },
+  "mde_saw_professional": {
+   "2021": {
+    "collected": true,
+    "n_valid": 2010
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 2262
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 2056
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 1774
+   }
+  },
+  "mde_rx": {
+   "2021": {
+    "collected": true,
+    "n_valid": 2017
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 2273
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 2068
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 1780
+   }
+  },
+  "mh_treatment": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": false,
+    "n_valid": 0
+   }
+  },
+  "mh_school_counseling": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": false,
+    "n_valid": 0
+   }
+  },
+  "mh_phone_video": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11334
+   }
+  },
+  "mh_er": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11334
+   }
+  },
+  "mh_rx": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11334
+   }
+  },
+  "mh_unmet_need": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 8161
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 7658
+   },
+   "2024": {
+    "collected": false,
+    "n_valid": 0
+   }
+  },
+  "alcohol_pm": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10743
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11334
+   }
+  },
+  "binge_pm": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10743
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11334
+   }
+  },
+  "marijuana_py": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10743
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11334
+   }
+  },
+  "marijuana_pm": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10743
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11334
+   }
+  },
+  "nicotine_vape_py": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11334
+   }
+  },
+  "nicotine_vape_pm": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11334
+   }
+  },
+  "tobacco_or_vape_py": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11334
+   }
+  },
+  "illicit_py": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10743
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11334
+   }
+  },
+  "sud_py": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10743
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11572
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11334
+   }
+  },
+  "liked_school": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10159
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11023
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 10561
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 10368
+   }
+  },
+  "grades_d_or_lower": {
+   "2021": {
+    "collected": true,
+    "n_valid": 9486
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 10253
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 9851
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 9722
+   }
+  },
+  "teacher_praise": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10148
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11003
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 10529
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 10334
+   }
+  },
+  "parents_proud": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10628
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11813
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11385
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11186
+   }
+  },
+  "parents_check_homework": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10139
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 10982
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 10493
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 10300
+   }
+  },
+  "parents_help_homework": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10113
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 10969
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 10483
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 10278
+   }
+  },
+  "frequent_arguments_parent": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10494
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11693
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11270
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11061
+   }
+  },
+  "two_plus_activities": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10614
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11815
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11388
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11180
+   }
+  },
+  "religion_important": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10375
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11512
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11088
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 10904
+   }
+  },
+  "serious_fight": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10621
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11815
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11397
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11181
+   }
+  },
+  "no_one_to_talk_to": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10357
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11500
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11086
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 10880
+   }
+  },
+  "fair_poor_health": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10740
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11962
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11554
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11325
+   }
+  },
+  "difficulty_concentrating": {
+   "2021": {
+    "collected": true,
+    "n_valid": 10608
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 11815
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 11405
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 11185
+   }
+  }
+ },
+ "young_adult": {
+  "mde_py": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13358
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 13857
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13119
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 13635
+   }
+  },
+  "mde_severe": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13348
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 13844
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13109
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 13620
+   }
+  },
+  "suicide_thoughts": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "suicide_plan": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "suicide_attempt": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "spd_py": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "ami_py": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "smi_py": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "ami_and_sud": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "mde_any_treatment": {
+   "2021": {
+    "collected": true,
+    "n_valid": 2342
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 2566
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 2241
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 2209
+   }
+  },
+  "mh_treatment": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": false,
+    "n_valid": 0
+   }
+  },
+  "mh_unmet_need": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 10191
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 9724
+   },
+   "2024": {
+    "collected": false,
+    "n_valid": 0
+   }
+  },
+  "alcohol_pm": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "binge_pm": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "marijuana_py": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "marijuana_pm": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "nicotine_vape_py": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "nicotine_vape_pm": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "tobacco_or_vape_py": {
+   "2021": {
+    "collected": false,
+    "n_valid": 0
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "illicit_py": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "sud_py": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13979
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14307
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13587
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14136
+   }
+  },
+  "fair_poor_health": {
+   "2021": {
+    "collected": true,
+    "n_valid": 13974
+   },
+   "2022": {
+    "collected": true,
+    "n_valid": 14304
+   },
+   "2023": {
+    "collected": true,
+    "n_valid": 13584
+   },
+   "2024": {
+    "collected": true,
+    "n_valid": 14125
+   }
+  }
+ }
+}

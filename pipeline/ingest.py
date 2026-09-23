@@ -76,12 +76,28 @@ def ingest(columns: list[str], name: str) -> Path:
     return parquet
 
 
+def ingest_catalog() -> Path:
+    """Write pipeline/.cache/catalog.parquet: every column the catalog references, the
+    design columns, CATAG6/AGE3 and QUESTID2, for all rows (all ages)."""
+    from pipeline import catalog
+
+    return ingest(["QUESTID2", *catalog.referenced_columns()], "catalog")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--catalog", action="store_true", help="extract the columns the catalog references (all rows)")
     parser.add_argument("--name", default="extract")
-    parser.add_argument("columns", nargs="+")
+    parser.add_argument("columns", nargs="*")
     args = parser.parse_args()
-    ingest(args.columns, args.name)
+    if args.catalog:
+        if args.columns:
+            parser.error("--catalog takes no column list")
+        ingest_catalog()
+    elif args.columns:
+        ingest(args.columns, args.name)
+    else:
+        parser.error("give column names or --catalog")
 
 
 if __name__ == "__main__":
