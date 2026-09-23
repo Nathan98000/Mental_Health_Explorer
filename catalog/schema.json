@@ -2,11 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Nathan98000/Mental_Health_Explorer/catalog/schema.json",
   "title": "Mental Health Explorer catalog",
-  "description": "Shape of catalog/indicators.yaml and catalog/groups.yaml. Codes come from the combined 2021-2024 NSDUH PUF codebook.",
+  "description": "Shape of catalog/indicators.yaml, catalog/groups.yaml and catalog/topics.yaml. Codes come from the combined 2021-2024 NSDUH PUF codebook.",
   "type": "object",
   "properties": {
     "indicators": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/indicator" } },
-    "groups": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/group" } }
+    "groups": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/group" } },
+    "topics": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/topic" }, "description": "Every topic in the topic_id enum, in display order" }
   },
   "additionalProperties": false,
   "$defs": {
@@ -15,12 +16,22 @@
     "cohort": { "type": "string", "enum": ["teen", "young_adult"] },
     "codes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "integer" } },
     "year": { "type": "integer", "enum": [2021, 2022, 2023, 2024] },
+    "topic_id": { "type": "string", "enum": ["depression_suicide", "mental_illness", "care", "substance_use", "school_family_peers", "health"] },
+    "topic": {
+      "type": "object",
+      "properties": {
+        "id": { "$ref": "#/$defs/topic_id" },
+        "label": { "type": "string", "minLength": 1, "description": "Display wording for the topic; lives only in topics.yaml" }
+      },
+      "required": ["id", "label"],
+      "additionalProperties": false
+    },
     "indicator": {
       "type": "object",
       "properties": {
         "id": { "$ref": "#/$defs/slug", "description": "Unique within a cohort; the same id in both cohorts means the same concept" },
         "cohort": { "$ref": "#/$defs/cohort" },
-        "topic": { "type": "string", "enum": ["depression_suicide", "mental_illness", "care", "substance_use", "school_family_peers", "health"] },
+        "topic": { "$ref": "#/$defs/topic_id" },
         "label": { "type": "string", "minLength": 1, "description": "Short title, e.g. chart headings" },
         "phrase": { "type": "string", "minLength": 1, "description": "Completes 'About 1 in 7 teens ...', e.g. 'had a major depressive episode in the past year'" },
         "definition": { "type": "string", "minLength": 1, "description": "Plain-language definition of a yes" },

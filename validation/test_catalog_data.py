@@ -90,3 +90,10 @@ def test_harmonized_row_counts(harmonized):
 @pytest.mark.parametrize("year, expected", [(2021, 20.54), (2024, 14.84)])
 def test_teen_mde_regression(harmonized, year, expected):
     assert 100 * teen_estimate(harmonized, "mde_py", year).p == pytest.approx(expected, abs=0.01)
+
+
+@pytest.mark.parametrize("group", catalog.groups(), ids=lambda g: g["id"])
+def test_harmonized_group_values_are_level_ids(harmonized, group):
+    observed = set(harmonized[group["id"]].dropna().unique())
+    assert observed
+    assert observed <= {level["id"] for level in group["levels"]}
