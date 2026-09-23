@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nathan98000/Mental_Health_Explorer/data/schema/associations.schema.json",
+  "title": "Associations",
+  "description": "data/associations/{cohort}.json: outcome rates by exposure, their difference, and unadjusted and adjusted odds ratios (design-based logistic regression via R survey), plus an unadjusted odds-ratio matrix for advanced mode. Written by python -m pipeline.associations.",
+  "type": "object",
+  "properties": {
+    "cohort": { "type": "string", "enum": ["teen", "young_adult"] },
+    "outcomes": { "type": "array", "items": { "$ref": "#/$defs/slug" }, "minItems": 1 },
+    "exposures": { "type": "array", "items": { "$ref": "#/$defs/slug" }, "minItems": 1 },
+    "covariates": { "type": "array", "items": { "$ref": "#/$defs/slug" }, "description": "Adjustment variables of the adjusted odds ratio (complete cases)" },
+    "pairs": {
+      "type": "array",
+      "description": "One entry per outcome × exposure × year set (`latest` common collected year with ANALWT2_C1, `all` common years with ANALWT2_Ck)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "outcome": { "$ref": "#/$defs/slug" },
+          "exposure": { "$ref": "#/$defs/slug" },
+          "year_set": { "type": "string", "enum": ["latest", "all"] },
+          "years": { "type": "array", "items": { "$ref": "#/$defs/year" }, "minItems": 1 },
+          "weight": { "type": "string", "pattern": "^ANALWT2_C[1-4]$" },
+          "exposed": { "$ref": "#/$defs/rate" },
+          "unexposed": { "$ref": "#/$defs/rate" },
+          "diff": { "type": ["number", "null"], "minimum": -1, "maximum": 1, "description": "p(exposed) - p(unexposed); null when either rate is suppressed" },
+          "diff_se": { "$ref": "#/$defs/nullable_proportion" },
+          "p_value": { "$ref": "#/$defs/nullable_probability" },
+          "or": { "$ref": "#/$defs/odds_ratio" },
+          "adjusted_or": {
+            "allOf": [{ "$ref": "#/$defs/odds_ratio" }],
+            "properties": { "n": { "type": ["integer", "null"], "minimum": 0, "description": "Complete cases used by the adjusted model" } },
+            "required": ["n"]
+          }
+        },
+        "required": ["outcome", "exposure", "year_set", "years", "weight", "exposed", "unexposed", "diff", "diff_se", "p_value", "or", "adjusted_or"],
+        "additionalProperties": false
+      }
+    },
+    "or_matrix": {
+      "type": "array",
+      "description": "Unadjusted odds ratios for every unordered pair of outcomes and exposures in their latest common year; null when any of the four conditional rates is suppressed",
+      "items": {
+        "type": "object",
+        "properties": {
+          "a": { "$ref": "#/$defs/slug" },
+          "b": { "$ref": "#/$defs/slug" },
+          "year": { "$ref": "#/$defs/year" },
+          "estimate": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+          "lo": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+          "hi": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+          "n": { "type": ["integer", "null"], "minimum": 0 },
+          "reason": { "type": ["string", "null"] }
+        },
+        "required": ["a", "b", "year", "estimate", "lo", "hi", "n", "reason"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["cohort", "outcomes", "exposures", "covariates", "pairs", "or_matrix"],
+  "additionalProperties": false,
+  "$defs": {
+    "slug": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "year": { "type": "integer", "enum": [2021, 2022, 2023, 2024] },
+    "nullable_proportion": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+    "nullable_probability": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+    "rate": {
+      "type": "object",
+      "description": "Outcome rate in one exposure level; suppressed rates carry null p, lo, hi and se",
+      "properties": {
+        "p": { "$ref": "#/$defs/nullable_proportion" },
+        "lo": { "$ref": "#/$defs/nullable_proportion" },
+        "hi": { "$ref": "#/$defs/nullable_proportion" },
+        "se": { "$ref": "#/$defs/nullable_proportion" },
+        "n": { "type": "integer", "minimum": 0 },
+        "suppressed": { "type": "boolean" },
+        "reason": { "type": ["string", "null"] }
+      },
+      "required": ["p", "lo", "hi", "se", "n", "suppressed", "reason"],
+      "additionalProperties": false
+    },
+    "odds_ratio": {
+      "type": "object",
+      "description": "exp(b) for the exposure term with exp(b ± t50·SE); null with a reason when a rate is suppressed or the model failed",
+      "properties": {
+        "estimate": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "lo": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "hi": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+        "n": { "type": ["integer", "null"] },
+        "reason": { "type": ["string", "null"] }
+      },
+      "required": ["estimate", "lo", "hi", "reason"]
+    }
+  }
+}
