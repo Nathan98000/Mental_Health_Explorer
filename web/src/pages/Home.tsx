@@ -40,10 +40,10 @@ export function Home() {
   return (
     <>
       <section className="relative overflow-hidden rounded-[2rem] bg-surface-tint px-6 py-12 sm:px-10 sm:py-16">
-        <svg className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 opacity-70" viewBox="0 0 200 200" aria-hidden="true">
+        <svg className="pointer-events-none absolute -right-16 -top-16 hidden h-64 w-64 opacity-70 sm:block dark:opacity-35" viewBox="0 0 200 200" aria-hidden="true">
           <circle cx="100" cy="100" r="90" fill="var(--sun)" />
         </svg>
-        <svg className="pointer-events-none absolute -bottom-20 right-24 h-48 w-48 opacity-40" viewBox="0 0 200 200" aria-hidden="true">
+        <svg className="pointer-events-none absolute -bottom-20 right-24 hidden h-48 w-48 opacity-40 sm:block dark:opacity-25" viewBox="0 0 200 200" aria-hidden="true">
           <circle cx="100" cy="100" r="90" fill="var(--primary)" />
         </svg>
         <div className="relative max-w-2xl">
@@ -65,6 +65,7 @@ export function Home() {
       <section className="mt-10" aria-labelledby="first-look">
         <h2 id="first-look" className="m-0 font-display text-2xl font-extrabold text-ink">A first look: teen depression</h2>
         <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+          <div className="lg:self-start">
           <EstimateCard
             measure="had a major depressive episode in the past year"
             population="teens ages 12–17"
@@ -75,6 +76,7 @@ export function Home() {
             n={teenMde2024.n}
             comparison={`That's down from ${formatPct(teenMde2021.p)}${then ? ` (about ${then})` : ''} in 2021.`}
           />
+          </div>
           <div className="rounded-3xl bg-surface p-6 ring-1 ring-line">
             <TrendChart
               title="Teens with a major depressive episode, 2021–2024"
