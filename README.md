@@ -4,7 +4,7 @@ An interactive, public website for exploring youth mental health in the United S
 National Survey on Drug Use and Health (NSDUH) 2021–2024 public use file from SAMHSA. It covers teens
 ages 12–17 and young adults ages 18–25.
 
-**Status:** phase 0 (setup) — placeholder site with preview numbers.
+**Status:** phase 1 (data foundation) — indicator catalog and harmonized data; placeholder site with preview numbers.
 **Live site:** https://nathan98000.github.io/Mental_Health_Explorer/
 
 ## How it fits together
@@ -21,10 +21,10 @@ suppression check, following the NSDUH public use file users' guide.
 
 | Folder | What's in it |
 | --- | --- |
-| `pipeline/` | Ingest (column selection → Parquet) and the design-based estimator |
-| `catalog/` | Indicator and group definitions (phase 1) |
-| `validation/` | Golden tests that reproduce SAMHSA's reference tables |
-| `data/` | Committed pipeline outputs read by the site (phase 2) |
+| `pipeline/` | Ingest (column selection → Parquet), harmonize (catalog → 1/0 indicator columns) and the design-based estimator |
+| `catalog/` | Indicator and group definitions (`indicators.yaml`, `groups.yaml`, `schema.json`) and the PUF column list |
+| `validation/` | Local-only tests: SAMHSA reference tables, codebook frequencies, published teen suicide figures |
+| `data/` | Committed pipeline outputs read by the site: `availability.json` (indicator × year); estimates in phase 2 |
 | `web/` | The website |
 
 ## Running it locally
@@ -42,9 +42,11 @@ Pipeline (Python 3.11+):
 
 ```bash
 pip install -r pipeline/requirements.txt
-python -m pytest -q                                   # unit tests (no data needed)
+python -m pytest -q                                   # estimator + catalog tests (no data needed)
 export NSDUH_RAW="/path/to/NSDUH_2021_2024_Tab.txt"   # the raw file never goes in the repo
-python -m pytest validation -q                        # golden tests vs. SAMHSA reference tables
+python -m pipeline.ingest --catalog                   # -> pipeline/.cache/catalog.parquet (all rows, catalog columns)
+python -m pipeline.harmonize                          # -> pipeline/.cache/harmonized.parquet + data/availability.json
+python -m pytest validation -q                        # reference tables, codebook frequencies (PDF next to the raw file), regressions
 ```
 
 ## Data source and terms
