@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+/*
+  Design tokens. Every color is defined once per mode here and used by role.
+  Contrast checked: ink/page 14.7:1, ink-2/page 7.6:1, muted/surface 4.9:1,
+  white on primary 5.2:1, primary-ink on page 5.4:1 (light); ink/page 15.9:1,
+  ink-2/surface 9.6:1, muted/surface 5.9:1, page on primary 7.6:1 (dark).
+  Chart series slots come from the validated categorical palette (adjacent CVD ΔE ≥ 8.4).
+*/
+:root {
+  color-scheme: light;
+  --page: #fff8ee;
+  --surface: #fffdf8;
+  --surface-tint: #ffefe0;
+  --surface-cool: #eef0ff;
+  --ink: #1e2240;
+  --ink-2: #4b4f6b;
+  --muted: #6b6f86;
+  --line: #ede6da;
+  --primary: #c2410c;
+  --primary-ink: #b83d0b;
+  --on-primary: #ffffff;
+  --accent: #0e6e6d;
+  --sun: #ffc857;
+  --grid: #ede6da;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #16172a;
+    --surface: #1f2036;
+    --surface-tint: #2a2440;
+    --surface-cool: #232646;
+    --ink: #f7f3ea;
+    --ink-2: #c9c7d8;
+    --muted: #9a9cb3;
+    --line: #2e3050;
+    --primary: #ff8a5c;
+    --primary-ink: #ff9d76;
+    --on-primary: #16172a;
+    --accent: #5fd0c5;
+    --sun: #ffc857;
+    --grid: #2e3050;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #16172a;
+  --surface: #1f2036;
+  --surface-tint: #2a2440;
+  --surface-cool: #232646;
+  --ink: #f7f3ea;
+  --ink-2: #c9c7d8;
+  --muted: #9a9cb3;
+  --line: #2e3050;
+  --primary: #ff8a5c;
+  --primary-ink: #ff9d76;
+  --on-primary: #16172a;
+  --accent: #5fd0c5;
+  --sun: #ffc857;
+  --grid: #2e3050;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Nunito Variable", "Inter Variable", system-ui, sans-serif;
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-tint: var(--surface-tint);
+  --color-surface-cool: var(--surface-cool);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-primary: var(--primary);
+  --color-primary-ink: var(--primary-ink);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-sun: var(--sun);
+}
+
+html {
+  background: var(--page);
+  color: var(--ink);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--page);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
