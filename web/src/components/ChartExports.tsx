@@ -3,8 +3,8 @@ import { downloadPng, downloadSvg, downloadText, type ExportLegendItem } from '.
 import { useChartTheme } from '../lib/theme'
 
 type Props = {
-  /** The chart's SVG element, when rendered. */
-  getSvg: () => SVGSVGElement | null
+  /** The chart's SVG element, when rendered; without it there is no image to download and the PNG/SVG buttons are left out. */
+  getSvg?: () => SVGSVGElement | null
   csv: string
   /** Base file name without extension. */
   filename: string
@@ -21,7 +21,7 @@ export function ChartExports({ getSvg, csv, filename, citation, frame }: Props) 
   const exportFrame = { ...frame, ink: theme.ink, muted: theme.muted }
 
   const withSvg = (action: (svg: SVGSVGElement) => void | Promise<void>) => async () => {
-    const svg = getSvg()
+    const svg = getSvg?.()
     if (!svg) {
       setMessage('Show the chart first to download an image.')
       return
@@ -48,8 +48,12 @@ export function ChartExports({ getSvg, csv, filename, citation, frame }: Props) 
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-semibold">Download:</span>
         <button type="button" className={buttonClass} onClick={() => downloadText(`${filename}.csv`, csv, 'text/csv')}>CSV</button>
-        <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadPng(svg, `${filename}.png`, theme.surface, exportFrame))}>PNG</button>
-        <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadSvg(svg, `${filename}.svg`, theme.surface, exportFrame))}>SVG</button>
+        {getSvg ? (
+          <>
+            <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadPng(svg, `${filename}.png`, theme.surface, exportFrame))}>PNG</button>
+            <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadSvg(svg, `${filename}.svg`, theme.surface, exportFrame))}>SVG</button>
+          </>
+        ) : null}
         <button type="button" className={buttonClass} onClick={copy}>Copy citation</button>
       </div>
       <p className="m-0 mt-2 wrap-anywhere text-xs leading-relaxed text-muted">{citation}</p>

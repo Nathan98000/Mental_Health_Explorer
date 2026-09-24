@@ -5,8 +5,10 @@
   Contrast checked: ink/page 14.7:1, ink-2/page 7.6:1, muted/surface 4.9:1,
   white on primary 5.2:1, primary-ink on page 5.4:1 (light); ink/page 15.9:1,
   ink-2/surface 9.6:1, muted/surface 5.9:1, page on primary 7.6:1 (dark).
-  Chart series slots come from the validated categorical palette (adjacent CVD ΔE ≥ 8.4);
-  series-5 is below 3:1 against the surface in light mode, so charts carry direct labels and a table view.
+  Chart series slots come from the validated categorical palette (adjacent CVD ΔE ≥ 8.4), darkened
+  where needed so every slot is at least 3:1 against the card surface (light: 4.3, 3.2, 3.9, 3.6, 3.6;
+  dark: 4.4, 4.1, 4.7, 5.2, 4.0). seq-1…5 is the single-hue ramp for ordered groups (age, income),
+  light to dark, every step at least 3:1 against the surface. Charts also carry direct labels and a table view.
 */
 :root {
   color-scheme: light;
@@ -26,9 +28,14 @@
   --grid: #ede6da;
   --series-1: #2a78d6;
   --series-2: #eb6834;
-  --series-3: #1baf7a;
-  --series-4: #eda100;
-  --series-5: #e87ba4;
+  --series-3: #15915f;
+  --series-4: #b57a00;
+  --series-5: #d9598c;
+  --seq-1: #4a90e2;
+  --seq-2: #2a78d6;
+  --seq-3: #1d5fb0;
+  --seq-4: #164a8a;
+  --seq-5: #0f3563;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -53,6 +60,11 @@
     --series-3: #199e70;
     --series-4: #c98500;
     --series-5: #d55181;
+    --seq-1: #bcd6f5;
+    --seq-2: #8fbaee;
+    --seq-3: #63a0e6;
+    --seq-4: #3987e5;
+    --seq-5: #2a6fc4;
   }
 }
 
@@ -77,6 +89,11 @@
   --series-3: #199e70;
   --series-4: #c98500;
   --series-5: #d55181;
+  --seq-1: #bcd6f5;
+  --seq-2: #8fbaee;
+  --seq-3: #63a0e6;
+  --seq-4: #3987e5;
+  --seq-5: #2a6fc4;
 }
 
 @theme inline {

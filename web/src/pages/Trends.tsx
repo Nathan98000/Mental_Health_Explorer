@@ -13,6 +13,7 @@ import { loadEstimates, type Cell } from '../lib/data'
 import { citation, safeFilename, toCsv } from '../lib/exports'
 import { formatPct, formatPoints } from '../lib/format'
 import { absoluteUrl, resolveTrends, splitGroups, trendsCohortPath, trendsPath, type TrendsState } from '../lib/routes'
+import { paletteKind, seriesColors, useChartTheme } from '../lib/theme'
 import { comparisons, trendData } from '../lib/trends'
 import { useCatalog } from '../lib/useCatalog'
 import { DocumentTitle } from '../lib/useDocumentTitle'
@@ -30,6 +31,7 @@ type ViewProps = { catalog: Catalog; state: TrendsState; normalized: string; not
 function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
   const { cohort, indicator, split, yearA, yearB } = state
   const navigate = useNavigate()
+  const theme = useChartTheme()
   const ids = { indicator: useId(), split: useId(), a: useId(), b: useId() }
   const info = cohortInfo(catalog, cohort)
   const shard = useResource(`estimates/${cohort}/${indicator.id}`, () => loadEstimates(cohort, indicator.id))
@@ -43,47 +45,56 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
   const significant = comps.filter((c) => c.kind === 'fell' || c.kind === 'rose').map((c) => c.label)
   const selectClass = 'w-full max-w-full rounded-xl border border-line bg-surface px-3 py-2 text-base text-ink'
   const suicide = isSuicideMeasure(indicator.id)
+  const noSplit = `No split (all ${info.people})`
   const cite = citation({ title: `${indicator.label}: ${population}, ${span}`, url: absoluteUrl(normalized) })
 
   return (
     <>
       <DocumentTitle title={`Trends: ${indicator.label} · ${info.label}`} />
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="m-0 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Trends</h1>
-        <CohortSwitcher catalog={catalog} cohort={cohort} hrefFor={(c) => trendsCohortPath(catalog, state, c)} />
-      </div>
-      <form className="mt-6 grid gap-4 rounded-3xl bg-surface p-5 ring-1 ring-line sm:grid-cols-2 lg:grid-cols-4" onSubmit={(e) => e.preventDefault()} aria-label="Choose what to show">
+      <h1 className="m-0 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Trends</h1>
+      <form className="mt-6 grid gap-4 rounded-3xl bg-surface p-5 ring-1 ring-line" onSubmit={(e) => e.preventDefault()} aria-label="Choose what to show">
+        <div className="min-w-0">
+          <span className="mb-1 block text-sm font-semibold text-ink-2">Age group</span>
+          <CohortSwitcher catalog={catalog} cohort={cohort} hrefFor={(c) => trendsCohortPath(catalog, state, c)} />
+        </div>
         <div className="min-w-0">
           <label htmlFor={ids.indicator} className="mb-1 block text-sm font-semibold text-ink-2">Measure</label>
           <IndicatorSelect id={ids.indicator} catalog={catalog} cohort={cohort} value={indicator.id} onChange={(id) => go({ indicator: id })} />
         </div>
-        <div className="min-w-0">
-          <label htmlFor={ids.split} className="mb-1 block text-sm font-semibold text-ink-2">Split by</label>
-          <select id={ids.split} value={split?.id ?? ''} onChange={(e) => go({ split: e.target.value || null })} className={selectClass}>
-            <option value="">No split (all {info.people})</option>
-            {splitGroups(catalog, cohort).map((g) => (
-              <option key={g.id} value={g.id}>{g.label}</option>
-            ))}
-          </select>
-        </div>
-        <div className="min-w-0">
-          <label htmlFor={ids.a} className="mb-1 block text-sm font-semibold text-ink-2">Compare from</label>
-          <select id={ids.a} value={yearA} onChange={(e) => go({ yearA: Number(e.target.value) })} className={selectClass}>
-            {indicator.years.filter((y) => y < yearB).map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-        </div>
-        <div className="min-w-0">
-          <label htmlFor={ids.b} className="mb-1 block text-sm font-semibold text-ink-2">Compare to</label>
-          <select id={ids.b} value={yearB} onChange={(e) => go({ yearB: Number(e.target.value) })} className={selectClass}>
-            {indicator.years.filter((y) => y > yearA).map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+          <div className="min-w-0">
+            <label htmlFor={ids.split} className="mb-1 block text-sm font-semibold text-ink-2">Split by</label>
+            <select id={ids.split} value={split?.id ?? ''} title={split?.label ?? noSplit} onChange={(e) => go({ split: e.target.value || null })} className={selectClass}>
+              <option value="">{noSplit}</option>
+              {splitGroups(catalog, cohort).map((g) => (
+                <option key={g.id} value={g.id}>{g.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="min-w-0">
+            <label htmlFor={ids.a} className="mb-1 block text-sm font-semibold text-ink-2">Compare from</label>
+            <select id={ids.a} value={yearA} title={String(yearA)} onChange={(e) => go({ yearA: Number(e.target.value) })} className={selectClass}>
+              {indicator.years.filter((y) => y < yearB).map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
+          <div className="min-w-0">
+            <label htmlFor={ids.b} className="mb-1 block text-sm font-semibold text-ink-2">Compare to</label>
+            <select id={ids.b} value={yearB} title={String(yearB)} onChange={(e) => go({ yearB: Number(e.target.value) })} className={selectClass}>
+              {indicator.years.filter((y) => y > yearA).map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </form>
       <Notices items={notices} />
+      {suicide ? (
+        <div className="mt-6">
+          <CrisisNote />
+        </div>
+      ) : null}
 
       {shard.status === 'ready' ? (
         <section className="mt-6 rounded-3xl bg-surface p-6 ring-1 ring-line" aria-labelledby="compare-years">
@@ -120,31 +131,25 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
         </section>
       ) : null}
 
-      <div className={`mt-6 grid gap-6 ${suicide ? 'lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]' : ''}`}>
-        <div className="rounded-3xl bg-surface p-6 ring-1 ring-line">
-          {shard.status === 'loading' ? (
-            <Loading className="min-h-96" />
-          ) : shard.status === 'error' || !data ? (
-            <LoadError />
-          ) : (
-            <TrendChart
-              title={title}
-              rows={data.rows}
-              series={data.series}
-              years={SURVEY_YEARS}
-              caption={`Share of U.S. ${population}. Shaded bands show 95% confidence intervals.`}
-              annotations={data.annotations}
-              notes={data.notes}
-              comparison={{ yearA, yearB, significant }}
-              exports={{ csv: toCsv(data.csv), filename: safeFilename(`${cohort}-${indicator.id}-trend${split ? `-by-${split.id}` : ''}`), citation: cite, subtitle: `${population} · ${span}` }}
-            />
-          )}
-        </div>
-        {suicide ? (
-          <div className="lg:self-start">
-            <CrisisNote />
-          </div>
-        ) : null}
+      <div className="mt-6 rounded-3xl bg-surface p-6 ring-1 ring-line">
+        {shard.status === 'loading' ? (
+          <Loading className="min-h-96" />
+        ) : shard.status === 'error' || !data ? (
+          <LoadError />
+        ) : (
+          <TrendChart
+            title={title}
+            rows={data.rows}
+            series={data.series}
+            years={SURVEY_YEARS}
+            colors={seriesColors(theme, data.series.length, paletteKind(split))}
+            caption={`Share of U.S. ${population}.`}
+            annotations={data.annotations}
+            notes={data.notes}
+            comparison={{ yearA, yearB, significant }}
+            exports={{ csv: toCsv(data.csv), filename: safeFilename(`${cohort}-${indicator.id}-trend${split ? `-by-${split.id}` : ''}`), citation: cite, subtitle: `${population} · ${span}` }}
+          />
+        )}
       </div>
     </>
   )

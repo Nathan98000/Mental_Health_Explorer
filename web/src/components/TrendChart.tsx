@@ -31,10 +31,14 @@ type Props = {
   /** Plain notes under the chart (gaps, suppressed points). */
   notes?: string[]
   comparison?: ChartComparison
+  /** One color per series; the categorical slots by default (see lib/theme.ts seriesColors). */
+  colors?: string[]
   exports?: { csv: string; filename: string; citation: string; subtitle?: string }
 }
 
 const HEIGHT = 320
+/** With more series than this, confidence intervals become per-point rules instead of overlapping bands. */
+const BAND_MAX_SERIES = 2
 const MARGIN = { top: 16, bottom: 32, left: 44 }
 const SVG_NS = 'http://www.w3.org/2000/svg'
 
@@ -84,8 +88,11 @@ function comparedYearRules(chart: Chart, years: number[], theme: ChartTheme): SV
 }
 
 /** Series colors in slot order, and the series a comparison leaves dashed (their change is not significant). */
-function seriesStyle(series: string[], theme: ChartTheme, comparison?: ChartComparison): { colors: string[]; muted: Set<string> } {
-  return { colors: series.map((_, i) => theme.series[i % theme.series.length]), muted: new Set(comparison ? series.filter((s) => !comparison.significant.includes(s)) : []) }
+function seriesStyle(series: string[], theme: ChartTheme, comparison?: ChartComparison, colors?: string[]): { colors: string[]; muted: Set<string> } {
+  return {
+    colors: series.map((_, i) => colors?.[i] ?? theme.series[i % theme.series.length]),
+    muted: new Set(comparison ? series.filter((s) => !comparison.significant.includes(s)) : []),
+  }
 }
 
 /**
@@ -93,14 +100,17 @@ function seriesStyle(series: string[], theme: ChartTheme, comparison?: ChartComp
  * gaps for missing years, a crosshair tooltip, direct end-of-line labels, an HTML legend,
  * numbered annotations and a table view for screen readers and keyboard users.
  */
-export function TrendChart({ title, rows, series, years, caption, annotations = [], notes = [], comparison, exports }: Props) {
+export function TrendChart({ title, rows, series, years, caption, annotations = [], notes = [], comparison, colors: seriesColors, exports }: Props) {
   const plotRef = useRef<HTMLDivElement>(null)
   const theme = useChartTheme()
   const [width, setWidth] = useState(640)
   const [showTable, setShowTable] = useState(false)
   const headingId = useId()
   const notesId = useId()
-  const { colors, muted } = seriesStyle(series, theme, comparison)
+  const { colors, muted } = seriesStyle(series, theme, comparison, seriesColors)
+  const bands = series.length <= BAND_MAX_SERIES
+  /** Series with at least one drawn point; the others are left out of the legend. */
+  const drawn = series.filter((s) => rows.some((r) => r.series === s && defined(r)))
 
   useEffect(() => {
     const el = plotRef.current
@@ -113,17 +123,29 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
   useEffect(() => {
     const el = plotRef.current
     if (!el || showTable) return
-    const { colors, muted } = seriesStyle(series, theme, comparison)
+    const { colors, muted } = seriesStyle(series, theme, comparison, seriesColors)
     const narrow = width < NARROW_WIDTH
     const shown = rows.filter(defined)
     const yMax = Math.max(0.05, ...shown.map((r) => r.hi)) * 1.15
     const solid = rows.filter((r) => !muted.has(r.series))
     const dashed = rows.filter((r) => muted.has(r.series))
+    // 95% intervals: shaded bands for one or two series, per-point rules (offset a few px per series) when bands would overlap.
+    const intervals: Plot.Markish[] =
+      series.length <= BAND_MAX_SERIES
+        ? [
+            Plot.areaY(solid, { x: 'year', y1: 'lo', y2: 'hi', fill: 'series', fillOpacity: 0.16 }),
+            Plot.areaY(dashed, { x: 'year', y1: 'lo', y2: 'hi', fill: 'series', fillOpacity: 0.08 }),
+          ]
+        : series.map((s, i) =>
+            Plot.ruleX(
+              shown.filter((r) => r.series === s),
+              { x: 'year', y1: 'lo', y2: 'hi', stroke: 'series', strokeWidth: 1.5, strokeOpacity: muted.has(s) ? 0.45 : 0.9, dx: (i - (series.length - 1) / 2) * 4 },
+            ),
+          )
     const marks: Plot.Markish[] = [
       Plot.gridY({ stroke: theme.grid, strokeOpacity: 1, ticks: 5 }),
       Plot.ruleY([0], { stroke: theme.grid, strokeOpacity: 1 }),
-      Plot.areaY(solid, { x: 'year', y1: 'lo', y2: 'hi', fill: 'series', fillOpacity: 0.16 }),
-      Plot.areaY(dashed, { x: 'year', y1: 'lo', y2: 'hi', fill: 'series', fillOpacity: 0.08 }),
+      ...intervals,
       Plot.lineY(solid, { x: 'year', y: 'p', stroke: 'series', strokeWidth: 2 }),
       Plot.lineY(dashed, { x: 'year', y: 'p', stroke: 'series', strokeWidth: 2, strokeDasharray: '6 4', strokeOpacity: 0.6 }),
       Plot.dot(shown.filter((r) => !muted.has(r.series)), { x: 'year', y: 'p', fill: 'series', r: 4, stroke: theme.surface, strokeWidth: 2 }),
@@ -172,7 +194,7 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
     if (comparison) chart.prepend(comparedYearRules(chart, [comparison.yearA, comparison.yearB], theme))
     el.replaceChildren(chart)
     return () => chart.remove()
-  }, [rows, series, years, annotations, comparison, theme, width, title, showTable])
+  }, [rows, series, years, annotations, comparison, seriesColors, theme, width, title, showTable])
 
   const tableCell = (row: TrendRow | undefined) => {
     if (!row || row.status === 'not_collected') return <span className="text-muted">Not asked</span>
@@ -182,12 +204,13 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
 
   const captionText = [
     caption,
+    bands ? 'Shaded bands show 95% confidence intervals.' : 'Vertical bars at each point show 95% confidence intervals.',
     comparison ? `Light vertical rules mark ${comparison.yearA} and ${comparison.yearB}, the years compared.` : null,
     comparison && muted.size ? `Dashed lines: the change from ${comparison.yearA} to ${comparison.yearB} is not statistically significant.` : null,
   ]
     .filter(Boolean)
     .join(' ')
-  const legend: ExportLegendItem[] | undefined = series.length > 1 ? series.map((s, i) => ({ label: s, color: colors[i], dashed: muted.has(s) })) : undefined
+  const legend: ExportLegendItem[] | undefined = series.length > 1 ? series.filter((s) => drawn.includes(s)).map((s) => ({ label: s, color: colors[series.indexOf(s)], dashed: muted.has(s) })) : undefined
 
   return (
     <figure className="m-0" aria-labelledby={headingId} aria-describedby={notes.length || annotations.length ? notesId : undefined}>
@@ -205,17 +228,19 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
         </button>
       </div>
 
-      <ul className="mt-3 mb-1 flex list-none flex-wrap gap-x-5 gap-y-1 p-0 text-sm text-ink-2" aria-label="Legend">
-        {series.map((s, i) => (
-          <li key={s} className="flex items-center gap-2">
-            <svg width="22" height="10" aria-hidden="true">
-              <line x1="1" y1="5" x2="21" y2="5" stroke={colors[i]} strokeWidth="2" strokeDasharray={muted.has(s) ? '4 3' : undefined} />
-              <circle cx="11" cy="5" r="4" fill={colors[i]} opacity={muted.has(s) ? 0.6 : 1} />
-            </svg>
-            {s}
-          </li>
-        ))}
-      </ul>
+      {showTable ? null : (
+        <ul className="mt-3 mb-1 flex list-none flex-wrap gap-x-5 gap-y-1 p-0 text-sm text-ink-2" aria-label="Legend">
+          {drawn.map((s) => (
+            <li key={s} className="flex items-center gap-2">
+              <svg width="22" height="10" aria-hidden="true">
+                <line x1="1" y1="5" x2="21" y2="5" stroke={colors[series.indexOf(s)]} strokeWidth="2" strokeDasharray={muted.has(s) ? '4 3' : undefined} />
+                <circle cx="11" cy="5" r="4" fill={colors[series.indexOf(s)]} opacity={muted.has(s) ? 0.6 : 1} />
+              </svg>
+              {s}
+            </li>
+          ))}
+        </ul>
+      )}
 
       {showTable ? (
         <ScrollTable label={`${title} as a table`}>
@@ -245,7 +270,7 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
         <div ref={plotRef} className="w-full" />
       )}
 
-      {captionText ? <figcaption className="mt-2 text-sm text-muted">{captionText}</figcaption> : null}
+      {captionText && !showTable ? <figcaption className="mt-2 text-sm text-muted">{captionText}</figcaption> : null}
       {notes.length || annotations.length ? (
         <ol id={notesId} className="mt-2 mb-0 list-none space-y-1 p-0 text-sm text-ink-2">
           {annotations.map((a, i) => (

@@ -1,5 +1,6 @@
+import { Link } from 'react-router'
 import type { Cell } from '../lib/data'
-import { formatCount, formatPct, formatPeople, formatRange, oneInN } from '../lib/format'
+import { formatCount, formatPct, formatPeople, formatRange } from '../lib/format'
 import { isWideInterval } from '../lib/takeaways'
 import { SuppressedValue } from './SuppressedValue'
 
@@ -7,17 +8,16 @@ type Props = {
   /** When the estimate is for, e.g. "2024" or "2021–2024 combined". */
   when: string
   cell: Cell
-  /** Who the estimate describes, e.g. "female teens ages 12–17". */
-  population: string
   /** Takeaway sentences, already checked for significance (see lib/takeaways.ts). */
   sentences: string[]
+  /** Where to go next when the estimate is suppressed, e.g. "Try all years combined". */
+  nextSteps?: { label: string; to: string }[]
 }
 
 /** The site's standard estimate card: a big rounded number, plain sentences, the details underneath. */
-export function EstimateCard({ when, cell, population, sentences }: Props) {
-  // One rule for an imprecise estimate (lib/takeaways.ts): the number is drawn lighter, badged, and never read as "1 in N".
+export function EstimateCard({ when, cell, sentences, nextSteps = [] }: Props) {
+  // One rule for an imprecise estimate (lib/takeaways.ts): the number is drawn lighter and badged, and the sentence gives the range.
   const wide = isWideInterval(cell.lo, cell.hi)
-  const ratio = cell.p !== null && !wide ? oneInN(cell.p) : null
   return (
     <article className="rounded-3xl bg-surface p-6 shadow-[0_2px_0_var(--line),0_12px_32px_-18px_rgba(30,34,64,0.35)] ring-1 ring-line" aria-label="Estimate">
       <p className="m-0 text-sm font-semibold uppercase tracking-wide text-primary-ink">{when}</p>
@@ -31,12 +31,20 @@ export function EstimateCard({ when, cell, population, sentences }: Props) {
           </span>
         ) : null}
       </div>
-      {ratio ? <p className="m-0 mt-2 text-base text-ink-2">about {ratio} of {population}</p> : null}
       <div className="mt-3 space-y-1 text-lg leading-snug text-ink">
         {sentences.map((s) => (
           <p key={s} className="m-0">{s}</p>
         ))}
       </div>
+      {nextSteps.length ? (
+        <p className="m-0 mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+          {nextSteps.map((step) => (
+            <Link key={step.to} to={step.to} className="font-semibold text-primary-ink underline">
+              {step.label}
+            </Link>
+          ))}
+        </p>
+      ) : null}
       <dl className="m-0 mt-4 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-sm text-ink-2">
         <dt className="font-medium">95% confidence interval</dt>
         <dd className="m-0">{cell.lo !== null && cell.hi !== null ? formatRange(cell.lo, cell.hi) : <SuppressedValue reason={cell.reason} />}</dd>

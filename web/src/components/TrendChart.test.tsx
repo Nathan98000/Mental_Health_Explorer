@@ -155,3 +155,24 @@ describe('comparison styling', () => {
     expect(legend.getByText('Female').querySelector('line')).not.toHaveAttribute('stroke-dasharray')
   })
 })
+
+describe('legend and intervals', () => {
+  it('leaves series with no drawn points out of the legend and hides it in the table view', async () => {
+    const rows = [...seriesRows('Male', [0.1, 0.11, 0.115, 0.12]), ...seriesRows('Female', [0.2, 0.19, 0.15, 0.122]), ...seriesRows('Neither', [null, null, null, null])]
+    render(<TrendChart title="Legend" rows={rows} series={['Male', 'Female', 'Neither']} years={SURVEY_YEARS} caption="Share." />)
+    const legend = within(screen.getByRole('list', { name: 'Legend' }))
+    expect(legend.getByText('Male')).toBeInTheDocument()
+    expect(legend.queryByText('Neither')).not.toBeInTheDocument()
+    // Three series: per-point rules instead of bands.
+    expect(screen.getByText(/Vertical bars at each point show 95% confidence intervals/)).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Show table' }))
+    expect(screen.queryByRole('list', { name: 'Legend' })).not.toBeInTheDocument()
+    expect(screen.queryByText(/confidence intervals/)).not.toBeInTheDocument()
+    expect(screen.getByRole('table')).toBeInTheDocument()
+  })
+  it('keeps shaded bands for one or two series and takes explicit colors', () => {
+    render(<TrendChart title="Bands" rows={rows} series={['All teens']} years={SURVEY_YEARS} colors={['#c2410c']} />)
+    expect(screen.getByText(/Shaded bands show 95% confidence intervals/)).toBeInTheDocument()
+    expect(within(screen.getByRole('list', { name: 'Legend' })).getByText('All teens').querySelector('line')).toHaveAttribute('stroke', '#c2410c')
+  })
+})

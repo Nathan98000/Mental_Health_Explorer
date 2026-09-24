@@ -14,7 +14,7 @@ export function exploreSummary(catalog: Catalog, shard: EstimateShard, state: Ex
   const l = level?.id ?? null
   const cell = findCell(shard, yearSet, g, l)
   if (!cell) return { cell, population, when, sentences: [] }
-  if (cell.suppressed || cell.p === null) return { cell, population, when, sentences: takeaway({ suppressed: true, level: null }) }
+  if (cell.suppressed || cell.p === null) return { cell, population, when, sentences: takeaway({ suppressed: true, reason: cell.reason, level: null }) }
 
   let change: ChangeInput | null = null
   const year = Number(yearSet)

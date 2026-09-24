@@ -39,6 +39,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
   const theme = useChartTheme()
   const ids = { indicator: useId(), year: useId(), population: useId() }
   const info = cohortInfo(catalog, cohort)
+  const selectClass = 'w-full max-w-full rounded-xl border border-line bg-surface px-3 py-2 text-base text-ink'
   const shard = useResource(`estimates/${cohort}/${indicator.id}`, () => loadEstimates(cohort, indicator.id))
   const go = (next: Partial<{ indicator: string; yearSet: string; population: string }>) => {
     const [g, l] = (next.population ?? (group && level ? `${group.id}:${level.id}` : '')).split(':')
@@ -52,42 +53,67 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
   const span = `${firstYear(indicator)}–${latestYear(indicator)}`
   const chartTitle = `${indicator.label}: ${population}`
   const cite = citation({ title: chartTitle, url: absoluteUrl(normalized) })
+  const selectedYear = Number(yearSet)
+  const sorted = [...indicator.years].sort((a, b) => a - b)
+  const pooledYears = yearSet === 'all' ? sorted : yearSet === 'recent2' ? sorted.slice(-2) : []
+  const anyShown = points.some((d) => d.p !== null)
+  const suppressed = summary?.cell ? summary.cell.suppressed || summary.cell.p === null : false
+  const nextSteps = suppressed
+    ? [
+        ...(yearSet !== 'all' && indicator.years.length > 1 ? [{ label: 'Try all years combined', to: explorePath(cohort, indicator.id, { yearSet: 'all', group: group?.id, level: level?.id }) }] : []),
+        ...(group && level ? [{ label: 'Try everyone', to: explorePath(cohort, indicator.id, { yearSet }) }] : []),
+      ]
+    : []
 
   return (
     <>
       <DocumentTitle title={`${indicator.label} · ${info.label}`} />
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="m-0 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">{indicator.label}</h1>
-        <CohortSwitcher catalog={catalog} cohort={cohort} hrefFor={(c) => exploreCohortPath(catalog, state, c)} />
-      </div>
-      <form className="mt-6 grid gap-4 rounded-3xl bg-surface p-5 ring-1 ring-line sm:grid-cols-3" onSubmit={(e) => e.preventDefault()} aria-label="Choose what to show">
+      <h1 className="m-0 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">{indicator.label}</h1>
+      <form className="mt-6 grid gap-4 rounded-3xl bg-surface p-5 ring-1 ring-line" onSubmit={(e) => e.preventDefault()} aria-label="Choose what to show">
+        <div className="min-w-0">
+          <span className="mb-1 block text-sm font-semibold text-ink-2">Age group</span>
+          <CohortSwitcher catalog={catalog} cohort={cohort} hrefFor={(c) => exploreCohortPath(catalog, state, c)} />
+        </div>
         <div className="min-w-0">
           <label htmlFor={ids.indicator} className="mb-1 block text-sm font-semibold text-ink-2">Measure</label>
           <IndicatorSelect id={ids.indicator} catalog={catalog} cohort={cohort} value={indicator.id} onChange={(id) => go({ indicator: id })} />
         </div>
-        <div className="min-w-0">
-          <label htmlFor={ids.year} className="mb-1 block text-sm font-semibold text-ink-2">Years</label>
-          <select id={ids.year} value={yearSet} onChange={(e) => go({ yearSet: e.target.value })} className="w-full max-w-full rounded-xl border border-line bg-surface px-3 py-2 text-base text-ink">
-            {yearSetsFor(indicator).map((ys) => (
-              <option key={ys} value={ys}>{yearSetLabel(ys, indicator.years)}</option>
-            ))}
-          </select>
-        </div>
-        <div className="min-w-0">
-          <label htmlFor={ids.population} className="mb-1 block text-sm font-semibold text-ink-2">Population</label>
-          <select id={ids.population} value={group && level ? `${group.id}:${level.id}` : ''} onChange={(e) => go({ population: e.target.value })} className="w-full max-w-full rounded-xl border border-line bg-surface px-3 py-2 text-base text-ink">
-            <option value="">Everyone ({everyone})</option>
-            {groupsFor(catalog, cohort).map((g) => (
-              <optgroup key={g.id} label={g.label}>
-                {levelsFor(catalog, cohort, g).map((l) => (
-                  <option key={l.id} value={`${g.id}:${l.id}`}>{l.label}</option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="min-w-0">
+            <label htmlFor={ids.year} className="mb-1 block text-sm font-semibold text-ink-2">Years</label>
+            <select id={ids.year} value={yearSet} title={yearSetLabel(yearSet, indicator.years)} onChange={(e) => go({ yearSet: e.target.value })} className={selectClass}>
+              {yearSetsFor(indicator).map((ys) => (
+                <option key={ys} value={ys}>{yearSetLabel(ys, indicator.years)}</option>
+              ))}
+            </select>
+          </div>
+          <div className="min-w-0">
+            <label htmlFor={ids.population} className="mb-1 block text-sm font-semibold text-ink-2">Population</label>
+            <select
+              id={ids.population}
+              value={group && level ? `${group.id}:${level.id}` : ''}
+              title={level ? level.label : `Everyone (${everyone})`}
+              onChange={(e) => go({ population: e.target.value })}
+              className={selectClass}
+            >
+              <option value="">Everyone ({everyone})</option>
+              {groupsFor(catalog, cohort).map((g) => (
+                <optgroup key={g.id} label={g.label}>
+                  {levelsFor(catalog, cohort, g).map((l) => (
+                    <option key={l.id} value={`${g.id}:${l.id}`}>{l.label}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </div>
         </div>
       </form>
       <Notices items={notices} />
+      {isSuicideMeasure(indicator.id) ? (
+        <div className="mt-6">
+          <CrisisNote />
+        </div>
+      ) : null}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="min-w-0">
@@ -96,7 +122,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
           ) : shard.status === 'error' ? (
             <LoadError />
           ) : summary?.cell ? (
-            <EstimateCard when={summary.when} cell={summary.cell} population={summary.population} sentences={summary.sentences} />
+            <EstimateCard when={summary.when} cell={summary.cell} sentences={summary.sentences} nextSteps={nextSteps} />
           ) : (
             <p className="rounded-3xl bg-surface p-6 text-ink-2 ring-1 ring-line" role="status">There is no estimate for this combination of years and population.</p>
           )}
@@ -122,12 +148,23 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
             {shard.status === 'ready' && summary ? (
               <>
                 <div className="mt-3 flex flex-wrap items-center gap-4">
-                  <Sparkline points={points} years={SURVEY_YEARS} width={240} height={72} label={`${chartTitle}. ${describeSparkline(points, SURVEY_YEARS)}`} />
+                  {anyShown ? (
+                    <Sparkline
+                      points={points}
+                      years={SURVEY_YEARS}
+                      width={240}
+                      height={72}
+                      highlightYear={indicator.years.includes(selectedYear) ? selectedYear : undefined}
+                      shadeYears={pooledYears}
+                      label={`${chartTitle}. ${describeSparkline(points, SURVEY_YEARS)}`}
+                    />
+                  ) : null}
                   <ul className="m-0 list-none p-0 text-sm text-ink-2">
                     {SURVEY_YEARS.map((y) => {
                       const point = points.find((d) => d.year === y)
+                      const looking = y === selectedYear || pooledYears.includes(y)
                       return (
-                        <li key={y} className="tabular">
+                        <li key={y} className={`tabular ${looking ? 'font-semibold text-ink' : ''}`} aria-current={looking ? 'true' : undefined}>
                           <span className="inline-block w-12 font-medium text-ink">{y}</span>
                           {!indicator.years.includes(y) ? 'Not asked' : point && point.p !== null ? formatPct(point.p, 1) : 'Not reported'}
                         </li>
@@ -141,7 +178,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
                   </Link>
                 </p>
                 <ChartExports
-                  getSvg={() => labeledSparklineSvg(points, SURVEY_YEARS, { primary: theme.primary, line: theme.line, ink: theme.ink, muted: theme.muted })}
+                  getSvg={anyShown ? () => labeledSparklineSvg(points, SURVEY_YEARS, { primary: theme.primary, line: theme.line, ink: theme.ink, muted: theme.muted }) : undefined}
                   csv={toCsv(csvRows(shard.data, state, summary.population))}
                   filename={safeFilename(`${cohort}-${indicator.id}-${summary.population}`)}
                   citation={cite}
@@ -150,7 +187,6 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
               </>
             ) : null}
           </section>
-          {isSuicideMeasure(indicator.id) ? <CrisisNote /> : null}
         </div>
       </div>
     </>

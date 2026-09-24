@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { Group } from './catalog'
 
 export type ChartTheme = {
   surface: string
@@ -8,7 +9,10 @@ export type ChartTheme = {
   grid: string
   line: string
   primary: string
+  /** Categorical slots for unordered groups (sex, insurance, where they live…). */
   series: string[]
+  /** Single-hue ramp, light to dark, for ordered groups (age, income…). */
+  sequential: string[]
 }
 
 const FALLBACK: ChartTheme = {
@@ -19,7 +23,8 @@ const FALLBACK: ChartTheme = {
   grid: '#ede6da',
   line: '#ede6da',
   primary: '#c2410c',
-  series: ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4'],
+  series: ['#2a78d6', '#eb6834', '#15915f', '#b57a00', '#d9598c'],
+  sequential: ['#4a90e2', '#2a78d6', '#1d5fb0', '#164a8a', '#0f3563'],
 }
 
 function readTheme(): ChartTheme {
@@ -35,6 +40,7 @@ function readTheme(): ChartTheme {
     line: get('--line', FALLBACK.line),
     primary: get('--primary', FALLBACK.primary),
     series: FALLBACK.series.map((c, i) => get(`--series-${i + 1}`, c)),
+    sequential: FALLBACK.sequential.map((c, i) => get(`--seq-${i + 1}`, c)),
   }
 }
 
@@ -52,4 +58,26 @@ export function useChartTheme(): ChartTheme {
     return () => mq.removeEventListener('change', update)
   }, [])
   return theme
+}
+
+/** Groups whose levels run from lowest to highest, drawn with the sequential ramp. */
+export const ORDERED_GROUPS: readonly string[] = ['age_band', 'poverty', 'family_income', 'education']
+
+export type PaletteKind = 'single' | 'categorical' | 'sequential'
+
+/** Which palette a trend split takes: the primary color alone, the ramp for ordered groups, the categorical slots otherwise. */
+export function paletteKind(split: Pick<Group, 'id'> | null | undefined): PaletteKind {
+  if (!split) return 'single'
+  return ORDERED_GROUPS.includes(split.id) ? 'sequential' : 'categorical'
+}
+
+/** One color per series: the primary color, evenly spaced steps of the ramp (light to dark), or the categorical slots. */
+export function seriesColors(theme: ChartTheme, count: number, kind: PaletteKind): string[] {
+  if (kind === 'single') return Array.from({ length: count }, () => theme.primary)
+  if (kind === 'sequential') {
+    const ramp = theme.sequential
+    const last = ramp.length - 1
+    return Array.from({ length: count }, (_, i) => ramp[count === 1 ? last : Math.round((i * last) / (count - 1))])
+  }
+  return Array.from({ length: count }, (_, i) => theme.series[i % theme.series.length])
 }

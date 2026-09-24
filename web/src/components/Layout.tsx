@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react'
 import { useLocation } from 'react-router'
+import { showsCrisisNote } from '../lib/cards'
 import { Footer } from './Footer'
 import { Header } from './Header'
 
@@ -17,7 +18,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <main id="main" className="mx-auto min-h-screen w-full max-w-6xl flex-1 px-4 sm:px-6">
         {children}
       </main>
-      <Footer />
+      <Footer crisisNote={!showsCrisisNote(pathname)} />
     </div>
   )
 }

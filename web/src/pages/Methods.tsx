@@ -1,10 +1,12 @@
 import { useId, useState, type ReactNode } from 'react'
+import { Link } from 'react-router'
 import { ScrollTable } from '../components/ScrollTable'
 import { Loading, LoadError } from '../components/Status'
 import { cohortInfo, SURVEY_YEARS, type Catalog, type Indicator } from '../lib/catalog'
 import { loadAvailability, loadManifest, type Availability, type Cohort, type Manifest } from '../lib/data'
 import { citation } from '../lib/exports'
 import { formatCount } from '../lib/format'
+import { explorePath } from '../lib/routes'
 import { useCatalog } from '../lib/useCatalog'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
 import { useResource } from '../lib/useResource'
@@ -12,10 +14,27 @@ import { useResource } from '../lib/useResource'
 const REPORT_URL = 'https://github.com/Nathan98000/Mental_Health_Explorer/blob/main/validation/REPORT.md'
 const REPO_URL = 'https://github.com/Nathan98000/Mental_Health_Explorer'
 
-function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+/** The page's sections, in order; the jump links at the top follow this list. */
+const SECTIONS = {
+  'data-source': 'Data source',
+  'how-computed': 'How the estimates are computed',
+  suppression: 'When a number is not shown',
+  'teen-suicide': 'How teen suicide questions are counted',
+  differences: "Why numbers can differ slightly from SAMHSA's reports",
+  limitations: 'Limitations',
+  validation: 'Validation',
+  dictionary: 'Data dictionary',
+  availability: 'Which years each measure was asked',
+  groups: 'Population groups',
+  citation: 'Data generation and citation',
+} as const
+
+type SectionId = keyof typeof SECTIONS
+
+function Section({ id, children }: { id: SectionId; children: ReactNode }) {
   return (
-    <section className="mt-10" aria-labelledby={id}>
-      <h2 id={id} className="m-0 font-display text-2xl font-extrabold text-ink">{title}</h2>
+    <section className="mt-10 scroll-mt-6" aria-labelledby={id}>
+      <h2 id={id} className="m-0 font-display text-2xl font-extrabold text-ink">{SECTIONS[id]}</h2>
       <div className="mt-3 max-w-3xl space-y-3 leading-relaxed text-ink">{children}</div>
     </section>
   )
@@ -31,47 +50,68 @@ function Dictionary({ catalog }: { catalog: Catalog }) {
   const [query, setQuery] = useState('')
   const id = useId()
   const q = query.trim().toLowerCase()
-  const rows = catalog.indicators.filter((i) => !q || [i.label, i.id, i.definition, i.source, cohortInfo(catalog, i.cohort).label].some((t) => t.toLowerCase().includes(q)))
+  const rows = catalog.indicators.filter((i) => !q || [i.label, i.definition, i.source, cohortInfo(catalog, i.cohort).label].some((t) => t.toLowerCase().includes(q)))
   const th = 'border-b border-line py-2 pr-4 text-left font-semibold'
   const td = 'border-b border-line py-2 pr-4 align-top'
+  const measureLink = (i: Indicator) => (
+    <Link to={explorePath(i.cohort, i.id)} className="font-medium text-primary-ink underline">
+      {i.label}
+    </Link>
+  )
   return (
     <>
       <div className="max-w-md">
         <label htmlFor={id} className="mb-1 block text-sm font-semibold text-ink-2">Search the dictionary</label>
         <input id={id} type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="e.g. depression, vaping, YMDEYR" className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-base text-ink" />
       </div>
-      <p className="m-0 text-sm text-ink-2" role="status">{rows.length} of {catalog.indicators.length} measures shown.</p>
-      <ScrollTable label="Data dictionary table">
-        <table className="w-full border-collapse text-sm">
-          <caption className="sr-only">Data dictionary</caption>
-          <thead>
-            <tr className="text-ink-2">
-              <th scope="col" className={th}>Measure</th>
-              <th scope="col" className={th}>Cohort</th>
-              <th scope="col" className={th}>Definition</th>
-              <th scope="col" className={th}>Source variable</th>
-              <th scope="col" className={th}>Years</th>
-            </tr>
-          </thead>
-          <tbody>
+      <p className="m-0 text-sm text-ink-2" role="status">
+        {rows.length ? `${rows.length} of ${catalog.indicators.length} measures shown.` : `No measures match “${query.trim()}”.`}
+      </p>
+      {rows.length ? (
+        <>
+          {/* Phones: one card per measure. */}
+          <ul className="m-0 list-none space-y-3 p-0 sm:hidden">
             {rows.map((i) => (
-              <tr key={`${i.cohort}-${i.id}`}>
-                <th scope="row" className={`${td} text-left font-medium`}>
-                  {i.label}
-                  <span className="block text-xs font-normal text-muted">{i.id}</span>
-                </th>
-                <td className={td}>{cohortInfo(catalog, i.cohort).label}</td>
-                <td className={`${td} min-w-72`}>
-                  {i.definition}
-                  {i.caveats.length ? <span className="block text-xs text-muted">{i.caveats.join(' ')}</span> : null}
-                </td>
-                <td className={td}><code>{i.source}</code></td>
-                <td className={`${td} whitespace-nowrap`}>{yearsText(i.years)}</td>
-              </tr>
+              <li key={`${i.cohort}-${i.id}`} className="rounded-2xl bg-surface p-4 ring-1 ring-line">
+                <p className="m-0 font-display text-base font-bold text-ink">{measureLink(i)}</p>
+                <p className="m-0 mt-1 text-sm text-ink-2">{cohortInfo(catalog, i.cohort).label} · {yearsText(i.years)} · <code>{i.source}</code></p>
+                <p className="m-0 mt-2 text-sm leading-relaxed text-ink">{i.definition}</p>
+                {i.caveats.length ? <p className="m-0 mt-1 text-xs text-muted">{i.caveats.join(' ')}</p> : null}
+              </li>
             ))}
-          </tbody>
-        </table>
-      </ScrollTable>
+          </ul>
+          <div className="hidden sm:block">
+            <ScrollTable label="Data dictionary table">
+              <table className="w-full border-collapse text-sm">
+                <caption className="sr-only">Data dictionary</caption>
+                <thead>
+                  <tr className="text-ink-2">
+                    <th scope="col" className={th}>Measure</th>
+                    <th scope="col" className={th}>Cohort</th>
+                    <th scope="col" className={th}>Definition</th>
+                    <th scope="col" className={th}>Source variable</th>
+                    <th scope="col" className={th}>Years</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((i) => (
+                    <tr key={`${i.cohort}-${i.id}`}>
+                      <th scope="row" className={`${td} text-left font-medium`}>{measureLink(i)}</th>
+                      <td className={td}>{cohortInfo(catalog, i.cohort).label}</td>
+                      <td className={`${td} min-w-72`}>
+                        {i.definition}
+                        {i.caveats.length ? <span className="block text-xs text-muted">{i.caveats.join(' ')}</span> : null}
+                      </td>
+                      <td className={td}><code>{i.source}</code></td>
+                      <td className={`${td} whitespace-nowrap`}>{yearsText(i.years)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </ScrollTable>
+          </div>
+        </>
+      ) : null}
     </>
   )
 }
@@ -81,7 +121,7 @@ function AvailabilityMatrix({ catalog, availability }: { catalog: Catalog; avail
   const cohorts: Cohort[] = ['teen', 'young_adult']
   const cell = (indicator: Indicator, year: number) => {
     const entry = availability[indicator.cohort]?.[indicator.id]?.[String(year)]
-    if (!entry || !entry.collected) return <span className="text-muted">—<span className="sr-only">Not collected</span></span>
+    if (!entry || !entry.collected) return <span className="text-muted">Not available</span>
     return <span title={`${formatCount(entry.n_valid)} responses`}>Yes</span>
   }
   return (
@@ -120,18 +160,17 @@ function AvailabilityMatrix({ catalog, availability }: { catalog: Catalog; avail
 function Groups({ catalog }: { catalog: Catalog }) {
   return (
     <dl className="m-0 grid gap-x-6 gap-y-3 sm:grid-cols-[auto_1fr]">
-      {catalog.groups.map((g) => (
-        <div key={g.id} className="contents">
-          <dt className="font-semibold">{g.label}</dt>
-          <dd className="m-0 text-ink-2">
-            {g.levels.map((l) => l.label).join(' · ')}
-            <span className="block text-xs text-muted">
-              {g.cohorts.map((c) => cohortInfo(catalog, c).label).join(' and ')}
-              {g.crosses_only ? '; used only for two-way crosses' : ''}
-            </span>
-          </dd>
-        </div>
-      ))}
+      {catalog.groups
+        .filter((g) => !g.crosses_only)
+        .map((g) => (
+          <div key={g.id} className="contents">
+            <dt className="font-semibold">{g.label}</dt>
+            <dd className="m-0 text-ink-2">
+              {g.levels.map((l) => l.label).join(' · ')}
+              <span className="block text-xs text-muted">{g.cohorts.map((c) => cohortInfo(catalog, c).label).join(' and ')}</span>
+            </dd>
+          </div>
+        ))}
     </dl>
   )
 }
@@ -157,8 +196,27 @@ export default function Methods() {
       <p className="m-0 mt-3 max-w-3xl text-lg leading-relaxed text-ink-2">
         Where the numbers come from, how they are computed, how sure we can be, and what every measure means.
       </p>
+      <div className="mt-6 max-w-3xl rounded-3xl bg-surface-tint p-5 leading-relaxed text-ink" role="note" aria-label="In short">
+        <p className="m-0 font-display text-base font-bold">In short</p>
+        <p className="m-0 mt-2">
+          Every number on this site is the share of U.S. teens or young adults who answered yes to a question in SAMHSA&rsquo;s national survey, weighted so the
+          people who took part stand for everyone their age. Each estimate comes with a 95% confidence interval, and we call a change or a difference real only
+          when a statistical test says it is unlikely to be chance. When too few people answered or the estimate is too shaky, we leave the number out rather
+          than show something misleading.
+        </p>
+      </div>
+      <nav aria-label="On this page" className="mt-6 max-w-3xl">
+        <p className="m-0 text-sm font-semibold text-ink-2">On this page</p>
+        <ul className="m-0 mt-2 flex list-none flex-wrap gap-x-4 gap-y-1 p-0 text-sm">
+          {Object.entries(SECTIONS).map(([id, title]) => (
+            <li key={id}>
+              <a href={`#${id}`} className="text-primary-ink underline">{title}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-      <Section id="data-source" title="Data source">
+      <Section id="data-source">
         <p>
           All estimates come from the National Survey on Drug Use and Health (NSDUH), run every year by the Substance Abuse and Mental Health
           Services Administration (SAMHSA). This site uses the combined 2021–2024 public use file, which holds 232,441 respondents: 45,618 teens
@@ -171,7 +229,7 @@ export default function Methods() {
         </p>
       </Section>
 
-      <Section id="how-computed" title="How the estimates are computed">
+      <Section id="how-computed">
         <p>
           Every number is a weighted proportion: each respondent counts with their analysis weight, so the sample stands for the U.S. civilian,
           non-institutionalized population. Single years use the one-year weight; when years are pooled (&ldquo;all years combined&rdquo; or
@@ -189,7 +247,7 @@ export default function Methods() {
         </p>
       </Section>
 
-      <Section id="suppression" title="When a number is not shown">
+      <Section id="suppression">
         <p>
           Following Table 11.1 of the public use file users&rsquo; guide, an estimate is suppressed when it is based on fewer than 50 respondents,
           when it is too imprecise (its relative standard error on the log scale is above the guide&rsquo;s threshold), or when no one in the group
@@ -197,7 +255,7 @@ export default function Methods() {
         </p>
       </Section>
 
-      <Section id="teen-suicide" title="How teen suicide questions are counted">
+      <Section id="teen-suicide">
         <p>
           The teen questions on suicidal thoughts and plans allow the answers &ldquo;I&rsquo;m not sure&rdquo; and &ldquo;I don&rsquo;t want to
           answer&rdquo;. Following SAMHSA&rsquo;s published estimates, those answers are counted as no. Teen rates for these measures are therefore
@@ -205,7 +263,7 @@ export default function Methods() {
         </p>
       </Section>
 
-      <Section id="differences" title="Why numbers can differ slightly from SAMHSA's reports">
+      <Section id="differences">
         <p>
           The public use file protects respondents&rsquo; privacy: some records are subsampled and some values are recoded or perturbed before
           release. Estimates computed from it, like the ones here, can differ slightly from SAMHSA&rsquo;s published figures, which use the
@@ -213,7 +271,7 @@ export default function Methods() {
         </p>
       </Section>
 
-      <Section id="limitations" title="Limitations">
+      <Section id="limitations">
         <ul className="my-0 list-disc space-y-1 pl-5">
           <li>The survey is cross-sectional: it shows how common things are and what goes together, not cause and effect.</li>
           <li>Teens and adults answer different questionnaires, so teen and young-adult measures are not always directly comparable.</li>
@@ -223,7 +281,7 @@ export default function Methods() {
         </ul>
       </Section>
 
-      <Section id="validation" title="Validation">
+      <Section id="validation">
         <p>
           Every printed cell of the codebook&rsquo;s reference tables (Tables 4a, 4b, 5a and 5b: 246 percentages, standard errors and totals) was
           recomputed from the raw file and matched at printed precision, and an independent cross-check with the R <code>survey</code> package
@@ -232,11 +290,11 @@ export default function Methods() {
         </p>
       </Section>
 
-      <Section id="dictionary" title="Data dictionary">
+      <Section id="dictionary">
         {catalog.status === 'ready' ? <Dictionary catalog={catalog.data} /> : catalog.status === 'error' ? <LoadError what="The dictionary" /> : <Loading what="the dictionary" />}
       </Section>
 
-      <Section id="availability" title="Which years each measure was asked">
+      <Section id="availability">
         {catalog.status === 'ready' && availability.status === 'ready' ? (
           <AvailabilityMatrix catalog={catalog.data} availability={availability.data} />
         ) : catalog.status === 'error' || availability.status === 'error' ? (
@@ -246,11 +304,11 @@ export default function Methods() {
         )}
       </Section>
 
-      <Section id="groups" title="Population groups">
+      <Section id="groups">
         {catalog.status === 'ready' ? <Groups catalog={catalog.data} /> : null}
       </Section>
 
-      <Section id="citation" title="Data generation and citation">
+      <Section id="citation">
         {manifest.status === 'ready' ? <Generated manifest={manifest.data} /> : null}
         <p>
           Source: Substance Abuse and Mental Health Services Administration, Center for Behavioral Health Statistics and Quality. National Survey

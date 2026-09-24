@@ -7,6 +7,12 @@ import { formatPct, oneInN } from './format'
 
 export const SIGNIFICANCE = 0.05
 export const SUPPRESSED_TAKEAWAY = 'Not enough responses to report this reliably.'
+export const IMPRECISE_TAKEAWAY = 'This estimate is too imprecise to report reliably.'
+
+/** The suppression note for a cell's reason: too imprecise, or (the default) too few responses. */
+export function suppressedTakeaway(reason: string | null | undefined): string {
+  return reason && /imprecise/i.test(reason) ? IMPRECISE_TAKEAWAY : SUPPRESSED_TAKEAWAY
+}
 
 /** A 95% interval is "wide" when it spans at least this many points (10)... */
 export const WIDE_INTERVAL_POINTS = 0.1
@@ -54,12 +60,12 @@ export function changeKind(diff: number | null | undefined, pValue: number | nul
 
 export type ChangeInput = { priorP: number; priorYear: number; diff: number | null; pValue: number | null }
 
-/** "That's down from 21% in 2021." / "That's about the same as in 2021 (21%)." / null when not testable. */
+/** "That's down from 20.5% in 2021." / "That's about the same as in 2021 (20.5%)." / null when not testable. Compared values carry one decimal. */
 export function changeSentence({ priorP, priorYear, diff, pValue }: ChangeInput): string | null {
   const kind = changeKind(diff, pValue)
   if (!kind) return null
-  if (kind === 'same') return `That's about the same as in ${priorYear} (${formatPct(priorP)}).`
-  return `That's ${kind === 'fell' ? 'down' : 'up'} from ${formatPct(priorP)} in ${priorYear}.`
+  if (kind === 'same') return `That's about the same as in ${priorYear} (${formatPct(priorP, 1)}).`
+  return `That's ${kind === 'fell' ? 'down' : 'up'} from ${formatPct(priorP, 1)} in ${priorYear}.`
 }
 
 /** Short marker for headline tiles: "Fell since 2021", "Rose since 2021", "About the same as 2021". */
@@ -78,23 +84,25 @@ export type VsOverallInput = {
   pValue: number | null
 }
 
-/** "That's higher than all teens (15%)." only when the group test and this level's test are both significant; otherwise "similar". */
+/** "That's higher than all teens (14.8%)." only when the group test and this level's test are both significant; otherwise "similar". */
 export function vsOverallSentence({ overallP, people, overallSignificant, diff, pValue }: VsOverallInput): string {
   const differs = overallSignificant && diff !== null && pValue !== null && pValue < SIGNIFICANCE
-  if (differs) return `That's ${diff > 0 ? 'higher' : 'lower'} than all ${people} (${formatPct(overallP)}).`
-  return `That's similar to all ${people} (${formatPct(overallP)}).`
+  if (differs) return `That's ${diff > 0 ? 'higher' : 'lower'} than all ${people} (${formatPct(overallP, 1)}).`
+  return `That's similar to all ${people} (${formatPct(overallP, 1)}).`
 }
 
 export type TakeawayInput = {
   suppressed: boolean
+  /** The cell's suppression reason, for the wording of the note. */
+  reason?: string | null
   level: LevelInput | null
   change?: ChangeInput | null
   vsOverall?: VsOverallInput | null
 }
 
 /** The sentences for an estimate card: level, then change, then comparison with everyone. */
-export function takeaway({ suppressed, level, change, vsOverall }: TakeawayInput): string[] {
-  if (suppressed || !level) return [SUPPRESSED_TAKEAWAY]
+export function takeaway({ suppressed, reason, level, change, vsOverall }: TakeawayInput): string[] {
+  if (suppressed || !level) return [suppressedTakeaway(reason)]
   const sentences = [levelSentence(level)]
   const changed = change ? changeSentence(change) : null
   if (changed) sentences.push(changed)

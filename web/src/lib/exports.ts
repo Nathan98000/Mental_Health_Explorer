@@ -67,9 +67,9 @@ export const TOKEN_FALLBACKS: Record<string, string> = {
   '--sun': '#ffc857',
   '--series-1': '#2a78d6',
   '--series-2': '#eb6834',
-  '--series-3': '#1baf7a',
-  '--series-4': '#eda100',
-  '--series-5': '#e87ba4',
+  '--series-3': '#15915f',
+  '--series-4': '#b57a00',
+  '--series-5': '#d9598c',
 }
 
 export type CssVarLookup = (name: string) => string | undefined
