@@ -96,7 +96,11 @@ function TrendsView({ catalog, state }: { catalog: Catalog; state: TrendsState }
             />
           )}
         </div>
-        {suicide ? <CrisisNote /> : null}
+        {suicide ? (
+          <div className="lg:self-start">
+            <CrisisNote />
+          </div>
+        ) : null}
       </div>
 
       {shard.status === 'ready' ? (
