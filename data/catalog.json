@@ -186,7 +186,7 @@
     {
      "id": "another_or_multiracial",
      "label": "Another race or multiracial",
-     "phrase": "{cohort} of another race or who are multiracial"
+     "phrase": "{people} of another race or who are multiracial"
     }
    ]
   },
@@ -198,22 +198,22 @@
     "young_adult"
    ],
    "crosses_only": false,
-   "phrase": "{cohort} in families {level}",
+   "phrase": "{people} in families {level}",
    "levels": [
     {
      "id": "below_poverty",
      "label": "Below the poverty line",
-     "phrase": "{cohort} in families below the poverty line"
+     "phrase": "{people} in families below the poverty line"
     },
     {
      "id": "up_to_2x_poverty",
      "label": "Up to twice the poverty line",
-     "phrase": "{cohort} in families earning up to twice the poverty line"
+     "phrase": "{people} in families earning up to twice the poverty line"
     },
     {
      "id": "above_2x_poverty",
      "label": "More than twice the poverty line",
-     "phrase": "{cohort} in families earning more than twice the poverty line"
+     "phrase": "{people} in families earning more than twice the poverty line"
     }
    ]
   },
@@ -225,12 +225,12 @@
     "young_adult"
    ],
    "crosses_only": false,
-   "phrase": "{cohort} in families earning {level}",
+   "phrase": "{people} in families earning {level}",
    "levels": [
     {
      "id": "under_20k",
      "label": "Less than $20,000",
-     "phrase": "{cohort} in families earning less than $20,000"
+     "phrase": "{people} in families earning less than $20,000"
     },
     {
      "id": "from_20k_to_49k",
@@ -257,17 +257,17 @@
     "young_adult"
    ],
    "crosses_only": false,
-   "phrase": "{cohort} ({level})",
+   "phrase": "{people} ({level})",
    "levels": [
     {
      "id": "insured",
      "label": "Has health insurance",
-     "phrase": "{cohort} with health insurance"
+     "phrase": "{people} with health insurance"
     },
     {
      "id": "uninsured",
      "label": "No health insurance",
-     "phrase": "{cohort} without health insurance"
+     "phrase": "{people} without health insurance"
     }
    ]
   },
@@ -279,22 +279,22 @@
     "young_adult"
    ],
    "crosses_only": false,
-   "phrase": "{cohort} ({level})",
+   "phrase": "{people} ({level})",
    "levels": [
     {
      "id": "large_metro",
      "label": "Large metro area",
-     "phrase": "{cohort} in large metro areas"
+     "phrase": "{people} in large metro areas"
     },
     {
      "id": "small_metro",
      "label": "Small metro area",
-     "phrase": "{cohort} in small metro areas"
+     "phrase": "{people} in small metro areas"
     },
     {
      "id": "nonmetro",
      "label": "Nonmetro (rural) area",
-     "phrase": "{cohort} in nonmetro (rural) areas"
+     "phrase": "{people} in nonmetro (rural) areas"
     }
    ]
   },
@@ -305,22 +305,22 @@
     "teen"
    ],
    "crosses_only": false,
-   "phrase": "{cohort} living with {level}",
+   "phrase": "{people} living with {level}",
    "levels": [
     {
      "id": "both_parents",
      "label": "Both parents",
-     "phrase": "{cohort} living with both parents"
+     "phrase": "{people} living with both parents"
     },
     {
      "id": "one_parent",
      "label": "One parent",
-     "phrase": "{cohort} living with one parent"
+     "phrase": "{people} living with one parent"
     },
     {
      "id": "neither_parent",
      "label": "Neither parent",
-     "phrase": "{cohort} living with neither parent"
+     "phrase": "{people} living with neither parent"
     }
    ]
   },
@@ -331,27 +331,27 @@
     "young_adult"
    ],
    "crosses_only": false,
-   "phrase": "{cohort} ({level})",
+   "phrase": "{people} ({level})",
    "levels": [
     {
      "id": "less_than_high_school",
      "label": "Less than high school",
-     "phrase": "{cohort} with less than a high school education"
+     "phrase": "{people} with less than a high school education"
     },
     {
      "id": "high_school_graduate",
      "label": "High school graduate",
-     "phrase": "{cohort} who finished high school but not college"
+     "phrase": "{people} who finished high school but not college"
     },
     {
      "id": "some_college",
      "label": "Some college or associate degree",
-     "phrase": "{cohort} with some college or an associate degree"
+     "phrase": "{people} with some college or an associate degree"
     },
     {
      "id": "college_graduate",
      "label": "College graduate",
-     "phrase": "{cohort} who graduated from college"
+     "phrase": "{people} who graduated from college"
     }
    ]
   },
@@ -362,17 +362,17 @@
     "young_adult"
    ],
    "crosses_only": false,
-   "phrase": "{cohort} ({level})",
+   "phrase": "{people} ({level})",
    "levels": [
     {
      "id": "full_time",
      "label": "Employed full time",
-     "phrase": "{cohort} employed full time"
+     "phrase": "{people} employed full time"
     },
     {
      "id": "part_time",
      "label": "Employed part time",
-     "phrase": "{cohort} employed part time"
+     "phrase": "{people} employed part time"
     },
     {
      "id": "unemployed",
@@ -382,7 +382,7 @@
     {
      "id": "not_in_labor_force",
      "label": "Other (including students and not in the labor force)",
-     "phrase": "{cohort} who are students or otherwise not in the labor force"
+     "phrase": "{people} who are students or otherwise not in the labor force"
     }
    ]
   }

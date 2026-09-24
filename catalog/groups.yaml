@@ -5,7 +5,8 @@
 # `phrase` is the population wording for takeaways ("About 1 in 7 female teens ages 12–17 ...").
 # It is a template: {cohort} is the cohort phrase ("teens ages 12–17", "young adults ages 18–25"),
 # {people} the short form ("teens", "young adults") and {level} the level label. A level's own
-# `phrase` replaces the group template for that level.
+# `phrase` replaces the group template for that level. Adjectives before the noun keep the ages
+# ("female teens ages 12–17"); qualifiers after it use the short form ("teens living with one parent").
 groups:
   - id: age_band
     label: Age
@@ -54,25 +55,25 @@ groups:
       - { id: black, label: Black (non-Hispanic), codes: [2], phrase: "non-Hispanic Black {cohort}" }
       - { id: asian, label: Asian (non-Hispanic), codes: [5], phrase: "non-Hispanic Asian {cohort}" }
       - { id: hispanic, label: Hispanic or Latino, codes: [7], phrase: "Hispanic or Latino {cohort}" }
-      - { id: another_or_multiracial, label: Another race or multiracial, codes: [3, 4, 6], phrase: "{cohort} of another race or who are multiracial" }
+      - { id: another_or_multiracial, label: Another race or multiracial, codes: [3, 4, 6], phrase: "{people} of another race or who are multiracial" }
 
   - id: poverty
     label: Family income relative to the poverty line
     source: POVERTY3
     cohorts: [teen, young_adult]
-    phrase: "{cohort} in families {level}"
+    phrase: "{people} in families {level}"
     levels:
-      - { id: below_poverty, label: Below the poverty line, codes: [1], phrase: "{cohort} in families below the poverty line" }
-      - { id: up_to_2x_poverty, label: Up to twice the poverty line, codes: [2], phrase: "{cohort} in families earning up to twice the poverty line" }
-      - { id: above_2x_poverty, label: More than twice the poverty line, codes: [3], phrase: "{cohort} in families earning more than twice the poverty line" }
+      - { id: below_poverty, label: Below the poverty line, codes: [1], phrase: "{people} in families below the poverty line" }
+      - { id: up_to_2x_poverty, label: Up to twice the poverty line, codes: [2], phrase: "{people} in families earning up to twice the poverty line" }
+      - { id: above_2x_poverty, label: More than twice the poverty line, codes: [3], phrase: "{people} in families earning more than twice the poverty line" }
 
   - id: family_income
     label: Family income
     source: IRFAMIN3
     cohorts: [teen, young_adult]
-    phrase: "{cohort} in families earning {level}"
+    phrase: "{people} in families earning {level}"
     levels:
-      - { id: under_20k, label: "Less than $20,000", codes: [1, 2], phrase: "{cohort} in families earning less than $20,000" }
+      - { id: under_20k, label: "Less than $20,000", codes: [1, 2], phrase: "{people} in families earning less than $20,000" }
       - { id: from_20k_to_49k, label: "$20,000–$49,999", codes: [3, 4, 5] }
       - { id: from_50k_to_74k, label: "$50,000–$74,999", codes: [6] }
       - { id: from_75k, label: "$75,000 or more", codes: [7] }
@@ -81,49 +82,49 @@ groups:
     label: Health insurance
     source: IRINSUR4
     cohorts: [teen, young_adult]
-    phrase: "{cohort} ({level})"
+    phrase: "{people} ({level})"
     levels:
-      - { id: insured, label: Has health insurance, codes: [1], phrase: "{cohort} with health insurance" }
-      - { id: uninsured, label: No health insurance, codes: [2], phrase: "{cohort} without health insurance" }
+      - { id: insured, label: Has health insurance, codes: [1], phrase: "{people} with health insurance" }
+      - { id: uninsured, label: No health insurance, codes: [2], phrase: "{people} without health insurance" }
 
   - id: metro
     label: Where they live
     source: COUTYP4
     cohorts: [teen, young_adult]
-    phrase: "{cohort} ({level})"
+    phrase: "{people} ({level})"
     levels:
-      - { id: large_metro, label: Large metro area, codes: [1], phrase: "{cohort} in large metro areas" }
-      - { id: small_metro, label: Small metro area, codes: [2], phrase: "{cohort} in small metro areas" }
-      - { id: nonmetro, label: Nonmetro (rural) area, codes: [3], phrase: "{cohort} in nonmetro (rural) areas" }
+      - { id: large_metro, label: Large metro area, codes: [1], phrase: "{people} in large metro areas" }
+      - { id: small_metro, label: Small metro area, codes: [2], phrase: "{people} in small metro areas" }
+      - { id: nonmetro, label: Nonmetro (rural) area, codes: [3], phrase: "{people} in nonmetro (rural) areas" }
 
   - id: parents_in_home
     label: Parents in the home
     source: [IMOTHER, IFATHER]
     cohorts: [teen]
-    phrase: "{cohort} living with {level}"
+    phrase: "{people} living with {level}"
     levels:
-      - { id: both_parents, label: Both parents, codes: [[1, 1]], phrase: "{cohort} living with both parents" }
-      - { id: one_parent, label: One parent, codes: [[1, 2], [2, 1]], phrase: "{cohort} living with one parent" }
-      - { id: neither_parent, label: Neither parent, codes: [[2, 2]], phrase: "{cohort} living with neither parent" }
+      - { id: both_parents, label: Both parents, codes: [[1, 1]], phrase: "{people} living with both parents" }
+      - { id: one_parent, label: One parent, codes: [[1, 2], [2, 1]], phrase: "{people} living with one parent" }
+      - { id: neither_parent, label: Neither parent, codes: [[2, 2]], phrase: "{people} living with neither parent" }
 
   - id: education
     label: Education
     source: EDUHIGHCAT
     cohorts: [young_adult]
-    phrase: "{cohort} ({level})"
+    phrase: "{people} ({level})"
     levels:
-      - { id: less_than_high_school, label: Less than high school, codes: [1], phrase: "{cohort} with less than a high school education" }
-      - { id: high_school_graduate, label: High school graduate, codes: [2], phrase: "{cohort} who finished high school but not college" }
-      - { id: some_college, label: Some college or associate degree, codes: [3], phrase: "{cohort} with some college or an associate degree" }
-      - { id: college_graduate, label: College graduate, codes: [4], phrase: "{cohort} who graduated from college" }
+      - { id: less_than_high_school, label: Less than high school, codes: [1], phrase: "{people} with less than a high school education" }
+      - { id: high_school_graduate, label: High school graduate, codes: [2], phrase: "{people} who finished high school but not college" }
+      - { id: some_college, label: Some college or associate degree, codes: [3], phrase: "{people} with some college or an associate degree" }
+      - { id: college_graduate, label: College graduate, codes: [4], phrase: "{people} who graduated from college" }
 
   - id: employment
     label: Employment
     source: IRWRKSTAT18
     cohorts: [young_adult]
-    phrase: "{cohort} ({level})"
+    phrase: "{people} ({level})"
     levels:
-      - { id: full_time, label: Employed full time, codes: [1], phrase: "{cohort} employed full time" }
-      - { id: part_time, label: Employed part time, codes: [2], phrase: "{cohort} employed part time" }
+      - { id: full_time, label: Employed full time, codes: [1], phrase: "{people} employed full time" }
+      - { id: part_time, label: Employed part time, codes: [2], phrase: "{people} employed part time" }
       - { id: unemployed, label: Unemployed, codes: [3], phrase: "unemployed {cohort}" }
-      - { id: not_in_labor_force, label: Other (including students and not in the labor force), codes: [4], phrase: "{cohort} who are students or otherwise not in the labor force" }
+      - { id: not_in_labor_force, label: Other (including students and not in the labor force), codes: [4], phrase: "{people} who are students or otherwise not in the labor force" }
