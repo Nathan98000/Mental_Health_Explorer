@@ -1,0 +1,1425 @@
+{
+ "cohorts": [
+  {
+   "id": "teen",
+   "label": "Teens",
+   "phrase": "teens ages 12–17",
+   "people": "teens",
+   "ages": "12–17"
+  },
+  {
+   "id": "young_adult",
+   "label": "Young adults",
+   "phrase": "young adults ages 18–25",
+   "people": "young adults",
+   "ages": "18–25"
+  }
+ ],
+ "topics": [
+  {
+   "id": "depression_suicide",
+   "label": "Depression and suicide"
+  },
+  {
+   "id": "mental_illness",
+   "label": "Mental illness and distress"
+  },
+  {
+   "id": "care",
+   "label": "Getting help"
+  },
+  {
+   "id": "substance_use",
+   "label": "Substance use"
+  },
+  {
+   "id": "school_family_peers",
+   "label": "School, family and friends"
+  },
+  {
+   "id": "health",
+   "label": "Overall health"
+  }
+ ],
+ "groups": [
+  {
+   "id": "age_band",
+   "label": "Age",
+   "cohorts": [
+    "teen",
+    "young_adult"
+   ],
+   "crosses_only": false,
+   "phrase": "{people} ages {level}",
+   "levels": [
+    {
+     "id": "age_12_13",
+     "label": "12–13",
+     "phrase": null
+    },
+    {
+     "id": "age_14_15",
+     "label": "14–15",
+     "phrase": null
+    },
+    {
+     "id": "age_16_17",
+     "label": "16–17",
+     "phrase": null
+    },
+    {
+     "id": "age_18_20",
+     "label": "18–20",
+     "phrase": null
+    },
+    {
+     "id": "age_21_23",
+     "label": "21–23",
+     "phrase": null
+    },
+    {
+     "id": "age_24_25",
+     "label": "24–25",
+     "phrase": null
+    }
+   ]
+  },
+  {
+   "id": "sex",
+   "label": "Sex",
+   "cohorts": [
+    "teen",
+    "young_adult"
+   ],
+   "crosses_only": false,
+   "phrase": "{level} {cohort}",
+   "levels": [
+    {
+     "id": "male",
+     "label": "Male",
+     "phrase": "male {cohort}"
+    },
+    {
+     "id": "female",
+     "label": "Female",
+     "phrase": "female {cohort}"
+    }
+   ]
+  },
+  {
+   "id": "race_ethnicity",
+   "label": "Race and ethnicity",
+   "cohorts": [
+    "teen",
+    "young_adult"
+   ],
+   "crosses_only": false,
+   "phrase": "{level} {cohort}",
+   "levels": [
+    {
+     "id": "white",
+     "label": "White (non-Hispanic)",
+     "phrase": "non-Hispanic white {cohort}"
+    },
+    {
+     "id": "black",
+     "label": "Black (non-Hispanic)",
+     "phrase": "non-Hispanic Black {cohort}"
+    },
+    {
+     "id": "aian",
+     "label": "American Indian or Alaska Native (non-Hispanic)",
+     "phrase": "non-Hispanic American Indian or Alaska Native {cohort}"
+    },
+    {
+     "id": "nhopi",
+     "label": "Native Hawaiian or Pacific Islander (non-Hispanic)",
+     "phrase": "non-Hispanic Native Hawaiian or Pacific Islander {cohort}"
+    },
+    {
+     "id": "asian",
+     "label": "Asian (non-Hispanic)",
+     "phrase": "non-Hispanic Asian {cohort}"
+    },
+    {
+     "id": "multiracial",
+     "label": "Two or more races (non-Hispanic)",
+     "phrase": "non-Hispanic multiracial {cohort}"
+    },
+    {
+     "id": "hispanic",
+     "label": "Hispanic or Latino",
+     "phrase": "Hispanic or Latino {cohort}"
+    }
+   ]
+  },
+  {
+   "id": "race_ethnicity_5",
+   "label": "Race and ethnicity (5 groups)",
+   "cohorts": [
+    "teen",
+    "young_adult"
+   ],
+   "crosses_only": true,
+   "phrase": "{level} {cohort}",
+   "levels": [
+    {
+     "id": "white",
+     "label": "White (non-Hispanic)",
+     "phrase": "non-Hispanic white {cohort}"
+    },
+    {
+     "id": "black",
+     "label": "Black (non-Hispanic)",
+     "phrase": "non-Hispanic Black {cohort}"
+    },
+    {
+     "id": "asian",
+     "label": "Asian (non-Hispanic)",
+     "phrase": "non-Hispanic Asian {cohort}"
+    },
+    {
+     "id": "hispanic",
+     "label": "Hispanic or Latino",
+     "phrase": "Hispanic or Latino {cohort}"
+    },
+    {
+     "id": "another_or_multiracial",
+     "label": "Another race or multiracial",
+     "phrase": "{cohort} of another race or who are multiracial"
+    }
+   ]
+  },
+  {
+   "id": "poverty",
+   "label": "Family income relative to the poverty line",
+   "cohorts": [
+    "teen",
+    "young_adult"
+   ],
+   "crosses_only": false,
+   "phrase": "{cohort} in families {level}",
+   "levels": [
+    {
+     "id": "below_poverty",
+     "label": "Below the poverty line",
+     "phrase": "{cohort} in families below the poverty line"
+    },
+    {
+     "id": "up_to_2x_poverty",
+     "label": "Up to twice the poverty line",
+     "phrase": "{cohort} in families earning up to twice the poverty line"
+    },
+    {
+     "id": "above_2x_poverty",
+     "label": "More than twice the poverty line",
+     "phrase": "{cohort} in families earning more than twice the poverty line"
+    }
+   ]
+  },
+  {
+   "id": "family_income",
+   "label": "Family income",
+   "cohorts": [
+    "teen",
+    "young_adult"
+   ],
+   "crosses_only": false,
+   "phrase": "{cohort} in families earning {level}",
+   "levels": [
+    {
+     "id": "under_20k",
+     "label": "Less than $20,000",
+     "phrase": "{cohort} in families earning less than $20,000"
+    },
+    {
+     "id": "from_20k_to_49k",
+     "label": "$20,000–$49,999",
+     "phrase": null
+    },
+    {
+     "id": "from_50k_to_74k",
+     "label": "$50,000–$74,999",
+     "phrase": null
+    },
+    {
+     "id": "from_75k",
+     "label": "$75,000 or more",
+     "phrase": null
+    }
+   ]
+  },
+  {
+   "id": "insurance",
+   "label": "Health insurance",
+   "cohorts": [
+    "teen",
+    "young_adult"
+   ],
+   "crosses_only": false,
+   "phrase": "{cohort} ({level})",
+   "levels": [
+    {
+     "id": "insured",
+     "label": "Has health insurance",
+     "phrase": "{cohort} with health insurance"
+    },
+    {
+     "id": "uninsured",
+     "label": "No health insurance",
+     "phrase": "{cohort} without health insurance"
+    }
+   ]
+  },
+  {
+   "id": "metro",
+   "label": "Where they live",
+   "cohorts": [
+    "teen",
+    "young_adult"
+   ],
+   "crosses_only": false,
+   "phrase": "{cohort} ({level})",
+   "levels": [
+    {
+     "id": "large_metro",
+     "label": "Large metro area",
+     "phrase": "{cohort} in large metro areas"
+    },
+    {
+     "id": "small_metro",
+     "label": "Small metro area",
+     "phrase": "{cohort} in small metro areas"
+    },
+    {
+     "id": "nonmetro",
+     "label": "Nonmetro (rural) area",
+     "phrase": "{cohort} in nonmetro (rural) areas"
+    }
+   ]
+  },
+  {
+   "id": "parents_in_home",
+   "label": "Parents in the home",
+   "cohorts": [
+    "teen"
+   ],
+   "crosses_only": false,
+   "phrase": "{cohort} living with {level}",
+   "levels": [
+    {
+     "id": "both_parents",
+     "label": "Both parents",
+     "phrase": "{cohort} living with both parents"
+    },
+    {
+     "id": "one_parent",
+     "label": "One parent",
+     "phrase": "{cohort} living with one parent"
+    },
+    {
+     "id": "neither_parent",
+     "label": "Neither parent",
+     "phrase": "{cohort} living with neither parent"
+    }
+   ]
+  },
+  {
+   "id": "education",
+   "label": "Education",
+   "cohorts": [
+    "young_adult"
+   ],
+   "crosses_only": false,
+   "phrase": "{cohort} ({level})",
+   "levels": [
+    {
+     "id": "less_than_high_school",
+     "label": "Less than high school",
+     "phrase": "{cohort} with less than a high school education"
+    },
+    {
+     "id": "high_school_graduate",
+     "label": "High school graduate",
+     "phrase": "{cohort} who finished high school but not college"
+    },
+    {
+     "id": "some_college",
+     "label": "Some college or associate degree",
+     "phrase": "{cohort} with some college or an associate degree"
+    },
+    {
+     "id": "college_graduate",
+     "label": "College graduate",
+     "phrase": "{cohort} who graduated from college"
+    }
+   ]
+  },
+  {
+   "id": "employment",
+   "label": "Employment",
+   "cohorts": [
+    "young_adult"
+   ],
+   "crosses_only": false,
+   "phrase": "{cohort} ({level})",
+   "levels": [
+    {
+     "id": "full_time",
+     "label": "Employed full time",
+     "phrase": "{cohort} employed full time"
+    },
+    {
+     "id": "part_time",
+     "label": "Employed part time",
+     "phrase": "{cohort} employed part time"
+    },
+    {
+     "id": "unemployed",
+     "label": "Unemployed",
+     "phrase": "unemployed {cohort}"
+    },
+    {
+     "id": "not_in_labor_force",
+     "label": "Other (including students and not in the labor force)",
+     "phrase": "{cohort} who are students or otherwise not in the labor force"
+    }
+   ]
+  }
+ ],
+ "indicators": [
+  {
+   "id": "mde_py",
+   "cohort": "teen",
+   "topic": "depression_suicide",
+   "label": "Major depressive episode in the past year",
+   "phrase": "had a major depressive episode in the past year",
+   "definition": "Had a period of at least two weeks in the past 12 months with a depressed mood or loss of interest or pleasure in daily activities, plus most of the other symptoms of depression, based on DSM criteria.",
+   "source": "YMDEYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "mde_lifetime",
+   "cohort": "teen",
+   "topic": "depression_suicide",
+   "label": "Major depressive episode at some point in life",
+   "phrase": "have had a major depressive episode at some point in their life",
+   "definition": "Ever had a period of at least two weeks with a depressed mood or loss of interest or pleasure in daily activities, plus most of the other symptoms of depression, based on DSM criteria.",
+   "source": "YMDELT",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "mde_severe",
+   "cohort": "teen",
+   "topic": "depression_suicide",
+   "label": "Major depressive episode with severe impairment",
+   "phrase": "had a major depressive episode with severe impairment in the past year",
+   "definition": "Had a major depressive episode in the past year that severely interfered with chores at home, school or work, family relationships, or social life (Sheehan Disability Scale). The denominator is all teens.",
+   "source": "MDEIMPY",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "suicide_thoughts",
+   "cohort": "teen",
+   "topic": "depression_suicide",
+   "label": "Seriously thought about suicide in the past year",
+   "phrase": "seriously thought about killing themselves in the past year",
+   "definition": "Seriously thought about trying to kill themselves at any time in the past 12 months.",
+   "source": "YUSUITHKYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Teens who answered \"I'm not sure\" or \"I don't want to answer\" are counted as no, as in SAMHSA's published estimates.",
+    "Beginning in 2022 the teen suicide questions were moved to a different section of the interview, which may affect comparisons with 2021."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "suicide_plan",
+   "cohort": "teen",
+   "topic": "depression_suicide",
+   "label": "Made a suicide plan in the past year",
+   "phrase": "made a plan to kill themselves in the past year",
+   "definition": "Made any plans to kill themselves in the past 12 months.",
+   "source": "YUSUIPLNYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Teens who answered \"I'm not sure\" or \"I don't want to answer\" are counted as no, as in SAMHSA's published estimates.",
+    "Beginning in 2022 the teen suicide questions were moved to a different section of the interview, which may affect comparisons with 2021."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "mde_or_sud",
+   "cohort": "teen",
+   "topic": "depression_suicide",
+   "label": "Major depressive episode or substance use disorder",
+   "phrase": "had a major depressive episode or a substance use disorder in the past year",
+   "definition": "Had a major depressive episode in the past year, a substance use disorder in the past year (DSM-5, alcohol or drugs), or both.",
+   "source": "YMDERSUD5ANY",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "mde_and_sud",
+   "cohort": "teen",
+   "topic": "depression_suicide",
+   "label": "Major depressive episode and substance use disorder",
+   "phrase": "had both a major depressive episode and a substance use disorder in the past year",
+   "definition": "Had a major depressive episode and a substance use disorder (DSM-5, alcohol or drugs) in the same past year.",
+   "source": "YMSUD5YANY",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "mde_any_treatment",
+   "cohort": "teen",
+   "topic": "care",
+   "label": "Treatment or medication for depression (teens with a past-year MDE)",
+   "phrase": "got treatment or medication for depression in the past year",
+   "definition": "Among teens who had a major depressive episode in the past year, saw or talked to a health professional about depression or took prescription medication for it in the past 12 months.",
+   "source": "YMDETXRX",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "The denominator is teens with a past-year major depressive episode."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "mde_saw_professional",
+   "cohort": "teen",
+   "topic": "care",
+   "label": "Saw a professional for depression (teens with a past-year MDE)",
+   "phrase": "saw or talked to a health professional about depression in the past year",
+   "definition": "Among teens who had a major depressive episode in the past year, saw or talked to a medical doctor or other professional about their depression in the past 12 months.",
+   "source": "YTXMDEYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "The denominator is teens with a past-year major depressive episode."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "mde_rx",
+   "cohort": "teen",
+   "topic": "care",
+   "label": "Prescription medication for depression (teens with a past-year MDE)",
+   "phrase": "took prescription medication for depression in the past year",
+   "definition": "Among teens who had a major depressive episode in the past year, took prescription medication for depression in the past 12 months.",
+   "source": "YRXMDEYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "The denominator is teens with a past-year major depressive episode."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "mh_treatment",
+   "cohort": "teen",
+   "topic": "care",
+   "label": "Any mental health treatment in the past year",
+   "phrase": "received mental health treatment in the past year",
+   "definition": "Received any mental health treatment in the past 12 months: inpatient care, outpatient care or counseling (including at school), treatment by phone or video, or prescription medication for mental health.",
+   "source": "MHTRTPY",
+   "years": [
+    2022,
+    2023
+   ],
+   "caveats": [
+    "The mental health treatment questions were redesigned in 2022; this summary measure is available only for 2022 and 2023 in the combined file."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "mh_school_counseling",
+   "cohort": "teen",
+   "topic": "care",
+   "label": "Mental health care at school",
+   "phrase": "got mental health treatment or counseling at school in the past year",
+   "definition": "Received mental health treatment or counseling from a school health center or school counselor in the past 12 months.",
+   "source": "IRMHTOUTSCHL",
+   "years": [
+    2022,
+    2023
+   ],
+   "caveats": [
+    "Available only for 2022 and 2023 in the combined file."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "mh_phone_video",
+   "cohort": "teen",
+   "topic": "care",
+   "label": "Mental health care by phone or video",
+   "phrase": "got mental health treatment by phone or video in the past year",
+   "definition": "Received mental health treatment or counseling by phone or video in the past 12 months.",
+   "source": "IRMHTPHVID",
+   "years": [
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "mh_er",
+   "cohort": "teen",
+   "topic": "care",
+   "label": "Emergency room visit for mental health",
+   "phrase": "were seen in an emergency room for mental health in the past year",
+   "definition": "Were seen in an emergency room or emergency department for mental health reasons in the past 12 months.",
+   "source": "IRMHTERED",
+   "years": [
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "mh_rx",
+   "cohort": "teen",
+   "topic": "care",
+   "label": "Prescription medication for mental health",
+   "phrase": "took prescription medication for their mental health in the past year",
+   "definition": "Took prescription medication to help with emotions, nerves, or mental health in the past 12 months.",
+   "source": "IRMHTRXMED",
+   "years": [
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "alcohol_pm",
+   "cohort": "teen",
+   "topic": "substance_use",
+   "label": "Alcohol use in the past month",
+   "phrase": "drank alcohol in the past month",
+   "definition": "Drank alcohol in the past 30 days.",
+   "source": "ALCMON",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "binge_pm",
+   "cohort": "teen",
+   "topic": "substance_use",
+   "label": "Binge drinking in the past month",
+   "phrase": "binge drank in the past month",
+   "definition": "Drank five or more drinks (males) or four or more drinks (females) on the same occasion on at least one day in the past 30 days.",
+   "source": "BNGDRKMON",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "marijuana_py",
+   "cohort": "teen",
+   "topic": "substance_use",
+   "label": "Marijuana use in the past year",
+   "phrase": "used marijuana in the past year",
+   "definition": "Used marijuana or hashish in the past 12 months.",
+   "source": "MRJYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "marijuana_pm",
+   "cohort": "teen",
+   "topic": "substance_use",
+   "label": "Marijuana use in the past month",
+   "phrase": "used marijuana in the past month",
+   "definition": "Used marijuana or hashish in the past 30 days.",
+   "source": "MRJMON",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "nicotine_vape_py",
+   "cohort": "teen",
+   "topic": "substance_use",
+   "label": "Nicotine vaping in the past year",
+   "phrase": "vaped nicotine in the past year",
+   "definition": "Vaped nicotine in the past 12 months.",
+   "source": "NICVAPYR",
+   "years": [
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Nicotine vaping questions were added in 2022."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "nicotine_vape_pm",
+   "cohort": "teen",
+   "topic": "substance_use",
+   "label": "Nicotine vaping in the past month",
+   "phrase": "vaped nicotine in the past month",
+   "definition": "Vaped nicotine in the past 30 days.",
+   "source": "NICVAPMON",
+   "years": [
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Nicotine vaping questions were added in 2022."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "tobacco_or_vape_py",
+   "cohort": "teen",
+   "topic": "substance_use",
+   "label": "Tobacco or nicotine vaping in the past year",
+   "phrase": "used tobacco or vaped nicotine in the past year",
+   "definition": "Used any tobacco product (cigarettes, cigars, pipe tobacco, or smokeless tobacco) or vaped nicotine in the past 12 months.",
+   "source": "TOBVNICYR",
+   "years": [
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Nicotine vaping questions were added in 2022, so this combined measure starts in 2022."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "illicit_py",
+   "cohort": "teen",
+   "topic": "substance_use",
+   "label": "Illicit drug use in the past year",
+   "phrase": "used an illicit drug in the past year",
+   "definition": "Used marijuana, cocaine (including crack), heroin, hallucinogens, inhalants, or methamphetamine, or misused prescription pain relievers, tranquilizers, stimulants, or sedatives in the past 12 months.",
+   "source": "ILLYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "sud_py",
+   "cohort": "teen",
+   "topic": "substance_use",
+   "label": "Substance use disorder in the past year",
+   "phrase": "had a substance use disorder in the past year",
+   "definition": "Met DSM-5 criteria for an alcohol or drug use disorder (including marijuana) in the past 12 months.",
+   "source": "UD5ILALANY",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "liked_school",
+   "cohort": "teen",
+   "topic": "school_family_peers",
+   "label": "Liked going to school",
+   "phrase": "liked or kind of liked going to school in the past year",
+   "definition": "Said they liked going to school a lot or kind of liked it during the past 12 months.",
+   "source": "SCHFELT",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Asked only of teens who attended school in the past year."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "grades_d_or_lower",
+   "cohort": "teen",
+   "topic": "school_family_peers",
+   "label": "Grade average of D or lower",
+   "phrase": "had a grade average of D or lower in their last grading period",
+   "definition": "Reported a grade average of D or lower for the last semester or grading period completed.",
+   "source": "AVGGRADE",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Asked only of teens who attended school in the past year."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "teacher_praise",
+   "cohort": "teen",
+   "topic": "school_family_peers",
+   "label": "Teachers said they were doing a good job",
+   "phrase": "had a teacher tell them they were doing a good job in the past year",
+   "definition": "Said a teacher let them know they were doing a good job with their schoolwork always or sometimes in the past 12 months.",
+   "source": "TCHGJOB",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Asked only of teens who attended school in the past year."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "parents_proud",
+   "cohort": "teen",
+   "topic": "school_family_peers",
+   "label": "Parents said they were proud of them",
+   "phrase": "had parents tell them they were proud of something they did in the past year",
+   "definition": "Said their parents told them they were proud of something they had done always or sometimes in the past 12 months.",
+   "source": "PRPROUD2",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "parents_check_homework",
+   "cohort": "teen",
+   "topic": "school_family_peers",
+   "label": "Parents checked homework",
+   "phrase": "had parents check that their homework was done in the past year",
+   "definition": "Said their parents checked whether their homework was done always or sometimes in the past 12 months.",
+   "source": "PARCHKHW",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Asked only of teens who attended school in the past year."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "parents_help_homework",
+   "cohort": "teen",
+   "topic": "school_family_peers",
+   "label": "Parents helped with homework",
+   "phrase": "had parents help with their homework in the past year",
+   "definition": "Said their parents helped them with their homework always or sometimes in the past 12 months.",
+   "source": "PARHLPHW",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Asked only of teens who attended school in the past year."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "frequent_arguments_parent",
+   "cohort": "teen",
+   "topic": "school_family_peers",
+   "label": "Frequent arguments with a parent",
+   "phrase": "argued or fought with a parent 10 or more times in the past year",
+   "definition": "Argued or had a fight with at least one of their parents 10 or more times in the past 12 months.",
+   "source": "ARGUPAR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "two_plus_activities",
+   "cohort": "teen",
+   "topic": "school_family_peers",
+   "label": "Two or more youth activities",
+   "phrase": "took part in two or more youth activities in the past year",
+   "definition": "Participated in two or more kinds of activities in the past 12 months: school-based, community-based, church or faith-based, or other activities such as sports teams.",
+   "source": "YTHACT2",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "religion_important",
+   "cohort": "teen",
+   "topic": "school_family_peers",
+   "label": "Religious beliefs very important",
+   "phrase": "said religious beliefs are a very important part of their life",
+   "definition": "Agreed or strongly agreed that their religious beliefs are a very important part of their life.",
+   "source": "RLGIMPT",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "serious_fight",
+   "cohort": "teen",
+   "topic": "school_family_peers",
+   "label": "Serious fight at school or work",
+   "phrase": "got into a serious fight at school or work in the past year",
+   "definition": "Got into a serious fight at school or work one or more times in the past 12 months.",
+   "source": "YOFIGHT2",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "no_one_to_talk_to",
+   "cohort": "teen",
+   "topic": "school_family_peers",
+   "label": "No one to talk to about serious problems",
+   "phrase": "had no one to talk to about serious problems",
+   "definition": "Said they talk to no one about serious problems (rather than a parent, boyfriend or girlfriend, another adult, or someone else).",
+   "source": "TALKPROB",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "fair_poor_health",
+   "cohort": "teen",
+   "topic": "health",
+   "label": "Fair or poor overall health",
+   "phrase": "rated their overall health as fair or poor",
+   "definition": "Rated their overall health as fair or poor rather than good, very good, or excellent.",
+   "source": "HEALTH2",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "difficulty_concentrating",
+   "cohort": "teen",
+   "topic": "health",
+   "label": "Serious difficulty remembering or concentrating",
+   "phrase": "had a lot of difficulty remembering or concentrating",
+   "definition": "Said they have a lot of difficulty remembering or concentrating, or cannot do it at all (Washington Group disability question). Some difficulty counts as no.",
+   "source": "LVLDIFMEM2",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "\"Some difficulty\" counts as no, following the Washington Group threshold for functional difficulty; item nonresponse is excluded."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "mde_py",
+   "cohort": "young_adult",
+   "topic": "depression_suicide",
+   "label": "Major depressive episode in the past year",
+   "phrase": "had a major depressive episode in the past year",
+   "definition": "Had a period of at least two weeks in the past 12 months with a depressed mood or loss of interest or pleasure in daily activities, plus most of the other symptoms of depression, based on DSM criteria.",
+   "source": "AMDEYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "mde_severe",
+   "cohort": "young_adult",
+   "topic": "depression_suicide",
+   "label": "Major depressive episode with severe impairment",
+   "phrase": "had a major depressive episode with severe impairment in the past year",
+   "definition": "Had a major depressive episode in the past year that severely interfered with home management, work, close relationships, or social life (Sheehan Disability Scale). The denominator is all young adults.",
+   "source": "AMDEIMP",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "suicide_thoughts",
+   "cohort": "young_adult",
+   "topic": "depression_suicide",
+   "label": "Seriously thought about suicide in the past year",
+   "phrase": "seriously thought about killing themselves in the past year",
+   "definition": "Seriously thought about trying to kill themselves at any time in the past 12 months.",
+   "source": "IRSUICTHNK",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Item nonresponse is statistically imputed by SAMHSA."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "suicide_plan",
+   "cohort": "young_adult",
+   "topic": "depression_suicide",
+   "label": "Made a suicide plan in the past year",
+   "phrase": "made a plan to kill themselves in the past year",
+   "definition": "Made any plans to kill themselves in the past 12 months.",
+   "source": "IRSUIPLANYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Item nonresponse is statistically imputed by SAMHSA."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "suicide_attempt",
+   "cohort": "young_adult",
+   "topic": "depression_suicide",
+   "label": "Attempted suicide in the past year",
+   "phrase": "attempted suicide in the past year",
+   "definition": "Tried to kill themselves in the past 12 months.",
+   "source": "IRSUITRYYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Item nonresponse is statistically imputed by SAMHSA."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "spd_py",
+   "cohort": "young_adult",
+   "topic": "mental_illness",
+   "label": "Serious psychological distress in the past year",
+   "phrase": "had serious psychological distress in the past year",
+   "definition": "Scored 13 or higher on the Kessler-6 scale of psychological distress for the month in the past 12 months when they felt their worst.",
+   "source": "SPDPSTYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "ami_py",
+   "cohort": "young_adult",
+   "topic": "mental_illness",
+   "label": "Any mental illness in the past year",
+   "phrase": "had a mental illness in the past year",
+   "definition": "Had a diagnosable mental, behavioral, or emotional disorder in the past year, other than a developmental or substance use disorder, of any severity.",
+   "source": "AMIPY",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Estimated from a statistical model of survey scales calibrated to clinical interviews, not from a diagnosis."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "smi_py",
+   "cohort": "young_adult",
+   "topic": "mental_illness",
+   "label": "Serious mental illness in the past year",
+   "phrase": "had a serious mental illness in the past year",
+   "definition": "Had a diagnosable mental, behavioral, or emotional disorder in the past year that substantially interfered with or limited one or more major life activities.",
+   "source": "SMIPY",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Estimated from a statistical model of survey scales calibrated to clinical interviews, not from a diagnosis."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "ami_and_sud",
+   "cohort": "young_adult",
+   "topic": "mental_illness",
+   "label": "Mental illness and substance use disorder",
+   "phrase": "had both a mental illness and a substance use disorder in the past year",
+   "definition": "Had any mental illness and a substance use disorder (DSM-5, alcohol or drugs) in the same past year.",
+   "source": "AMISUD5ANY",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Mental illness is estimated from a statistical model of survey scales calibrated to clinical interviews."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "mde_any_treatment",
+   "cohort": "young_adult",
+   "topic": "care",
+   "label": "Treatment or medication for depression (young adults with a past-year MDE)",
+   "phrase": "got treatment or medication for depression in the past year",
+   "definition": "Among young adults who had a major depressive episode in the past year, saw or talked to a health professional about depression or took prescription medication for it in the past 12 months.",
+   "source": "AMDETXRX",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "The denominator is young adults with a past-year major depressive episode."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "mh_treatment",
+   "cohort": "young_adult",
+   "topic": "care",
+   "label": "Any mental health treatment in the past year",
+   "phrase": "received mental health treatment in the past year",
+   "definition": "Received any mental health treatment in the past 12 months: inpatient care, outpatient care or counseling, treatment by phone or video, or prescription medication for mental health.",
+   "source": "MHTRTPY",
+   "years": [
+    2022,
+    2023
+   ],
+   "caveats": [
+    "The mental health treatment questions were redesigned in 2022; this summary measure is available only for 2022 and 2023 in the combined file."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "alcohol_pm",
+   "cohort": "young_adult",
+   "topic": "substance_use",
+   "label": "Alcohol use in the past month",
+   "phrase": "drank alcohol in the past month",
+   "definition": "Drank alcohol in the past 30 days.",
+   "source": "ALCMON",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "binge_pm",
+   "cohort": "young_adult",
+   "topic": "substance_use",
+   "label": "Binge drinking in the past month",
+   "phrase": "binge drank in the past month",
+   "definition": "Drank five or more drinks (males) or four or more drinks (females) on the same occasion on at least one day in the past 30 days.",
+   "source": "BNGDRKMON",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "marijuana_py",
+   "cohort": "young_adult",
+   "topic": "substance_use",
+   "label": "Marijuana use in the past year",
+   "phrase": "used marijuana in the past year",
+   "definition": "Used marijuana or hashish in the past 12 months.",
+   "source": "MRJYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "marijuana_pm",
+   "cohort": "young_adult",
+   "topic": "substance_use",
+   "label": "Marijuana use in the past month",
+   "phrase": "used marijuana in the past month",
+   "definition": "Used marijuana or hashish in the past 30 days.",
+   "source": "MRJMON",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "nicotine_vape_py",
+   "cohort": "young_adult",
+   "topic": "substance_use",
+   "label": "Nicotine vaping in the past year",
+   "phrase": "vaped nicotine in the past year",
+   "definition": "Vaped nicotine in the past 12 months.",
+   "source": "NICVAPYR",
+   "years": [
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Nicotine vaping questions were added in 2022."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "nicotine_vape_pm",
+   "cohort": "young_adult",
+   "topic": "substance_use",
+   "label": "Nicotine vaping in the past month",
+   "phrase": "vaped nicotine in the past month",
+   "definition": "Vaped nicotine in the past 30 days.",
+   "source": "NICVAPMON",
+   "years": [
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Nicotine vaping questions were added in 2022."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "tobacco_or_vape_py",
+   "cohort": "young_adult",
+   "topic": "substance_use",
+   "label": "Tobacco or nicotine vaping in the past year",
+   "phrase": "used tobacco or vaped nicotine in the past year",
+   "definition": "Used any tobacco product (cigarettes, cigars, pipe tobacco, or smokeless tobacco) or vaped nicotine in the past 12 months.",
+   "source": "TOBVNICYR",
+   "years": [
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [
+    "Nicotine vaping questions were added in 2022, so this combined measure starts in 2022."
+   ],
+   "status": "launch"
+  },
+  {
+   "id": "illicit_py",
+   "cohort": "young_adult",
+   "topic": "substance_use",
+   "label": "Illicit drug use in the past year",
+   "phrase": "used an illicit drug in the past year",
+   "definition": "Used marijuana, cocaine (including crack), heroin, hallucinogens, inhalants, or methamphetamine, or misused prescription pain relievers, tranquilizers, stimulants, or sedatives in the past 12 months.",
+   "source": "ILLYR",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "sud_py",
+   "cohort": "young_adult",
+   "topic": "substance_use",
+   "label": "Substance use disorder in the past year",
+   "phrase": "had a substance use disorder in the past year",
+   "definition": "Met DSM-5 criteria for an alcohol or drug use disorder (including marijuana) in the past 12 months.",
+   "source": "UD5ILALANY",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  },
+  {
+   "id": "fair_poor_health",
+   "cohort": "young_adult",
+   "topic": "health",
+   "label": "Fair or poor overall health",
+   "phrase": "rated their overall health as fair or poor",
+   "definition": "Rated their overall health as fair or poor rather than good, very good, or excellent.",
+   "source": "HEALTH2",
+   "years": [
+    2021,
+    2022,
+    2023,
+    2024
+   ],
+   "caveats": [],
+   "status": "launch"
+  }
+ ]
+}

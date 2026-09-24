@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 const here = dirname(fileURLToPath(import.meta.url))
 const source = resolve(here, '../../data')
 const target = resolve(here, '../public/data')
-const items = ['estimates', 'associations', 'manifest.json', 'availability.json']
+const items = ['estimates', 'associations', 'manifest.json', 'availability.json', 'catalog.json']
 
 rmSync(target, { recursive: true, force: true })
 mkdirSync(target, { recursive: true })

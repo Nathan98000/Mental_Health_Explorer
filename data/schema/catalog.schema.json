@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Nathan98000/Mental_Health_Explorer/data/schema/catalog.schema.json",
+  "title": "Web catalog",
+  "description": "data/catalog.json: the launch indicators, groups (with population phrases), topics and cohorts the website reads. Written by python -m pipeline.export_catalog from catalog/*.yaml.",
+  "type": "object",
+  "properties": {
+    "cohorts": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "$ref": "#/$defs/cohort" },
+          "label": { "type": "string", "minLength": 1, "description": "Title case, e.g. 'Teens'" },
+          "phrase": { "type": "string", "minLength": 1, "description": "The {cohort} placeholder, e.g. 'teens ages 12–17'" },
+          "people": { "type": "string", "minLength": 1, "description": "The {people} placeholder, e.g. 'teens'" },
+          "ages": { "type": "string", "pattern": "^[0-9]{2}–[0-9]{2}$" }
+        },
+        "required": ["id", "label", "phrase", "people", "ages"],
+        "additionalProperties": false
+      }
+    },
+    "topics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": { "id": { "$ref": "#/$defs/slug" }, "label": { "type": "string", "minLength": 1 } },
+        "required": ["id", "label"],
+        "additionalProperties": false
+      },
+      "description": "Display order"
+    },
+    "groups": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "$ref": "#/$defs/slug" },
+          "label": { "type": "string", "minLength": 1 },
+          "cohorts": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/cohort" } },
+          "crosses_only": { "type": "boolean", "description": "Only in two-way crosses; not a standalone breakdown, so not offered as a population" },
+          "phrase": { "$ref": "#/$defs/nullable_phrase", "description": "Population wording template with {cohort}, {people} and {level}" },
+          "levels": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "$ref": "#/$defs/slug" },
+                "label": { "type": "string", "minLength": 1 },
+                "phrase": { "$ref": "#/$defs/nullable_phrase", "description": "Replaces the group template for this level" }
+              },
+              "required": ["id", "label", "phrase"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["id", "label", "cohorts", "crosses_only", "phrase", "levels"],
+        "additionalProperties": false
+      }
+    },
+    "indicators": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "$ref": "#/$defs/slug" },
+          "cohort": { "$ref": "#/$defs/cohort" },
+          "topic": { "$ref": "#/$defs/slug" },
+          "label": { "type": "string", "minLength": 1 },
+          "phrase": { "type": "string", "minLength": 1, "description": "Completes 'About 1 in 7 teens ages 12–17 ...'" },
+          "definition": { "type": "string", "minLength": 1 },
+          "source": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$", "description": "Source variable in the NSDUH public use file" },
+          "years": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "integer", "enum": [2021, 2022, 2023, 2024] } },
+          "caveats": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "status": { "type": "string", "enum": ["launch"] }
+        },
+        "required": ["id", "cohort", "topic", "label", "phrase", "definition", "source", "years", "caveats", "status"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["cohorts", "topics", "groups", "indicators"],
+  "additionalProperties": false,
+  "$defs": {
+    "slug": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "cohort": { "type": "string", "enum": ["teen", "young_adult"] },
+    "nullable_phrase": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "minLength": 1, "pattern": "^[^{}]*(\\{(cohort|people|level)\\}[^{}]*)*$" }
+      ]
+    }
+  }
+}

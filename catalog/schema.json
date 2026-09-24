@@ -16,6 +16,7 @@
     "cohort": { "type": "string", "enum": ["teen", "young_adult"] },
     "codes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "integer" } },
     "year": { "type": "integer", "enum": [2021, 2022, 2023, 2024] },
+    "phrase_template": { "type": "string", "minLength": 1, "pattern": "^[^{}]*(\\{(cohort|people|level)\\}[^{}]*)*$", "description": "Text with {cohort} (e.g. 'teens ages 12–17'), {people} ('teens') and {level} (the level label) placeholders" },
     "topic_id": { "type": "string", "enum": ["depression_suicide", "mental_illness", "care", "substance_use", "school_family_peers", "health"] },
     "topic": {
       "type": "object",
@@ -68,6 +69,7 @@
         },
         "cohorts": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/cohort" } },
         "crosses_only": { "type": "boolean", "description": "True when the group is only for two-way crosses, not a standalone breakdown" },
+        "phrase": { "$ref": "#/$defs/phrase_template", "description": "Population wording template for takeaways, e.g. '{level} {cohort}' -> 'female teens ages 12–17'" },
         "levels": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/level" } }
       },
       "required": ["id", "label", "source", "cohorts", "levels"],
@@ -89,7 +91,8 @@
               { "type": "array", "minItems": 2, "items": { "type": "integer" } }
             ]
           }
-        }
+        },
+        "phrase": { "$ref": "#/$defs/phrase_template", "description": "Replaces the group's phrase template for this level, e.g. '{cohort} in families earning less than $20,000'" }
       },
       "required": ["id", "label", "codes"],
       "additionalProperties": false

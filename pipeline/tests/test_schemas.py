@@ -55,3 +55,16 @@ def test_manifest_lists_every_output_with_its_size():
     for name, entry in manifest["files"].items():
         assert entry["bytes"] == (config.OUTPUT_DIR / name).stat().st_size
     assert len(manifest["catalog_hash"]) == 64
+
+
+def test_web_catalog_matches_schema_and_is_current():
+    from pipeline import export_catalog
+
+    doc = json.loads(export_catalog.CATALOG_JSON.read_text(encoding="utf-8"))
+    validator("catalog.schema.json").validate(doc)
+    assert doc == export_catalog.build(), "data/catalog.json is stale: run python -m pipeline.export_catalog"
+    topic_ids = {t["id"] for t in doc["topics"]}
+    assert all(ind["topic"] in topic_ids for ind in doc["indicators"])
+    for group in doc["groups"]:
+        for level in group["levels"]:
+            assert group["phrase"] is not None or level["phrase"] is not None, f"{group['id']}/{level['id']} has no population phrase"
