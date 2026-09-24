@@ -1,16 +1,22 @@
 import { useId, useState } from 'react'
 import { Link, useLocation } from 'react-router'
+import { cohortFromLocation, DEFAULT_COHORT, DEFAULT_INDICATOR, explorePath, trendsPath } from '../lib/routes'
 import { SITE_NAME } from '../lib/site'
+import type { Cohort } from '../lib/data'
 
-const NAV = [
-  { to: '/', label: 'Overview', match: (path: string) => path === '/' },
-  { to: '/explore/teen/mde_py', label: 'Explore', match: (path: string) => path.startsWith('/explore') },
-  { to: '/trends/teen/mde_py', label: 'Trends', match: (path: string) => path.startsWith('/trends') },
-  { to: '/methods', label: 'Methods', match: (path: string) => path.startsWith('/methods') },
-]
+/** The main links carry the cohort the visitor is looking at, so switching pages keeps it. */
+function nav(cohort: Cohort) {
+  return [
+    { to: cohort === DEFAULT_COHORT ? '/' : `/?cohort=${cohort}`, label: 'Overview', match: (path: string) => path === '/' },
+    { to: explorePath(cohort, DEFAULT_INDICATOR), label: 'Explore', match: (path: string) => path.startsWith('/explore') },
+    { to: trendsPath(cohort, DEFAULT_INDICATOR), label: 'Trends', match: (path: string) => path.startsWith('/trends') },
+    { to: '/methods', label: 'Methods', match: (path: string) => path.startsWith('/methods') },
+  ]
+}
 
 export function Header() {
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
+  const NAV = nav(cohortFromLocation(pathname, search) ?? DEFAULT_COHORT)
   // The menu remembers the path it was opened on, so it closes itself after navigation.
   const [openedOn, setOpenedOn] = useState<string | null>(null)
   const open = openedOn === pathname

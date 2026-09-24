@@ -74,13 +74,17 @@
           "topic": { "$ref": "#/$defs/slug" },
           "label": { "type": "string", "minLength": 1 },
           "phrase": { "type": "string", "minLength": 1, "description": "Completes 'About 1 in 7 teens ages 12–17 ...'" },
+          "universe_phrase": {
+            "oneOf": [{ "type": "null" }, { "type": "string", "minLength": 1, "pattern": "^who " }],
+            "description": "Suffix clause naming a restricted denominator, appended to every population phrase ('teens ages 12–17 who had a major depressive episode in the past year'); null when the denominator is the whole cohort"
+          },
           "definition": { "type": "string", "minLength": 1 },
           "source": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$", "description": "Source variable in the NSDUH public use file" },
           "years": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "integer", "enum": [2021, 2022, 2023, 2024] } },
           "caveats": { "type": "array", "items": { "type": "string", "minLength": 1 } },
           "status": { "type": "string", "enum": ["launch"] }
         },
-        "required": ["id", "cohort", "topic", "label", "phrase", "definition", "source", "years", "caveats", "status"],
+        "required": ["id", "cohort", "topic", "label", "phrase", "universe_phrase", "definition", "source", "years", "caveats", "status"],
         "additionalProperties": false
       }
     }

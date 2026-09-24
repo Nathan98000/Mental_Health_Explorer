@@ -15,6 +15,8 @@ export type Indicator = {
   topic: string
   label: string
   phrase: string
+  /** Denominator clause when the measure is asked only of some of the cohort, e.g. "who had a major depressive episode in the past year"; null for everyone. */
+  universe_phrase: string | null
   definition: string
   source: string
   years: number[]
@@ -100,10 +102,19 @@ export function populationPhrase(catalog: Catalog, cohort: Cohort, group?: Group
   return fillTemplate(template, { cohort: info.phrase, people: info.people, level: level.label })
 }
 
-/** Year sets an indicator can have: each collected year, then the pooled sets when there is more than one year. */
+/** Append an indicator's denominator clause to a population phrase: "female teens ages 12–17" + "who had a major depressive episode in the past year". */
+export function withUniverse(population: string, indicator: Pick<Indicator, 'universe_phrase'> | null | undefined): string {
+  return indicator?.universe_phrase ? `${population} ${indicator.universe_phrase}` : population
+}
+
+/**
+ * Year sets an indicator can have: each collected year, then "all years combined" when there is more
+ * than one, then "latest two years combined" when that pools different years from "all".
+ */
 export function yearSetsFor(indicator: Pick<Indicator, 'years'>): string[] {
   const singles = [...indicator.years].sort((a, b) => a - b).map(String)
-  return indicator.years.length > 1 ? [...singles, ...POOLED_YEAR_SETS] : singles
+  if (indicator.years.length > 2) return [...singles, ...POOLED_YEAR_SETS]
+  return indicator.years.length === 2 ? [...singles, 'all'] : singles
 }
 
 export function latestYear(indicator: Pick<Indicator, 'years'>): number {

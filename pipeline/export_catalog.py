@@ -17,7 +17,7 @@ COHORTS = [
     {"id": "young_adult", "label": "Young adults", "phrase": catalog.COHORT_LABELS["young_adult"], "people": "young adults", "ages": "18–25"},
 ]
 
-INDICATOR_FIELDS = ["id", "cohort", "topic", "label", "phrase", "definition", "source", "years", "caveats", "status"]
+INDICATOR_FIELDS = ["id", "cohort", "topic", "label", "phrase", "universe_phrase", "definition", "source", "years", "caveats", "status"]
 
 
 def topics() -> list[dict]:
@@ -40,7 +40,8 @@ def build() -> dict:
         "cohorts": COHORTS,
         "topics": topics(),
         "groups": [export_group(g) for g in catalog.groups()],
-        "indicators": [{k: ind[k] for k in INDICATOR_FIELDS} for ind in catalog.indicators() if ind["status"] == "launch"],
+        # universe_phrase is optional in the yaml (null = the whole cohort); every other field is required there.
+        "indicators": [{k: ind.get(k) for k in INDICATOR_FIELDS} for ind in catalog.indicators() if ind["status"] == "launch"],
     }
 
 

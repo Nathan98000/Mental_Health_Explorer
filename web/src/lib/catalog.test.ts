@@ -1,5 +1,5 @@
 import { readCatalog } from '../test/fixtures'
-import { findGroup, findLevel, indicatorsByTopic, levelsFor, populationPhrase, yearSetLabel, yearSetsFor, yearSetWhen } from './catalog'
+import { findGroup, findIndicator, findLevel, indicatorsByTopic, levelsFor, populationPhrase, withUniverse, yearSetLabel, yearSetsFor, yearSetWhen } from './catalog'
 
 const catalog = readCatalog()
 
@@ -19,6 +19,17 @@ describe('populationPhrase', () => {
   })
 })
 
+describe('withUniverse', () => {
+  it('appends the denominator clause of a restricted measure and leaves everyone alone', () => {
+    const treatment = findIndicator(catalog, 'teen', 'mde_any_treatment')!
+    expect(treatment.universe_phrase).toBe('who had a major depressive episode in the past year')
+    expect(withUniverse('female teens ages 12–17', treatment)).toBe('female teens ages 12–17 who had a major depressive episode in the past year')
+    expect(withUniverse('teens ages 12–17', findIndicator(catalog, 'teen', 'mde_py'))).toBe('teens ages 12–17')
+    expect(findIndicator(catalog, 'teen', 'liked_school')?.universe_phrase).toBe('who attended school in the past year')
+    expect(treatment.label).not.toMatch(/\bMDE\b/)
+  })
+})
+
 describe('levelsFor', () => {
   it('keeps only the cohort\'s age bands', () => {
     const age = catalog.groups.find((g) => g.id === 'age_band')!
@@ -30,6 +41,8 @@ describe('levelsFor', () => {
 describe('year sets', () => {
   it('lists single years then the pooled sets', () => {
     expect(yearSetsFor({ years: [2022, 2023, 2024] })).toEqual(['2022', '2023', '2024', 'all', 'recent2'])
+    // Two years: "latest two" would pool the same years as "all", so it is left out.
+    expect(yearSetsFor({ years: [2022, 2023] })).toEqual(['2022', '2023', 'all'])
     expect(yearSetsFor({ years: [2024] })).toEqual(['2024'])
   })
   it('labels and describes them', () => {

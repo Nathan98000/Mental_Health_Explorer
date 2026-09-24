@@ -394,6 +394,7 @@
    "topic": "depression_suicide",
    "label": "Major depressive episode in the past year",
    "phrase": "had a major depressive episode in the past year",
+   "universe_phrase": null,
    "definition": "Had a period of at least two weeks in the past 12 months with a depressed mood or loss of interest or pleasure in daily activities, plus most of the other symptoms of depression, based on DSM criteria.",
    "source": "YMDEYR",
    "years": [
@@ -411,6 +412,7 @@
    "topic": "depression_suicide",
    "label": "Major depressive episode at some point in life",
    "phrase": "have had a major depressive episode at some point in their life",
+   "universe_phrase": null,
    "definition": "Ever had a period of at least two weeks with a depressed mood or loss of interest or pleasure in daily activities, plus most of the other symptoms of depression, based on DSM criteria.",
    "source": "YMDELT",
    "years": [
@@ -428,6 +430,7 @@
    "topic": "depression_suicide",
    "label": "Major depressive episode with severe impairment",
    "phrase": "had a major depressive episode with severe impairment in the past year",
+   "universe_phrase": null,
    "definition": "Had a major depressive episode in the past year that severely interfered with chores at home, school or work, family relationships, or social life (Sheehan Disability Scale). The denominator is all teens.",
    "source": "MDEIMPY",
    "years": [
@@ -445,6 +448,7 @@
    "topic": "depression_suicide",
    "label": "Seriously thought about suicide in the past year",
    "phrase": "seriously thought about killing themselves in the past year",
+   "universe_phrase": null,
    "definition": "Seriously thought about trying to kill themselves at any time in the past 12 months.",
    "source": "YUSUITHKYR",
    "years": [
@@ -465,6 +469,7 @@
    "topic": "depression_suicide",
    "label": "Made a suicide plan in the past year",
    "phrase": "made a plan to kill themselves in the past year",
+   "universe_phrase": null,
    "definition": "Made any plans to kill themselves in the past 12 months.",
    "source": "YUSUIPLNYR",
    "years": [
@@ -485,6 +490,7 @@
    "topic": "depression_suicide",
    "label": "Major depressive episode or substance use disorder",
    "phrase": "had a major depressive episode or a substance use disorder in the past year",
+   "universe_phrase": null,
    "definition": "Had a major depressive episode in the past year, a substance use disorder in the past year (DSM-5, alcohol or drugs), or both.",
    "source": "YMDERSUD5ANY",
    "years": [
@@ -502,6 +508,7 @@
    "topic": "depression_suicide",
    "label": "Major depressive episode and substance use disorder",
    "phrase": "had both a major depressive episode and a substance use disorder in the past year",
+   "universe_phrase": null,
    "definition": "Had a major depressive episode and a substance use disorder (DSM-5, alcohol or drugs) in the same past year.",
    "source": "YMSUD5YANY",
    "years": [
@@ -517,8 +524,9 @@
    "id": "mde_any_treatment",
    "cohort": "teen",
    "topic": "care",
-   "label": "Treatment or medication for depression (teens with a past-year MDE)",
+   "label": "Treatment or medication for depression (teens with a past-year major depressive episode)",
    "phrase": "got treatment or medication for depression in the past year",
+   "universe_phrase": "who had a major depressive episode in the past year",
    "definition": "Among teens who had a major depressive episode in the past year, saw or talked to a health professional about depression or took prescription medication for it in the past 12 months.",
    "source": "YMDETXRX",
    "years": [
@@ -536,8 +544,9 @@
    "id": "mde_saw_professional",
    "cohort": "teen",
    "topic": "care",
-   "label": "Saw a professional for depression (teens with a past-year MDE)",
+   "label": "Saw a professional for depression (teens with a past-year major depressive episode)",
    "phrase": "saw or talked to a health professional about depression in the past year",
+   "universe_phrase": "who had a major depressive episode in the past year",
    "definition": "Among teens who had a major depressive episode in the past year, saw or talked to a medical doctor or other professional about their depression in the past 12 months.",
    "source": "YTXMDEYR",
    "years": [
@@ -555,8 +564,9 @@
    "id": "mde_rx",
    "cohort": "teen",
    "topic": "care",
-   "label": "Prescription medication for depression (teens with a past-year MDE)",
+   "label": "Prescription medication for depression (teens with a past-year major depressive episode)",
    "phrase": "took prescription medication for depression in the past year",
+   "universe_phrase": "who had a major depressive episode in the past year",
    "definition": "Among teens who had a major depressive episode in the past year, took prescription medication for depression in the past 12 months.",
    "source": "YRXMDEYR",
    "years": [
@@ -576,6 +586,7 @@
    "topic": "care",
    "label": "Any mental health treatment in the past year",
    "phrase": "received mental health treatment in the past year",
+   "universe_phrase": null,
    "definition": "Received any mental health treatment in the past 12 months: inpatient care, outpatient care or counseling (including at school), treatment by phone or video, or prescription medication for mental health.",
    "source": "MHTRTPY",
    "years": [
@@ -593,6 +604,7 @@
    "topic": "care",
    "label": "Mental health care at school",
    "phrase": "got mental health treatment or counseling at school in the past year",
+   "universe_phrase": null,
    "definition": "Received mental health treatment or counseling from a school health center or school counselor in the past 12 months.",
    "source": "IRMHTOUTSCHL",
    "years": [
@@ -610,6 +622,7 @@
    "topic": "care",
    "label": "Mental health care by phone or video",
    "phrase": "got mental health treatment by phone or video in the past year",
+   "universe_phrase": null,
    "definition": "Received mental health treatment or counseling by phone or video in the past 12 months.",
    "source": "IRMHTPHVID",
    "years": [
@@ -618,7 +631,7 @@
     2024
    ],
    "caveats": [
-    "Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA."
+    "Asked from 2022 on. When someone skipped the question, SAMHSA filled in a statistically estimated answer."
    ],
    "status": "launch"
   },
@@ -628,6 +641,7 @@
    "topic": "care",
    "label": "Emergency room visit for mental health",
    "phrase": "were seen in an emergency room for mental health in the past year",
+   "universe_phrase": null,
    "definition": "Were seen in an emergency room or emergency department for mental health reasons in the past 12 months.",
    "source": "IRMHTERED",
    "years": [
@@ -636,7 +650,7 @@
     2024
    ],
    "caveats": [
-    "Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA."
+    "Asked from 2022 on. When someone skipped the question, SAMHSA filled in a statistically estimated answer."
    ],
    "status": "launch"
   },
@@ -646,6 +660,7 @@
    "topic": "care",
    "label": "Prescription medication for mental health",
    "phrase": "took prescription medication for their mental health in the past year",
+   "universe_phrase": null,
    "definition": "Took prescription medication to help with emotions, nerves, or mental health in the past 12 months.",
    "source": "IRMHTRXMED",
    "years": [
@@ -654,7 +669,7 @@
     2024
    ],
    "caveats": [
-    "Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA."
+    "Asked from 2022 on. When someone skipped the question, SAMHSA filled in a statistically estimated answer."
    ],
    "status": "launch"
   },
@@ -664,6 +679,7 @@
    "topic": "substance_use",
    "label": "Alcohol use in the past month",
    "phrase": "drank alcohol in the past month",
+   "universe_phrase": null,
    "definition": "Drank alcohol in the past 30 days.",
    "source": "ALCMON",
    "years": [
@@ -681,6 +697,7 @@
    "topic": "substance_use",
    "label": "Binge drinking in the past month",
    "phrase": "binge drank in the past month",
+   "universe_phrase": null,
    "definition": "Drank five or more drinks (males) or four or more drinks (females) on the same occasion on at least one day in the past 30 days.",
    "source": "BNGDRKMON",
    "years": [
@@ -698,6 +715,7 @@
    "topic": "substance_use",
    "label": "Marijuana use in the past year",
    "phrase": "used marijuana in the past year",
+   "universe_phrase": null,
    "definition": "Used marijuana or hashish in the past 12 months.",
    "source": "MRJYR",
    "years": [
@@ -715,6 +733,7 @@
    "topic": "substance_use",
    "label": "Marijuana use in the past month",
    "phrase": "used marijuana in the past month",
+   "universe_phrase": null,
    "definition": "Used marijuana or hashish in the past 30 days.",
    "source": "MRJMON",
    "years": [
@@ -732,6 +751,7 @@
    "topic": "substance_use",
    "label": "Nicotine vaping in the past year",
    "phrase": "vaped nicotine in the past year",
+   "universe_phrase": null,
    "definition": "Vaped nicotine in the past 12 months.",
    "source": "NICVAPYR",
    "years": [
@@ -750,6 +770,7 @@
    "topic": "substance_use",
    "label": "Nicotine vaping in the past month",
    "phrase": "vaped nicotine in the past month",
+   "universe_phrase": null,
    "definition": "Vaped nicotine in the past 30 days.",
    "source": "NICVAPMON",
    "years": [
@@ -768,6 +789,7 @@
    "topic": "substance_use",
    "label": "Tobacco or nicotine vaping in the past year",
    "phrase": "used tobacco or vaped nicotine in the past year",
+   "universe_phrase": null,
    "definition": "Used any tobacco product (cigarettes, cigars, pipe tobacco, or smokeless tobacco) or vaped nicotine in the past 12 months.",
    "source": "TOBVNICYR",
    "years": [
@@ -786,6 +808,7 @@
    "topic": "substance_use",
    "label": "Illicit drug use in the past year",
    "phrase": "used an illicit drug in the past year",
+   "universe_phrase": null,
    "definition": "Used marijuana, cocaine (including crack), heroin, hallucinogens, inhalants, or methamphetamine, or misused prescription pain relievers, tranquilizers, stimulants, or sedatives in the past 12 months.",
    "source": "ILLYR",
    "years": [
@@ -803,6 +826,7 @@
    "topic": "substance_use",
    "label": "Substance use disorder in the past year",
    "phrase": "had a substance use disorder in the past year",
+   "universe_phrase": null,
    "definition": "Met DSM-5 criteria for an alcohol or drug use disorder (including marijuana) in the past 12 months.",
    "source": "UD5ILALANY",
    "years": [
@@ -820,6 +844,7 @@
    "topic": "school_family_peers",
    "label": "Liked going to school",
    "phrase": "liked or kind of liked going to school in the past year",
+   "universe_phrase": "who attended school in the past year",
    "definition": "Said they liked going to school a lot or kind of liked it during the past 12 months.",
    "source": "SCHFELT",
    "years": [
@@ -839,6 +864,7 @@
    "topic": "school_family_peers",
    "label": "Grade average of D or lower",
    "phrase": "had a grade average of D or lower in their last grading period",
+   "universe_phrase": "who attended school in the past year",
    "definition": "Reported a grade average of D or lower for the last semester or grading period completed.",
    "source": "AVGGRADE",
    "years": [
@@ -858,6 +884,7 @@
    "topic": "school_family_peers",
    "label": "Teachers said they were doing a good job",
    "phrase": "had a teacher tell them they were doing a good job in the past year",
+   "universe_phrase": "who attended school in the past year",
    "definition": "Said a teacher let them know they were doing a good job with their schoolwork always or sometimes in the past 12 months.",
    "source": "TCHGJOB",
    "years": [
@@ -877,6 +904,7 @@
    "topic": "school_family_peers",
    "label": "Parents said they were proud of them",
    "phrase": "had parents tell them they were proud of something they did in the past year",
+   "universe_phrase": null,
    "definition": "Said their parents told them they were proud of something they had done always or sometimes in the past 12 months.",
    "source": "PRPROUD2",
    "years": [
@@ -894,6 +922,7 @@
    "topic": "school_family_peers",
    "label": "Parents checked homework",
    "phrase": "had parents check that their homework was done in the past year",
+   "universe_phrase": "who attended school in the past year",
    "definition": "Said their parents checked whether their homework was done always or sometimes in the past 12 months.",
    "source": "PARCHKHW",
    "years": [
@@ -913,6 +942,7 @@
    "topic": "school_family_peers",
    "label": "Parents helped with homework",
    "phrase": "had parents help with their homework in the past year",
+   "universe_phrase": "who attended school in the past year",
    "definition": "Said their parents helped them with their homework always or sometimes in the past 12 months.",
    "source": "PARHLPHW",
    "years": [
@@ -932,6 +962,7 @@
    "topic": "school_family_peers",
    "label": "Frequent arguments with a parent",
    "phrase": "argued or fought with a parent 10 or more times in the past year",
+   "universe_phrase": null,
    "definition": "Argued or had a fight with at least one of their parents 10 or more times in the past 12 months.",
    "source": "ARGUPAR",
    "years": [
@@ -949,6 +980,7 @@
    "topic": "school_family_peers",
    "label": "Two or more youth activities",
    "phrase": "took part in two or more youth activities in the past year",
+   "universe_phrase": null,
    "definition": "Participated in two or more kinds of activities in the past 12 months: school-based, community-based, church or faith-based, or other activities such as sports teams.",
    "source": "YTHACT2",
    "years": [
@@ -966,6 +998,7 @@
    "topic": "school_family_peers",
    "label": "Religious beliefs very important",
    "phrase": "said religious beliefs are a very important part of their life",
+   "universe_phrase": null,
    "definition": "Agreed or strongly agreed that their religious beliefs are a very important part of their life.",
    "source": "RLGIMPT",
    "years": [
@@ -983,6 +1016,7 @@
    "topic": "school_family_peers",
    "label": "Serious fight at school or work",
    "phrase": "got into a serious fight at school or work in the past year",
+   "universe_phrase": null,
    "definition": "Got into a serious fight at school or work one or more times in the past 12 months.",
    "source": "YOFIGHT2",
    "years": [
@@ -1000,6 +1034,7 @@
    "topic": "school_family_peers",
    "label": "No one to talk to about serious problems",
    "phrase": "had no one to talk to about serious problems",
+   "universe_phrase": null,
    "definition": "Said they talk to no one about serious problems (rather than a parent, boyfriend or girlfriend, another adult, or someone else).",
    "source": "TALKPROB",
    "years": [
@@ -1017,6 +1052,7 @@
    "topic": "health",
    "label": "Fair or poor overall health",
    "phrase": "rated their overall health as fair or poor",
+   "universe_phrase": null,
    "definition": "Rated their overall health as fair or poor rather than good, very good, or excellent.",
    "source": "HEALTH2",
    "years": [
@@ -1034,6 +1070,7 @@
    "topic": "health",
    "label": "Serious difficulty remembering or concentrating",
    "phrase": "had a lot of difficulty remembering or concentrating",
+   "universe_phrase": null,
    "definition": "Said they have a lot of difficulty remembering or concentrating, or cannot do it at all (Washington Group disability question). Some difficulty counts as no.",
    "source": "LVLDIFMEM2",
    "years": [
@@ -1043,7 +1080,7 @@
     2024
    ],
    "caveats": [
-    "\"Some difficulty\" counts as no, following the Washington Group threshold for functional difficulty; item nonresponse is excluded."
+    "\"Some difficulty\" counts as no, following the Washington Group threshold for functional difficulty; people who skipped the question are left out."
    ],
    "status": "launch"
   },
@@ -1053,6 +1090,7 @@
    "topic": "depression_suicide",
    "label": "Major depressive episode in the past year",
    "phrase": "had a major depressive episode in the past year",
+   "universe_phrase": null,
    "definition": "Had a period of at least two weeks in the past 12 months with a depressed mood or loss of interest or pleasure in daily activities, plus most of the other symptoms of depression, based on DSM criteria.",
    "source": "AMDEYR",
    "years": [
@@ -1070,6 +1108,7 @@
    "topic": "depression_suicide",
    "label": "Major depressive episode with severe impairment",
    "phrase": "had a major depressive episode with severe impairment in the past year",
+   "universe_phrase": null,
    "definition": "Had a major depressive episode in the past year that severely interfered with home management, work, close relationships, or social life (Sheehan Disability Scale). The denominator is all young adults.",
    "source": "AMDEIMP",
    "years": [
@@ -1087,6 +1126,7 @@
    "topic": "depression_suicide",
    "label": "Seriously thought about suicide in the past year",
    "phrase": "seriously thought about killing themselves in the past year",
+   "universe_phrase": null,
    "definition": "Seriously thought about trying to kill themselves at any time in the past 12 months.",
    "source": "IRSUICTHNK",
    "years": [
@@ -1096,7 +1136,7 @@
     2024
    ],
    "caveats": [
-    "Item nonresponse is statistically imputed by SAMHSA."
+    "When someone skipped the question, SAMHSA filled in a statistically estimated answer."
    ],
    "status": "launch"
   },
@@ -1106,6 +1146,7 @@
    "topic": "depression_suicide",
    "label": "Made a suicide plan in the past year",
    "phrase": "made a plan to kill themselves in the past year",
+   "universe_phrase": null,
    "definition": "Made any plans to kill themselves in the past 12 months.",
    "source": "IRSUIPLANYR",
    "years": [
@@ -1115,7 +1156,7 @@
     2024
    ],
    "caveats": [
-    "Item nonresponse is statistically imputed by SAMHSA."
+    "When someone skipped the question, SAMHSA filled in a statistically estimated answer."
    ],
    "status": "launch"
   },
@@ -1125,6 +1166,7 @@
    "topic": "depression_suicide",
    "label": "Attempted suicide in the past year",
    "phrase": "attempted suicide in the past year",
+   "universe_phrase": null,
    "definition": "Tried to kill themselves in the past 12 months.",
    "source": "IRSUITRYYR",
    "years": [
@@ -1134,7 +1176,7 @@
     2024
    ],
    "caveats": [
-    "Item nonresponse is statistically imputed by SAMHSA."
+    "When someone skipped the question, SAMHSA filled in a statistically estimated answer."
    ],
    "status": "launch"
   },
@@ -1144,6 +1186,7 @@
    "topic": "mental_illness",
    "label": "Serious psychological distress in the past year",
    "phrase": "had serious psychological distress in the past year",
+   "universe_phrase": null,
    "definition": "Scored 13 or higher on the Kessler-6 scale of psychological distress for the month in the past 12 months when they felt their worst.",
    "source": "SPDPSTYR",
    "years": [
@@ -1161,6 +1204,7 @@
    "topic": "mental_illness",
    "label": "Any mental illness in the past year",
    "phrase": "had a mental illness in the past year",
+   "universe_phrase": null,
    "definition": "Had a diagnosable mental, behavioral, or emotional disorder in the past year, other than a developmental or substance use disorder, of any severity.",
    "source": "AMIPY",
    "years": [
@@ -1180,6 +1224,7 @@
    "topic": "mental_illness",
    "label": "Serious mental illness in the past year",
    "phrase": "had a serious mental illness in the past year",
+   "universe_phrase": null,
    "definition": "Had a diagnosable mental, behavioral, or emotional disorder in the past year that substantially interfered with or limited one or more major life activities.",
    "source": "SMIPY",
    "years": [
@@ -1199,6 +1244,7 @@
    "topic": "mental_illness",
    "label": "Mental illness and substance use disorder",
    "phrase": "had both a mental illness and a substance use disorder in the past year",
+   "universe_phrase": null,
    "definition": "Had any mental illness and a substance use disorder (DSM-5, alcohol or drugs) in the same past year.",
    "source": "AMISUD5ANY",
    "years": [
@@ -1216,8 +1262,9 @@
    "id": "mde_any_treatment",
    "cohort": "young_adult",
    "topic": "care",
-   "label": "Treatment or medication for depression (young adults with a past-year MDE)",
+   "label": "Treatment or medication for depression (young adults with a past-year major depressive episode)",
    "phrase": "got treatment or medication for depression in the past year",
+   "universe_phrase": "who had a major depressive episode in the past year",
    "definition": "Among young adults who had a major depressive episode in the past year, saw or talked to a health professional about depression or took prescription medication for it in the past 12 months.",
    "source": "AMDETXRX",
    "years": [
@@ -1237,6 +1284,7 @@
    "topic": "care",
    "label": "Any mental health treatment in the past year",
    "phrase": "received mental health treatment in the past year",
+   "universe_phrase": null,
    "definition": "Received any mental health treatment in the past 12 months: inpatient care, outpatient care or counseling, treatment by phone or video, or prescription medication for mental health.",
    "source": "MHTRTPY",
    "years": [
@@ -1254,6 +1302,7 @@
    "topic": "substance_use",
    "label": "Alcohol use in the past month",
    "phrase": "drank alcohol in the past month",
+   "universe_phrase": null,
    "definition": "Drank alcohol in the past 30 days.",
    "source": "ALCMON",
    "years": [
@@ -1271,6 +1320,7 @@
    "topic": "substance_use",
    "label": "Binge drinking in the past month",
    "phrase": "binge drank in the past month",
+   "universe_phrase": null,
    "definition": "Drank five or more drinks (males) or four or more drinks (females) on the same occasion on at least one day in the past 30 days.",
    "source": "BNGDRKMON",
    "years": [
@@ -1288,6 +1338,7 @@
    "topic": "substance_use",
    "label": "Marijuana use in the past year",
    "phrase": "used marijuana in the past year",
+   "universe_phrase": null,
    "definition": "Used marijuana or hashish in the past 12 months.",
    "source": "MRJYR",
    "years": [
@@ -1305,6 +1356,7 @@
    "topic": "substance_use",
    "label": "Marijuana use in the past month",
    "phrase": "used marijuana in the past month",
+   "universe_phrase": null,
    "definition": "Used marijuana or hashish in the past 30 days.",
    "source": "MRJMON",
    "years": [
@@ -1322,6 +1374,7 @@
    "topic": "substance_use",
    "label": "Nicotine vaping in the past year",
    "phrase": "vaped nicotine in the past year",
+   "universe_phrase": null,
    "definition": "Vaped nicotine in the past 12 months.",
    "source": "NICVAPYR",
    "years": [
@@ -1340,6 +1393,7 @@
    "topic": "substance_use",
    "label": "Nicotine vaping in the past month",
    "phrase": "vaped nicotine in the past month",
+   "universe_phrase": null,
    "definition": "Vaped nicotine in the past 30 days.",
    "source": "NICVAPMON",
    "years": [
@@ -1358,6 +1412,7 @@
    "topic": "substance_use",
    "label": "Tobacco or nicotine vaping in the past year",
    "phrase": "used tobacco or vaped nicotine in the past year",
+   "universe_phrase": null,
    "definition": "Used any tobacco product (cigarettes, cigars, pipe tobacco, or smokeless tobacco) or vaped nicotine in the past 12 months.",
    "source": "TOBVNICYR",
    "years": [
@@ -1376,6 +1431,7 @@
    "topic": "substance_use",
    "label": "Illicit drug use in the past year",
    "phrase": "used an illicit drug in the past year",
+   "universe_phrase": null,
    "definition": "Used marijuana, cocaine (including crack), heroin, hallucinogens, inhalants, or methamphetamine, or misused prescription pain relievers, tranquilizers, stimulants, or sedatives in the past 12 months.",
    "source": "ILLYR",
    "years": [
@@ -1393,6 +1449,7 @@
    "topic": "substance_use",
    "label": "Substance use disorder in the past year",
    "phrase": "had a substance use disorder in the past year",
+   "universe_phrase": null,
    "definition": "Met DSM-5 criteria for an alcohol or drug use disorder (including marijuana) in the past 12 months.",
    "source": "UD5ILALANY",
    "years": [
@@ -1410,6 +1467,7 @@
    "topic": "health",
    "label": "Fair or poor overall health",
    "phrase": "rated their overall health as fair or poor",
+   "universe_phrase": null,
    "definition": "Rated their overall health as fair or poor rather than good, very good, or excellent.",
    "source": "HEALTH2",
    "years": [

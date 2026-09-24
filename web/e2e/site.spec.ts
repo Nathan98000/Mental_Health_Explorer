@@ -16,6 +16,12 @@ const ROUTES = [
   { name: 'methods', path: 'methods' },
 ]
 
+/** On phones the filters sit in a collapsed <details>; open it so the controls can be used. */
+async function openFilters(page: Page) {
+  const summary = page.getByTestId('filters-summary')
+  if (await summary.isVisible()) await summary.click()
+}
+
 /** Wait until every loading message has gone and the page has content. */
 async function settled(page: Page) {
   await expect(page.getByRole('main')).toBeVisible()
@@ -84,6 +90,7 @@ test('the explorer shows the value from the committed shard and survives a reloa
 test('picking a population updates the URL and the takeaway', async ({ page }) => {
   await page.goto('explore/teen/mde_py')
   await settled(page)
+  await openFilters(page)
   await page.getByLabel('Population').selectOption('sex:female')
   await expect(page).toHaveURL(/group=sex&level=female/)
   await settled(page)
@@ -100,13 +107,13 @@ test('an unknown indicator redirects to the default one', async ({ page }) => {
 test('the vaping trend explains the 2021 gap and offers a table view', async ({ page }) => {
   await page.goto('trends/teen/nicotine_vape_py')
   await settled(page)
-  await expect(page.getByText('Not asked in 2021.')).toBeVisible()
+  await expect(page.getByText('Not available in 2021.')).toBeVisible()
   await expect(page.getByRole('img', { name: /Nicotine vaping in the past year/ })).toBeVisible()
   await page.getByRole('button', { name: 'Show table' }).click()
-  await expect(page.getByRole('row', { name: /^2021/ })).toContainText('Not asked')
+  await expect(page.getByRole('row', { name: /^2021/ })).toContainText('Not available')
 })
 
-test('the suicide trend carries the 988 note beside the chart', async ({ page }) => {
+test('the suicide trend carries the 988 note above the chart', async ({ page }) => {
   await page.goto('trends/teen/suicide_thoughts?split=sex')
   await settled(page)
   await expect(page.getByRole('complementary', { name: 'Support' })).toContainText('988')

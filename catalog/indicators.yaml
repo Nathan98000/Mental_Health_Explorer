@@ -130,8 +130,9 @@ indicators:
   - id: mde_any_treatment
     cohort: teen
     topic: care
-    label: Treatment or medication for depression (teens with a past-year MDE)
+    label: Treatment or medication for depression (teens with a past-year major depressive episode)
     phrase: got treatment or medication for depression in the past year
+    universe_phrase: who had a major depressive episode in the past year
     definition: >-
       Among teens who had a major depressive episode in the past year, saw or talked to a
       health professional about depression or took prescription medication for it in the
@@ -149,8 +150,9 @@ indicators:
   - id: mde_saw_professional
     cohort: teen
     topic: care
-    label: Saw a professional for depression (teens with a past-year MDE)
+    label: Saw a professional for depression (teens with a past-year major depressive episode)
     phrase: saw or talked to a health professional about depression in the past year
+    universe_phrase: who had a major depressive episode in the past year
     definition: >-
       Among teens who had a major depressive episode in the past year, saw or talked to a
       medical doctor or other professional about their depression in the past 12 months.
@@ -167,8 +169,9 @@ indicators:
   - id: mde_rx
     cohort: teen
     topic: care
-    label: Prescription medication for depression (teens with a past-year MDE)
+    label: Prescription medication for depression (teens with a past-year major depressive episode)
     phrase: took prescription medication for depression in the past year
+    universe_phrase: who had a major depressive episode in the past year
     definition: >-
       Among teens who had a major depressive episode in the past year, took prescription
       medication for depression in the past 12 months.
@@ -226,7 +229,7 @@ indicators:
     "no": [0]
     years: [2022, 2023, 2024]
     caveats:
-      - Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA.
+      - Asked from 2022 on. When someone skipped the question, SAMHSA filled in a statistically estimated answer.
     codebook: IRMHTPHVID
     status: launch
 
@@ -241,7 +244,7 @@ indicators:
     "no": [0]
     years: [2022, 2023, 2024]
     caveats:
-      - Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA.
+      - Asked from 2022 on. When someone skipped the question, SAMHSA filled in a statistically estimated answer.
     codebook: IRMHTERED
     status: launch
 
@@ -256,7 +259,7 @@ indicators:
     "no": [0]
     years: [2022, 2023, 2024]
     caveats:
-      - Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA.
+      - Asked from 2022 on. When someone skipped the question, SAMHSA filled in a statistically estimated answer.
     codebook: IRMHTRXMED
     status: launch
 
@@ -265,6 +268,7 @@ indicators:
     topic: care
     label: Wanted mental health treatment but did not get it
     phrase: sought or felt they needed mental health treatment but did not get it in the past year
+    universe_phrase: who did not get mental health treatment in the past year
     definition: >-
       Among teens who did not receive mental health treatment in the past 12 months, sought
       treatment or thought they should get it.
@@ -425,6 +429,7 @@ indicators:
     topic: school_family_peers
     label: Liked going to school
     phrase: liked or kind of liked going to school in the past year
+    universe_phrase: who attended school in the past year
     definition: Said they liked going to school a lot or kind of liked it during the past 12 months.
     source: SCHFELT
     "yes": [1]
@@ -440,6 +445,7 @@ indicators:
     topic: school_family_peers
     label: Grade average of D or lower
     phrase: had a grade average of D or lower in their last grading period
+    universe_phrase: who attended school in the past year
     definition: Reported a grade average of D or lower for the last semester or grading period completed.
     source: AVGGRADE
     "yes": [1]
@@ -455,6 +461,7 @@ indicators:
     topic: school_family_peers
     label: Teachers said they were doing a good job
     phrase: had a teacher tell them they were doing a good job in the past year
+    universe_phrase: who attended school in the past year
     definition: Said a teacher let them know they were doing a good job with their schoolwork always or sometimes in the past 12 months.
     source: TCHGJOB
     "yes": [1]
@@ -484,6 +491,7 @@ indicators:
     topic: school_family_peers
     label: Parents checked homework
     phrase: had parents check that their homework was done in the past year
+    universe_phrase: who attended school in the past year
     definition: Said their parents checked whether their homework was done always or sometimes in the past 12 months.
     source: PARCHKHW
     "yes": [1]
@@ -499,6 +507,7 @@ indicators:
     topic: school_family_peers
     label: Parents helped with homework
     phrase: had parents help with their homework in the past year
+    universe_phrase: who attended school in the past year
     definition: Said their parents helped them with their homework always or sometimes in the past 12 months.
     source: PARHLPHW
     "yes": [1]
@@ -609,7 +618,7 @@ indicators:
     "no": [1, 2]
     years: [2021, 2022, 2023, 2024]
     caveats:
-      - "\"Some difficulty\" counts as no, following the Washington Group threshold for functional difficulty; item nonresponse is excluded."
+      - "\"Some difficulty\" counts as no, following the Washington Group threshold for functional difficulty; people who skipped the question are left out."
     codebook: LVLDIFMEM2
     status: launch
 
@@ -661,7 +670,7 @@ indicators:
     "no": [0]
     years: [2021, 2022, 2023, 2024]
     caveats:
-      - Item nonresponse is statistically imputed by SAMHSA.
+      - When someone skipped the question, SAMHSA filled in a statistically estimated answer.
     codebook: IRSUICTHNK
     status: launch
 
@@ -676,7 +685,7 @@ indicators:
     "no": [0]
     years: [2021, 2022, 2023, 2024]
     caveats:
-      - Item nonresponse is statistically imputed by SAMHSA.
+      - When someone skipped the question, SAMHSA filled in a statistically estimated answer.
     codebook: IRSUIPLANYR
     status: launch
 
@@ -691,7 +700,7 @@ indicators:
     "no": [0]
     years: [2021, 2022, 2023, 2024]
     caveats:
-      - Item nonresponse is statistically imputed by SAMHSA.
+      - When someone skipped the question, SAMHSA filled in a statistically estimated answer.
     codebook: IRSUITRYYR
     status: launch
 
@@ -767,8 +776,9 @@ indicators:
   - id: mde_any_treatment
     cohort: young_adult
     topic: care
-    label: Treatment or medication for depression (young adults with a past-year MDE)
+    label: Treatment or medication for depression (young adults with a past-year major depressive episode)
     phrase: got treatment or medication for depression in the past year
+    universe_phrase: who had a major depressive episode in the past year
     definition: >-
       Among young adults who had a major depressive episode in the past year, saw or talked
       to a health professional about depression or took prescription medication for it in
@@ -806,6 +816,7 @@ indicators:
     topic: care
     label: Wanted mental health treatment but did not get it
     phrase: sought or felt they needed mental health treatment but did not get it in the past year
+    universe_phrase: who did not get mental health treatment in the past year
     definition: >-
       Among young adults who did not receive mental health treatment in the past 12 months,
       sought treatment or thought they should get it.
