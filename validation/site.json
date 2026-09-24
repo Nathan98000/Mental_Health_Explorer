@@ -1,0 +1,23 @@
+{
+ "generated": "2026-09-24",
+ "form_factor": "mobile",
+ "lighthouse": "13.5.0",
+ "pages": [
+  {
+   "url": "http://localhost:4173/Mental_Health_Explorer/",
+   "performance": 91,
+   "accessibility": 100,
+   "lcp_ms": 3397,
+   "tbt_ms": 0,
+   "cls": 0
+  },
+  {
+   "url": "http://localhost:4173/Mental_Health_Explorer/explore/teen/mde_py",
+   "performance": 95,
+   "accessibility": 100,
+   "lcp_ms": 2877,
+   "tbt_ms": 0,
+   "cls": 0
+  }
+ ]
+}

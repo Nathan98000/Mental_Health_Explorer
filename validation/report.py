@@ -97,6 +97,30 @@ def sizes_section() -> list[str]:
     return lines
 
 
+SITE_PATH = Path(__file__).parent / "site.json"
+
+
+def site_section() -> list[str]:
+    """Lighthouse scores for the built site (written by `npm run lighthouse` in web/, local only)."""
+    if not SITE_PATH.exists():
+        return []
+    site = json.loads(SITE_PATH.read_text(encoding="utf-8"))
+    lines = [
+        "## Site (Lighthouse, mobile, preview build)",
+        "",
+        f"Lighthouse {site['lighthouse']} on {site['generated']}, mobile emulation against `vite preview` in local Chrome. "
+        "Targets: performance ≥ 90 and accessibility ≥ 95.",
+        "",
+        "| Page | Performance | Accessibility | LCP | Total blocking time | CLS |",
+        "| --- | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for page in site["pages"]:
+        path = "/" + page["url"].split("/Mental_Health_Explorer/", 1)[-1]
+        lines.append(f"| `{path}` | {page['performance']} | {page['accessibility']} | {page['lcp_ms'] / 1000:.1f} s | {page['tbt_ms']} ms | {page['cls']} |")
+    lines += ["", "The Playwright suite (`npm run e2e`) checks every route with axe (WCAG 2.1 A and AA) in light and dark mode at 1280 px and 390 px, and that nothing scrolls horizontally at 360 px.", ""]
+    return lines
+
+
 def main() -> None:
     frame = load_harmonized()
     lines = [
@@ -108,6 +132,7 @@ def main() -> None:
         *crosscheck_section(frame),
         *cells_section(),
         *sizes_section(),
+        *site_section(),
     ]
     REPORT_PATH.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
     print(f"Wrote {REPORT_PATH}")
