@@ -54,10 +54,35 @@ jobs:
         with:
           path: web/dist
 
+  e2e:
+    name: End-to-end and accessibility (Playwright + axe)
+    needs: [web]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results
+          path: web/test-results
+          retention-days: 7
+
   deploy:
     name: Deploy to GitHub Pages
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: [pipeline-tests, web]
+    needs: [pipeline-tests, web, e2e]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
