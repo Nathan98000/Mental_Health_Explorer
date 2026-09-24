@@ -14,7 +14,7 @@ import { useEstimates } from '../lib/useEstimates'
 const live = [
   { title: 'Explore any measure', body: 'Depression, suicidal thoughts, substance use, school and family life — for teens and young adults, by year and population.', shape: 'circle', to: (c: Cohort) => explorePath(c, 'mde_py') },
   { title: 'Trends', body: 'See how each measure changed from 2021 to 2024, split by sex, age, income and more, and whether the change is real.', shape: 'wave', to: (c: Cohort) => trendsPath(c, 'mde_py') },
-  { title: 'How we did it', body: 'Where the numbers come from, how sure we can be, every measure defined, and how to cite them.', shape: 'lines', to: () => '/methods' },
+  { title: 'Methods', body: 'Where the numbers come from, how sure we can be, every measure defined, and how to cite them.', shape: 'lines', to: () => '/methods' },
 ] as const
 
 const upcoming = [
@@ -87,7 +87,7 @@ export default function Home() {
   const estimates = useEstimates(cohort, HEADLINES[cohort])
   return (
     <>
-      <section className="relative overflow-hidden rounded-[2rem] bg-surface-tint px-6 py-12 sm:px-10 sm:py-16">
+      <section className="relative overflow-hidden rounded-[2rem] bg-surface-tint px-5 py-8 sm:px-10 sm:py-16">
         <svg className="pointer-events-none absolute -right-16 -top-16 hidden h-64 w-64 opacity-70 sm:block dark:opacity-35" viewBox="0 0 200 200" aria-hidden="true">
           <circle cx="100" cy="100" r="90" fill="var(--sun)" />
         </svg>
@@ -95,10 +95,10 @@ export default function Home() {
           <circle cx="100" cy="100" r="90" fill="var(--primary)" />
         </svg>
         <div className="relative max-w-2xl">
-          <h1 className="m-0 font-display text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
+          <h1 className="m-0 font-display text-3xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
             How are young people in the U.S. doing?
           </h1>
-          <p className="m-0 mt-4 text-lg leading-relaxed text-ink-2">
+          <p className="m-0 mt-3 text-base leading-relaxed text-ink-2 sm:mt-4 sm:text-lg">
             Explore what a national survey of about 58,000 people each year says about depression, suicidal
             thoughts, substance use and getting help — for teens ages 12–17 and young adults ages 18–25.
           </p>

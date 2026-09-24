@@ -41,6 +41,8 @@ describe('levelsFor', () => {
 describe('year sets', () => {
   it('lists single years then the pooled sets', () => {
     expect(yearSetsFor({ years: [2022, 2023, 2024] })).toEqual(['2022', '2023', '2024', 'all', 'recent2'])
+    // Two years: "latest two" would pool the same years as "all", so it is left out.
+    expect(yearSetsFor({ years: [2022, 2023] })).toEqual(['2022', '2023', 'all'])
     expect(yearSetsFor({ years: [2024] })).toEqual(['2024'])
   })
   it('labels and describes them', () => {

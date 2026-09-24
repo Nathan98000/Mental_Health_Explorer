@@ -229,7 +229,7 @@ indicators:
     "no": [0]
     years: [2022, 2023, 2024]
     caveats:
-      - Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA.
+      - Asked from 2022 on. When someone skipped the question, SAMHSA filled in a statistically estimated answer.
     codebook: IRMHTPHVID
     status: launch
 
@@ -244,7 +244,7 @@ indicators:
     "no": [0]
     years: [2022, 2023, 2024]
     caveats:
-      - Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA.
+      - Asked from 2022 on. When someone skipped the question, SAMHSA filled in a statistically estimated answer.
     codebook: IRMHTERED
     status: launch
 
@@ -259,7 +259,7 @@ indicators:
     "no": [0]
     years: [2022, 2023, 2024]
     caveats:
-      - Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA.
+      - Asked from 2022 on. When someone skipped the question, SAMHSA filled in a statistically estimated answer.
     codebook: IRMHTRXMED
     status: launch
 
@@ -618,7 +618,7 @@ indicators:
     "no": [1, 2]
     years: [2021, 2022, 2023, 2024]
     caveats:
-      - "\"Some difficulty\" counts as no, following the Washington Group threshold for functional difficulty; item nonresponse is excluded."
+      - "\"Some difficulty\" counts as no, following the Washington Group threshold for functional difficulty; people who skipped the question are left out."
     codebook: LVLDIFMEM2
     status: launch
 
@@ -670,7 +670,7 @@ indicators:
     "no": [0]
     years: [2021, 2022, 2023, 2024]
     caveats:
-      - Item nonresponse is statistically imputed by SAMHSA.
+      - When someone skipped the question, SAMHSA filled in a statistically estimated answer.
     codebook: IRSUICTHNK
     status: launch
 
@@ -685,7 +685,7 @@ indicators:
     "no": [0]
     years: [2021, 2022, 2023, 2024]
     caveats:
-      - Item nonresponse is statistically imputed by SAMHSA.
+      - When someone skipped the question, SAMHSA filled in a statistically estimated answer.
     codebook: IRSUIPLANYR
     status: launch
 
@@ -700,7 +700,7 @@ indicators:
     "no": [0]
     years: [2021, 2022, 2023, 2024]
     caveats:
-      - Item nonresponse is statistically imputed by SAMHSA.
+      - When someone skipped the question, SAMHSA filled in a statistically estimated answer.
     codebook: IRSUITRYYR
     status: launch
 

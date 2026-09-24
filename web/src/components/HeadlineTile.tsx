@@ -33,8 +33,13 @@ export function HeadlineTile({ indicator, shard, cohort }: { indicator: Indicato
             of {withUniverse(cohort.phrase, indicator)}
             {indicator.universe_phrase ? ` (${latest.year})` : ` in ${latest.year}`}
           </p>
-          <div className="mt-3">
+          <div className="mt-3 flex flex-wrap items-center gap-3">
             <Sparkline points={points} years={SURVEY_YEARS} />
+            {first.year !== latest.year ? (
+              <span className="tabular text-xs font-medium text-ink-2" data-testid="first-last">
+                {formatPct(first.cell.p as number)} → {formatPct(latest.cell.p as number)}
+              </span>
+            ) : null}
           </div>
           {kind ? (
             <p className="m-0 mt-3">

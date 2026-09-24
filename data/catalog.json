@@ -631,7 +631,7 @@
     2024
    ],
    "caveats": [
-    "Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA."
+    "Asked from 2022 on. When someone skipped the question, SAMHSA filled in a statistically estimated answer."
    ],
    "status": "launch"
   },
@@ -650,7 +650,7 @@
     2024
    ],
    "caveats": [
-    "Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA."
+    "Asked from 2022 on. When someone skipped the question, SAMHSA filled in a statistically estimated answer."
    ],
    "status": "launch"
   },
@@ -669,7 +669,7 @@
     2024
    ],
    "caveats": [
-    "Asked from 2022 on; item nonresponse is statistically imputed by SAMHSA."
+    "Asked from 2022 on. When someone skipped the question, SAMHSA filled in a statistically estimated answer."
    ],
    "status": "launch"
   },
@@ -1080,7 +1080,7 @@
     2024
    ],
    "caveats": [
-    "\"Some difficulty\" counts as no, following the Washington Group threshold for functional difficulty; item nonresponse is excluded."
+    "\"Some difficulty\" counts as no, following the Washington Group threshold for functional difficulty; people who skipped the question are left out."
    ],
    "status": "launch"
   },
@@ -1136,7 +1136,7 @@
     2024
    ],
    "caveats": [
-    "Item nonresponse is statistically imputed by SAMHSA."
+    "When someone skipped the question, SAMHSA filled in a statistically estimated answer."
    ],
    "status": "launch"
   },
@@ -1156,7 +1156,7 @@
     2024
    ],
    "caveats": [
-    "Item nonresponse is statistically imputed by SAMHSA."
+    "When someone skipped the question, SAMHSA filled in a statistically estimated answer."
    ],
    "status": "launch"
   },
@@ -1176,7 +1176,7 @@
     2024
    ],
    "caveats": [
-    "Item nonresponse is statistically imputed by SAMHSA."
+    "When someone skipped the question, SAMHSA filled in a statistically estimated answer."
    ],
    "status": "launch"
   },

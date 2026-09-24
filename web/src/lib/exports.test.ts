@@ -62,9 +62,14 @@ describe('serializeSvg', () => {
 })
 
 describe('toCsv', () => {
-  it('quotes fields with commas and leaves nulls empty', () => {
-    const csv = toCsv([{ cohort: 'teen', indicator: 'mde_py', yearSet: '2024', weight: 'ANALWT2_C1', population: 'teens, ages 12–17', p: 0.148, lo: null, hi: null, n: 10917, suppressed: false }])
-    expect(csv.split('\n')[0]).toBe('cohort,indicator,year_set,weight,population,p,lo,hi,n,suppressed')
-    expect(csv.split('\n')[1]).toBe('teen,mde_py,2024,ANALWT2_C1,"teens, ages 12–17",0.148,,,10917,false')
+  it('writes plain headers, percentages to one decimal, quoted commas and empty nulls', () => {
+    const csv = toCsv([
+      { cohort: 'teen', measure: 'mde_py', years: '2024', population: 'teens, ages 12–17', p: 0.14837, lo: 0.13754, hi: 0.15991, n: 10917, suppressed: false, weight: 'ANALWT2_C1' },
+      { cohort: 'teen', measure: 'mde_py', years: '2021–2024', population: 'teens ages 12–17', p: null, lo: null, hi: null, n: 40, suppressed: true, weight: 'ANALWT2_C4' },
+    ])
+    const [header, first, second] = csv.split('\n')
+    expect(header).toBe('cohort,measure,years,population,estimate_pct,ci_low_pct,ci_high_pct,responses,suppressed,weight_variable')
+    expect(first).toBe('teen,mde_py,2024,"teens, ages 12–17",14.8,13.8,16.0,10917,false,ANALWT2_C1')
+    expect(second).toBe('teen,mde_py,2021–2024,teens ages 12–17,,,,40,true,ANALWT2_C4')
   })
 })

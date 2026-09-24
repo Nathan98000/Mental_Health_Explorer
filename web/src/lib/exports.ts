@@ -6,18 +6,21 @@ import { SITE_NAME } from './site'
 
 export type CsvRow = {
   cohort: string
-  indicator: string
-  yearSet: string
-  weight: string
+  /** Indicator id, e.g. "mde_py". */
+  measure: string
+  /** The year or span the row pools, e.g. "2024" or "2021–2024". */
+  years: string
   population: string
   p: number | null
   lo: number | null
   hi: number | null
   n: number
   suppressed: boolean
+  /** The analysis weight variable in the public use file. */
+  weight: string
 }
 
-export const CSV_COLUMNS = ['cohort', 'indicator', 'year_set', 'weight', 'population', 'p', 'lo', 'hi', 'n', 'suppressed'] as const
+export const CSV_COLUMNS = ['cohort', 'measure', 'years', 'population', 'estimate_pct', 'ci_low_pct', 'ci_high_pct', 'responses', 'suppressed', 'weight_variable'] as const
 
 function csvField(value: string | number | boolean | null): string {
   if (value === null) return ''
@@ -25,8 +28,13 @@ function csvField(value: string | number | boolean | null): string {
   return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text
 }
 
+/** A proportion as a percentage with one decimal, e.g. 0.14837 -> "14.8"; empty when missing. */
+function pct(value: number | null): string {
+  return value === null ? '' : (value * 100).toFixed(1)
+}
+
 export function toCsv(rows: CsvRow[]): string {
-  const lines = rows.map((r) => [r.cohort, r.indicator, r.yearSet, r.weight, r.population, r.p, r.lo, r.hi, r.n, r.suppressed].map(csvField).join(','))
+  const lines = rows.map((r) => [r.cohort, r.measure, r.years, r.population, pct(r.p), pct(r.lo), pct(r.hi), r.n, r.suppressed, r.weight].map(csvField).join(','))
   return [CSV_COLUMNS.join(','), ...lines].join('\n') + '\n'
 }
 

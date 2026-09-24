@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { downloadPng, downloadSvg, downloadText, type ExportLegendItem } from '../lib/exports'
 import { useChartTheme } from '../lib/theme'
 
@@ -17,6 +17,12 @@ type Props = {
 export function ChartExports({ getSvg, csv, filename, citation, frame }: Props) {
   const theme = useChartTheme()
   const [message, setMessage] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+  useEffect(() => {
+    if (!copied) return
+    const timer = setTimeout(() => setCopied(false), 2000)
+    return () => clearTimeout(timer)
+  }, [copied])
   const buttonClass = 'rounded-full border border-line bg-surface px-3 py-1 text-sm font-medium text-ink-2 hover:bg-surface-tint hover:text-ink'
   const exportFrame = { ...frame, ink: theme.ink, muted: theme.muted }
 
@@ -37,7 +43,8 @@ export function ChartExports({ getSvg, csv, filename, citation, frame }: Props) 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(citation)
-      setMessage('Citation copied.')
+      setCopied(true)
+      setMessage(null)
     } catch {
       setMessage('Copy is not available here; select the citation text to copy it.')
     }
@@ -54,9 +61,12 @@ export function ChartExports({ getSvg, csv, filename, citation, frame }: Props) 
             <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadSvg(svg, `${filename}.svg`, theme.surface, exportFrame))}>SVG</button>
           </>
         ) : null}
-        <button type="button" className={buttonClass} onClick={copy}>Copy citation</button>
+        <button type="button" className={buttonClass} onClick={copy} aria-live="polite">{copied ? 'Copied' : 'Copy citation'}</button>
       </div>
-      <p className="m-0 mt-2 wrap-anywhere text-xs leading-relaxed text-muted">{citation}</p>
+      <details className="mt-2">
+        <summary className="cursor-pointer text-xs font-semibold text-ink-2">Cite this</summary>
+        <p className="m-0 mt-1 wrap-anywhere text-xs leading-relaxed text-muted">{citation}</p>
+      </details>
       <p className="m-0 mt-1 min-h-5 text-xs" role="status">{message}</p>
     </div>
   )

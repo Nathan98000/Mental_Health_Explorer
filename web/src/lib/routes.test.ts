@@ -43,7 +43,7 @@ describe('resolveExplore', () => {
     expect(unknown.notices).toEqual(["We couldn't find that year; showing 2024."])
     const notAsked = resolveExplore(catalog, 'teen', 'nicotine_vape_py', q('year=2021'))
     expect(notAsked.state.yearSet).toBe('2024')
-    expect(notAsked.notices).toEqual(['Not asked in 2021; showing 2024.'])
+    expect(notAsked.notices).toEqual(['Not available in 2021; showing 2024.'])
   })
   it('keeps a valid group level', () => {
     const { normalized, state } = resolveExplore(catalog, 'teen', 'mde_py', q('level=female&group=sex'))
@@ -110,7 +110,7 @@ describe('resolveTrends', () => {
     expect(reversed.notices).toEqual(["We couldn't compare those years; showing 2021 to 2024."])
     const notAsked = resolveTrends(catalog, 'teen', 'nicotine_vape_py', q('a=2021&b=2024'))
     expect(notAsked.state).toMatchObject({ yearA: 2022, yearB: 2024 })
-    expect(notAsked.notices).toEqual(['Not asked in 2021; showing 2022 to 2024.'])
+    expect(notAsked.notices).toEqual(['Not available in 2021; showing 2022 to 2024.'])
   })
 })
 

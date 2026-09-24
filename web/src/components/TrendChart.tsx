@@ -13,6 +13,7 @@ export type TrendRowStatus = 'ok' | 'not_collected' | 'suppressed'
 /** One point per year and series; a null `p` is a gap (the year was not collected or the point is suppressed). */
 export type TrendRow = { year: number; series: string; p: number | null; lo: number | null; hi: number | null; status: TrendRowStatus; reason?: string | null }
 
+/** A change to the survey taking effect in `year`, drawn as a rule just before that year. */
 export type Annotation = { year: number; label: string }
 
 /** The two years compared next to the chart; series not in `significant` are drawn dashed and lighter. */
@@ -26,7 +27,7 @@ type Props = {
   /** Every year on the axis, so years without a value show as gaps. */
   years: readonly number[]
   caption?: string
-  /** Numbered dashed rules on the chart, explained under it. */
+  /** Survey changes: a thin solid rule between the year before and the year named, explained under the chart. */
   annotations?: Annotation[]
   /** Plain notes under the chart (gaps, suppressed points). */
   notes?: string[]
@@ -71,8 +72,27 @@ function endLabels(chart: Chart, ends: (TrendRow & { p: number })[], single: boo
   const g = svgEl('g', { 'data-end-labels': '', 'aria-hidden': 'true' })
   ends.forEach((r, i) => {
     if (Math.abs(dodged[i] - ys[i]) > 0.5) g.append(svgEl('line', { 'data-leader': '', x1: px + 6, y1: ys[i], x2: px + 11, y2: dodged[i], stroke: theme.muted, 'stroke-width': 1 }))
-    g.append(svgEl('text', { 'data-end-label': r.series, x: px + 13, y: dodged[i], dy: '0.35em', fill: theme.ink, 'font-weight': 600 }, single ? formatPct(r.p, 1) : `${truncateLabel(r.series)} ${formatPct(r.p, 1)}`))
+    g.append(
+      svgEl(
+        'text',
+        { 'data-end-label': r.series, x: px + 13, y: dodged[i], dy: '0.35em', fill: theme.ink, 'font-weight': 600, style: 'text-anchor: start' },
+        single ? formatPct(r.p, 1) : `${truncateLabel(r.series)} ${formatPct(r.p, 1)}`,
+      ),
+    )
   })
+  return g
+}
+
+/** "Survey change" rules: a thin solid line between the year before and the year of the change (or at that year when it is the first), labeled at the top. */
+function surveyChangeRules(chart: Chart, annotations: Annotation[], years: readonly number[], theme: ChartTheme): SVGElement {
+  const x = scale(chart, 'x')
+  const g = svgEl('g', { 'data-survey-changes': '', 'aria-hidden': 'true' })
+  for (const year of [...new Set(annotations.map((a) => a.year))]) {
+    const before = years[years.indexOf(year) - 1]
+    const px = before === undefined ? x(year) : (x(before) + x(year)) / 2
+    g.append(svgEl('line', { 'data-survey-change': year, x1: px, x2: px, y1: MARGIN.top, y2: HEIGHT - MARGIN.bottom, stroke: theme.ink2, 'stroke-width': 1 }))
+    g.append(svgEl('text', { x: px, y: MARGIN.top - 5, style: 'text-anchor: middle', fill: theme.ink2, 'font-size': 11 }, 'Survey change'))
+  }
   return g
 }
 
@@ -162,12 +182,6 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
         }),
       ),
     ]
-    if (annotations.length) {
-      marks.push(
-        Plot.ruleX(annotations, { x: 'year', stroke: theme.muted, strokeDasharray: '4 3' }),
-        Plot.text(annotations, { x: 'year', y: () => yMax, text: (_: Annotation, i: number) => String(i + 1), dy: 4, dx: 8, fill: theme.ink2, fontWeight: 700 }),
-      )
-    }
     const chart = Plot.plot({
       width,
       height: HEIGHT,
@@ -192,12 +206,13 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
     const ends = shown.filter((r) => r.year === years[years.length - 1])
     if (!narrow && ends.length) chart.append(endLabels(chart, ends, series.length === 1, theme))
     if (comparison) chart.prepend(comparedYearRules(chart, [comparison.yearA, comparison.yearB], theme))
+    if (annotations.length) chart.append(surveyChangeRules(chart, annotations, years, theme))
     el.replaceChildren(chart)
     return () => chart.remove()
   }, [rows, series, years, annotations, comparison, seriesColors, theme, width, title, showTable])
 
   const tableCell = (row: TrendRow | undefined) => {
-    if (!row || row.status === 'not_collected') return <span className="text-muted">Not asked</span>
+    if (!row || row.status === 'not_collected') return <span className="text-muted">Not available</span>
     if (row.status === 'suppressed' || !defined(row)) return <SuppressedValue reason={row.reason ?? null} />
     return `${formatPct(row.p, 1)} (${formatRange(row.lo, row.hi)})`
   }
@@ -275,7 +290,7 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
         <ol id={notesId} className="mt-2 mb-0 list-none space-y-1 p-0 text-sm text-ink-2">
           {annotations.map((a, i) => (
             <li key={`a${i}`}>
-              <strong className="mr-1 font-semibold">{i + 1}</strong> {a.label}
+              <strong className="font-semibold">Survey change{annotations.length > 1 ? ` (${a.year})` : ''}:</strong> {a.label}
             </li>
           ))}
           {notes.map((n) => (

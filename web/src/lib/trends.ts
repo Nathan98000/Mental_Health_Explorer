@@ -41,21 +41,21 @@ export function trendData(catalog: Catalog, shard: EstimateShard, state: TrendsS
       if (suppressed) suppressedBy.set(s.label, [...(suppressedBy.get(s.label) ?? []), year])
       csv.push({
         cohort,
-        indicator: indicator.id,
-        yearSet: String(year),
-        weight: shard.year_sets[String(year)]?.weight ?? '',
+        measure: indicator.id,
+        years: String(year),
         population: s.population,
         p: cell.p,
         lo: cell.lo,
         hi: cell.hi,
         n: cell.n,
         suppressed: cell.suppressed,
+        weight: shard.year_sets[String(year)]?.weight ?? '',
       })
     }
   }
   const notes: string[] = []
   const gaps = gapYears(indicator.years)
-  if (gaps.length) notes.push(`Not asked in ${joinYears(gaps)}.`)
+  if (gaps.length) notes.push(`Not available in ${joinYears(gaps)}.`)
   for (const [label, years] of suppressedBy) notes.push(`${label}: not shown for ${joinYears(years)} because there were not enough responses to report it reliably.`)
   const annotations: Annotation[] = []
   for (const caveat of indicator.caveats) {

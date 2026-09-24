@@ -5,8 +5,8 @@ export const NARROW_WIDTH = 560
 /** Fixed right margin for end labels, so the x axis stays put when the split changes. */
 export const LABEL_MARGIN_RIGHT = 200
 export const NARROW_MARGIN_RIGHT = 16
-/** Minimum vertical distance between end labels, in pixels. */
-export const LABEL_GAP = 14
+/** Minimum vertical distance between end-label baselines, in pixels (a 13 px label box is about 16 px tall). */
+export const LABEL_GAP = 16
 export const LABEL_MAX_CHARS = 24
 
 /** Shorten a series name for its end label; the full name stays in the legend, tooltip and table. */

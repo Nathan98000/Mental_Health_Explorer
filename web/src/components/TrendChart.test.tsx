@@ -29,11 +29,11 @@ describe('trendData', () => {
       [2023, 'suppressed', null],
       [2024, 'ok', 0.12],
     ])
-    expect(data.notes).toContain('Not asked in 2021.')
+    expect(data.notes).toContain('Not available in 2021.')
     expect(data.notes).toContain('All teens: not shown for 2023 because there were not enough responses to report it reliably.')
     expect(data.notes).toContain('Nicotine vaping questions were added in 2022.')
     expect(data.annotations).toEqual([])
-    expect(data.csv.map((r) => r.yearSet)).toEqual(['2022', '2023', '2024'])
+    expect(data.csv.map((r) => r.years)).toEqual(['2022', '2023', '2024'])
     expect(data.csv[1]).toMatchObject({ suppressed: true, p: null, weight: 'ANALWT2_C1', population: 'teens ages 12–17' })
   })
   it('turns a caveat that names a collected year into a chart annotation', () => {
@@ -59,7 +59,7 @@ const rows: TrendRow[] = [
 
 describe('TrendChart', () => {
   it('renders an accessible chart with a gap where a point is missing', () => {
-    render(<TrendChart title="Vaping" rows={rows} series={['All teens']} years={SURVEY_YEARS} notes={['Not asked in 2021.']} />)
+    render(<TrendChart title="Vaping" rows={rows} series={['All teens']} years={SURVEY_YEARS} notes={['Not available in 2021.']} />)
     const svg = screen.getByRole('img', { name: 'Vaping' })
     expect(svg).toBeInTheDocument()
     // The line is drawn as two separate segments around the suppressed 2023 point.
@@ -67,13 +67,23 @@ describe('TrendChart', () => {
     const linePath = lines.find((d) => d.includes('L') || (d.match(/M/g) ?? []).length > 1) ?? lines[0]
     expect(linePath).toBeDefined()
     expect((linePath.match(/M/g) ?? []).length).toBeGreaterThanOrEqual(2)
-    expect(screen.getByText('Not asked in 2021.')).toBeInTheDocument()
+    expect(screen.getByText('Not available in 2021.')).toBeInTheDocument()
+  })
+  it('draws a survey change as a thin solid rule between the year before and the year it names', () => {
+    const rows = seriesRows('All teens', [0.1, 0.11, 0.115, 0.12])
+    render(<TrendChart title="Changed" rows={rows} series={['All teens']} years={SURVEY_YEARS} annotations={[{ year: 2022, label: 'Questions moved in 2022.' }]} />)
+    const svg = screen.getByRole('img', { name: 'Changed' })
+    const rule = svg.querySelector('[data-survey-change="2022"]')
+    expect(rule).not.toBeNull()
+    expect(rule).not.toHaveAttribute('stroke-dasharray')
+    expect(svg.textContent).toContain('Survey change')
+    expect(screen.getByText(/Questions moved in 2022\./)).toHaveTextContent(/^Survey change/)
   })
   it('shows the gaps in the table view', async () => {
     render(<TrendChart title="Vaping" rows={rows} series={['All teens']} years={SURVEY_YEARS} />)
     await userEvent.click(screen.getByRole('button', { name: 'Show table' }))
     const table = within(screen.getByRole('table'))
-    expect(table.getByRole('row', { name: /2021/ })).toHaveTextContent('Not asked')
+    expect(table.getByRole('row', { name: /2021/ })).toHaveTextContent('Not available')
     expect(table.getByRole('row', { name: /2022/ })).toHaveTextContent('13.9% (13.0% to 14.8%)')
     const suppressed = table.getByRole('row', { name: /2023/ })
     expect(suppressed).toHaveTextContent('—')
@@ -95,8 +105,8 @@ describe('end labels', () => {
     expect(truncateLabel('Female')).toBe('Female')
     expect(truncateLabel(LONG)).toBe('Native Hawaiian or Paci…')
     expect(truncateLabel(LONG)).toHaveLength(24)
-    expect(dodgeLabels([100, 104, 200])).toEqual([100, 114, 200])
-    expect(dodgeLabels([104, 100, 200])).toEqual([114, 100, 200])
+    expect(dodgeLabels([100, 104, 200])).toEqual([100, 116, 200])
+    expect(dodgeLabels([104, 100, 200])).toEqual([116, 100, 200])
     // Labels at the bottom are pulled back up so they stay inside the plot.
     expect(dodgeLabels([290, 296], 14, 0, 300)).toEqual([286, 300])
     expect(dodgeLabels([296, 296, 296], 14, 0, 300)).toEqual([272, 286, 300])
@@ -109,7 +119,8 @@ describe('end labels', () => {
     const labels = [...svg.querySelectorAll('[data-end-label]')]
     expect(labels.map((l) => l.textContent)).toEqual(['Male 12.0%', 'Female 12.2%'])
     const ys = labels.map((l) => Number(l.getAttribute('y')))
-    expect(Math.abs(ys[0] - ys[1])).toBeGreaterThanOrEqual(14)
+    expect(Math.abs(ys[0] - ys[1])).toBeGreaterThanOrEqual(16)
+    expect(labels.every((l) => l.getAttribute('style')?.includes('text-anchor: start'))).toBe(true)
     expect(svg.querySelectorAll('[data-leader]').length).toBeGreaterThanOrEqual(1)
     // The full name stays in the legend.
     expect(within(screen.getByRole('list', { name: 'Legend' })).getByText(LONG)).toBeInTheDocument()

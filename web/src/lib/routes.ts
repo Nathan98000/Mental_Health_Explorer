@@ -57,10 +57,10 @@ function withSearch(path: string, search: URLSearchParams): string {
   return query ? `${path}?${query}` : path
 }
 
-/** "Not asked in 2021; showing 2024." when a requested year was not collected, otherwise the generic fallback. */
+/** "Not available in 2021; showing 2024." when a requested year is not in the file for this measure, otherwise the generic fallback. */
 function yearNotice(indicator: Indicator, requested: string[], fallback: string, showing: string): string {
-  const notCollected = requested.map(Number).filter((y) => SURVEY_YEARS.includes(y) && !indicator.years.includes(y))
-  return notCollected.length ? `Not asked in ${notCollected.join(' and ')}; showing ${showing}.` : `${fallback}; showing ${showing}.`
+  const missing = requested.map(Number).filter((y) => SURVEY_YEARS.includes(y) && !indicator.years.includes(y))
+  return missing.length ? `Not available in ${missing.join(' and ')}; showing ${showing}.` : `${fallback}; showing ${showing}.`
 }
 
 export function resolveExplore(catalog: Catalog, cohortParam: string | undefined, indicatorParam: string | undefined, search: URLSearchParams): Resolved<ExploreState> {

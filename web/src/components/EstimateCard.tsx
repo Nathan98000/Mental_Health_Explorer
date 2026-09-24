@@ -12,10 +12,12 @@ type Props = {
   sentences: string[]
   /** Where to go next when the estimate is suppressed, e.g. "Try all years combined". */
   nextSteps?: { label: string; to: string }[]
+  /** True for pooled year sets, whose population count is an annual average. */
+  pooled?: boolean
 }
 
 /** The site's standard estimate card: a big rounded number, plain sentences, the details underneath. */
-export function EstimateCard({ when, cell, sentences, nextSteps = [] }: Props) {
+export function EstimateCard({ when, cell, sentences, nextSteps = [], pooled = false }: Props) {
   // One rule for an imprecise estimate (lib/takeaways.ts): the number is drawn lighter and badged, and the sentence gives the range.
   const wide = isWideInterval(cell.lo, cell.hi)
   return (
@@ -51,7 +53,7 @@ export function EstimateCard({ when, cell, sentences, nextSteps = [] }: Props) {
         <dt className="font-medium">Survey responses</dt>
         <dd className="m-0">{formatCount(cell.n)}</dd>
         <dt className="font-medium">Estimated number of people</dt>
-        <dd className="m-0">{cell.pop !== null ? `about ${formatPeople(cell.pop)}` : <SuppressedValue reason={cell.reason} />}</dd>
+        <dd className="m-0">{cell.pop !== null ? `about ${formatPeople(cell.pop)}${pooled ? ' per year, on average' : ''}` : <SuppressedValue reason={cell.reason} />}</dd>
       </dl>
     </article>
   )

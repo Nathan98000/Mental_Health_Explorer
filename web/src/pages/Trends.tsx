@@ -1,7 +1,8 @@
 import { useEffect, useId } from 'react'
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { CohortSwitcher } from '../components/CohortSwitcher'
 import { CrisisNote } from '../components/CrisisNote'
+import { Filters } from '../components/Filters'
 import { IndicatorSelect } from '../components/IndicatorSelect'
 import { Notices } from '../components/Notices'
 import { ScrollTable } from '../components/ScrollTable'
@@ -12,7 +13,7 @@ import { cohortInfo, firstYear, isSuicideMeasure, latestYear, SURVEY_YEARS, with
 import { loadEstimates, type Cell } from '../lib/data'
 import { citation, safeFilename, toCsv } from '../lib/exports'
 import { formatPct, formatPoints } from '../lib/format'
-import { absoluteUrl, resolveTrends, splitGroups, trendsCohortPath, trendsPath, type TrendsState } from '../lib/routes'
+import { absoluteUrl, explorePath, resolveTrends, splitGroups, trendsCohortPath, trendsPath, type TrendsState } from '../lib/routes'
 import { paletteKind, seriesColors, useChartTheme } from '../lib/theme'
 import { comparisons, trendData } from '../lib/trends'
 import { useCatalog } from '../lib/useCatalog'
@@ -21,7 +22,7 @@ import { usePrefetchShard } from '../lib/usePrefetchShard'
 import { useResource } from '../lib/useResource'
 
 function cellText(cell: Cell | undefined) {
-  if (!cell) return <span className="text-muted">Not asked</span>
+  if (!cell) return <span className="text-muted">Not available</span>
   if (cell.suppressed || cell.p === null) return <SuppressedValue reason={cell.reason} />
   return formatPct(cell.p, 1)
 }
@@ -51,8 +52,9 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
   return (
     <>
       <DocumentTitle title={`Trends: ${indicator.label} · ${info.label}`} />
-      <h1 className="m-0 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Trends</h1>
-      <form className="mt-6 grid gap-4 rounded-3xl bg-surface p-5 ring-1 ring-line" onSubmit={(e) => e.preventDefault()} aria-label="Choose what to show">
+      <p className="m-0 text-sm font-semibold uppercase tracking-wide text-primary-ink">Trends</p>
+      <h1 className="m-0 mt-1 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">{indicator.label}</h1>
+      <Filters summary={`${info.label} · ${split ? split.label : 'No split'} · ${yearA} vs ${yearB}`}>
         <div className="min-w-0">
           <span className="mb-1 block text-sm font-semibold text-ink-2">Age group</span>
           <CohortSwitcher catalog={catalog} cohort={cohort} hrefFor={(c) => trendsCohortPath(catalog, state, c)} />
@@ -70,6 +72,13 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
                 <option key={g.id} value={g.id}>{g.label}</option>
               ))}
             </select>
+            <p className="m-0 mt-1 text-xs text-muted">
+              Race and ethnicity has more groups than fit on one chart;{' '}
+              <Link to={explorePath(cohort, indicator.id, { yearSet: String(yearB), group: 'race_ethnicity', level: 'white' })} className="text-primary-ink underline">
+                compare them on the Explore page
+              </Link>
+              .
+            </p>
           </div>
           <div className="min-w-0">
             <label htmlFor={ids.a} className="mb-1 block text-sm font-semibold text-ink-2">Compare from</label>
@@ -88,7 +97,7 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
             </select>
           </div>
         </div>
-      </form>
+      </Filters>
       <Notices items={notices} />
       {suicide ? (
         <div className="mt-6">
@@ -126,7 +135,8 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
             </table>
           </ScrollTable>
           <p className="m-0 mt-3 text-sm text-muted">
-            A change counts as statistically significant when a two-sided t test on the difference (50 degrees of freedom) gives p below 0.05, so it is unlikely to be due to sampling alone. It does not say why the change happened.
+            We call a change real only when it&apos;s unlikely to be chance (p &lt; 0.05). It does not say why the change happened.{' '}
+            <Link to="/methods#how-computed" className="text-primary-ink underline">See Methods.</Link>
           </p>
         </section>
       ) : null}
