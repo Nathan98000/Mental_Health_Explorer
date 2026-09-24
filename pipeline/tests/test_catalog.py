@@ -51,3 +51,39 @@ def test_group_levels_unique(group):
 
 def test_codebook_name_matches_source():
     assert [ind["id"] for ind in catalog.indicators() if ind["codebook"] != ind["source"]] == []
+
+
+def test_implies_reference_same_cohort_indicators_without_cycles():
+    ids = {(ind["cohort"], ind["id"]) for ind in catalog.indicators()}
+    for ind in catalog.indicators():
+        for target in ind.get("implies", []):
+            assert (ind["cohort"], target) in ids, f"{ind['cohort']}:{ind['id']} implies unknown {target}"
+            assert target != ind["id"]
+    for cohort in catalog.COHORT_CODES:
+        for start, closure in catalog.implications(cohort).items():
+            assert start not in closure, f"cycle through {cohort}:{start}"
+
+
+@pytest.mark.parametrize(
+    "cohort, a, b, expected",
+    [
+        ("teen", "mde_severe", "mde_lifetime", True),
+        ("teen", "mde_severe", "mde_or_sud", True),
+        ("teen", "mde_and_sud", "mde_lifetime", True),
+        ("teen", "mde_and_sud", "sud_py", True),
+        ("teen", "sud_py", "mde_or_sud", True),
+        ("teen", "binge_pm", "alcohol_pm", True),
+        ("teen", "marijuana_pm", "illicit_py", True),
+        ("teen", "nicotine_vape_pm", "tobacco_or_vape_py", True),
+        ("teen", "mde_py", "nicotine_vape_py", False),
+        ("teen", "alcohol_pm", "marijuana_py", False),
+        ("teen", "mde_py", "sud_py", False),
+        ("young_adult", "smi_py", "ami_py", True),
+        ("young_adult", "ami_and_sud", "sud_py", True),
+        ("young_adult", "mde_severe", "mde_py", True),
+        ("young_adult", "mde_py", "suicide_thoughts", False),
+    ],
+)
+def test_nested_covers_definitional_chains(cohort, a, b, expected):
+    assert catalog.nested(a, b, cohort) is expected
+    assert catalog.nested(b, a, cohort) is expected

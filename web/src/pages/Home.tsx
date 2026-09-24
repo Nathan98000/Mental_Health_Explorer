@@ -116,8 +116,8 @@ export function Home() {
       </section>
 
       <p className="mt-6 rounded-2xl border border-dashed border-line bg-surface px-4 py-3 text-sm text-ink-2" role="note">
-        <strong className="text-ink">Early preview.</strong> The numbers on this page come from a prototype and will be
-        re-checked before launch.
+        <strong className="text-ink">Early preview.</strong> This site is still being built. Numbers are computed from the
+        survey and checked against SAMHSA&apos;s reference tables; a final review happens before launch.
       </p>
 
       <section className="mt-10" aria-labelledby="first-look">

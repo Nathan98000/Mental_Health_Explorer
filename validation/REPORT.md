@@ -38,9 +38,9 @@ Result: **passed**.
 
 | Folder | Files | Total | Largest |
 | --- | ---: | ---: | ---: |
-| associations | 2 | 0.33 MB | 212 KB |
+| associations | 2 | 0.34 MB | 224 KB |
 | availability.json | 1 | 0.02 MB | 17 KB |
 | estimates | 58 | 14.85 MB | 334 KB |
-| **all** | 61 | **15.19 MB** | |
+| **all** | 61 | **15.21 MB** | |
 
-Manifest: generated 2026-09-23, pipeline `83cabca9c1f4`, catalog hash `4a3bb26452fd…`.
+Manifest: generated 2026-09-23, pipeline `29bd4d09bf42`, catalog hash `cd4876b86922…`.

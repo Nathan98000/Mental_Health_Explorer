@@ -12,7 +12,12 @@ latest common collected year and for all common years pooled:
   suppressed or the model fails.
 
 Plus, for advanced mode, unadjusted odds ratios for every unordered pair of those
-indicators in the latest common year.
+indicators in the latest common year. Matrix cells whose conditional rates include one
+that would be suppressed on its own are still fitted, flagged `low_precision` with a
+note; a cell is null only when the model fails or a 2x2 cell has no respondents.
+
+Pairs that are true by definition (one measure implies the other, see `implies` in the
+catalog and catalog.nested) are left out of both.
 
     python -m pipeline.associations            # needs Rscript with survey and jsonlite
 """
@@ -40,6 +45,7 @@ OUTCOME_TOPICS = ("depression_suicide", "mental_illness")
 EXPOSURE_TOPICS = ("substance_use", "school_family_peers", "health")
 COVARIATES = ["age_band", "sex", "race_ethnicity_5", "poverty"]
 OR_DECIMALS = 4
+PRECISION_NOTE = "Based on few respondents or an imprecise rate in at least one group; interpret with caution"
 R_INSTALL_HINT = (
     "Rscript was not found. Install R (macOS: `brew install r`) and then run\n"
     '  Rscript -e \'install.packages(c("survey","jsonlite"), repos="https://cloud.r-project.org")\''
@@ -107,6 +113,14 @@ class Rates:
         return None
 
 
+def two_by_two(data: CohortData, a: str, b: str, years: list[int]) -> list[int]:
+    """Unweighted counts of (a, b) = (1,1), (1,0), (0,1), (0,0) among respondents with both."""
+    ya, yb = data.indicator(a), data.indicator(b)
+    keep = np.isin(data.year, years) & ~np.isnan(ya) & ~np.isnan(yb)
+    ya, yb = ya[keep], yb[keep]
+    return [int(((ya == i) & (yb == j)).sum()) for i in (1, 0) for j in (1, 0)]
+
+
 def build_jobs(data: CohortData, outcomes: list[dict], exposures: list[dict]) -> tuple[list[dict], list[dict], list[dict]]:
     """Pair entries, matrix entries (both without odds ratios yet) and the R job list."""
     pairs, matrix, jobs = [], [], []
@@ -117,7 +131,7 @@ def build_jobs(data: CohortData, outcomes: list[dict], exposures: list[dict]) ->
 
     for outcome, exposure in itertools.product(outcomes, exposures):
         years = common_years(outcome, exposure)
-        if not years:
+        if not years or catalog.nested(outcome["id"], exposure["id"], data.cohort):
             continue
         for name, subset in pair_year_sets(years).items():
             rates = Rates(data, outcome["id"], exposure["id"], subset)
@@ -144,13 +158,16 @@ def build_jobs(data: CohortData, outcomes: list[dict], exposures: list[dict]) ->
     variables = list({i["id"]: i for i in [*outcomes, *exposures]}.values())
     for a, b in itertools.combinations(variables, 2):
         years = common_years(a, b)
-        if not years:
+        if not years or catalog.nested(a["id"], b["id"], data.cohort):
             continue
         latest = [years[-1]]
         ab, ba = Rates(data, a["id"], b["id"], latest), Rates(data, b["id"], a["id"], latest)
+        low_precision = not (ab.shown and ba.shown)
+        empty = min(two_by_two(data, a["id"], b["id"], latest)) == 0
         entry = {"a": a["id"], "b": b["id"], "year": latest[0], "estimate": None, "lo": None, "hi": None, "n": None,
-                 "reason": None if ab.shown and ba.shown else "a conditional rate is suppressed", "_jobs": None}
-        if ab.shown and ba.shown:
+                 "low_precision": low_precision, "precision_note": PRECISION_NOTE if low_precision else None,
+                 "reason": "a 2x2 cell has no respondents" if empty else None, "_jobs": None}
+        if not empty:
             entry["_jobs"] = (job(adjust=False, years=latest, weight=config.POOLED_WEIGHTS[1], outcome=a["id"], exposure=b["id"]),)
         matrix.append(entry)
     return pairs, matrix, jobs

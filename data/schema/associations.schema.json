@@ -38,7 +38,7 @@
     },
     "or_matrix": {
       "type": "array",
-      "description": "Unadjusted odds ratios for every unordered pair of outcomes and exposures in their latest common year; null when any of the four conditional rates is suppressed",
+      "description": "Unadjusted odds ratios for every unordered pair of outcomes and exposures (nested pairs left out) in their latest common year. low_precision is true, with a precision_note, when any of the four conditional rates would be suppressed on its own; estimate is null only when the model fails or a 2x2 cell has no respondents.",
       "items": {
         "type": "object",
         "properties": {
@@ -49,9 +49,11 @@
           "lo": { "type": ["number", "null"], "exclusiveMinimum": 0 },
           "hi": { "type": ["number", "null"], "exclusiveMinimum": 0 },
           "n": { "type": ["integer", "null"], "minimum": 0 },
+          "low_precision": { "type": "boolean" },
+          "precision_note": { "type": ["string", "null"] },
           "reason": { "type": ["string", "null"] }
         },
-        "required": ["a", "b", "year", "estimate", "lo", "hi", "n", "reason"],
+        "required": ["a", "b", "year", "estimate", "lo", "hi", "n", "low_precision", "precision_note", "reason"],
         "additionalProperties": false
       }
     }

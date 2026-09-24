@@ -27,3 +27,15 @@ Confirmed for phase 1 and locked by `pipeline/tests/test_decisions.py`:
   `groups.yaml`.
 - Young-adult `spd_py`, `ami_py`, `smi_py` and `ami_and_sud` belong to topic `mental_illness`, displayed as
   "Mental illness and distress".
+
+Confirmed in the phase 2 review:
+
+- Pairs that are true by definition are left out of the associations (the public pairs and the advanced-mode
+  odds-ratio matrix). One measure implying the other, directly or through a chain, is declared with `implies`
+  in `indicators.yaml` (e.g. `mde_severe` ⇒ `mde_py` ⇒ `mde_lifetime`, `binge_pm` ⇒ `alcohol_pm`) and checked
+  against the data locally (no respondent with A = 1 and B = 0).
+- Odds-ratio matrix cells whose conditional rates include one that would be suppressed on its own are still
+  fitted and published with `low_precision: true` and a precision note; a cell is null only when the model
+  fails or a 2×2 cell has no respondents. The public pairs keep the strict suppression rule.
+- The Home page note reads: "Early preview. This site is still being built. Numbers are computed from the
+  survey and checked against SAMHSA's reference tables; a final review happens before launch."

@@ -40,6 +40,11 @@ def test_associations_match_schema(path: Path):
     doc = json.loads(path.read_text(encoding="utf-8"))
     validator("associations.schema.json").validate(doc)
     assert doc["cohort"] == path.stem
+    assert [p for p in doc["pairs"] if catalog.nested(p["outcome"], p["exposure"], doc["cohort"])] == []
+    assert [m for m in doc["or_matrix"] if catalog.nested(m["a"], m["b"], doc["cohort"])] == []
+    for m in doc["or_matrix"]:
+        assert (m["precision_note"] is not None) == m["low_precision"]
+        assert (m["estimate"] is None) == (m["reason"] is not None)
 
 
 def test_manifest_lists_every_output_with_its_size():

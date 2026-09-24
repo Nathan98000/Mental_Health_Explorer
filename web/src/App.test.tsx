@@ -95,6 +95,16 @@ describe('App', () => {
     expect(screen.queryByRole('article')).not.toBeInTheDocument()
   })
 
+  it('shows the early-preview note without the prototype wording', () => {
+    mockFetch(() => new Promise(() => {}))
+    renderAt('/')
+    const note = screen.getByRole('note')
+    expect(note).toHaveTextContent(
+      "Early preview. This site is still being built. Numbers are computed from the survey and checked against SAMHSA's reference tables; a final review happens before launch.",
+    )
+    expect(note.textContent).not.toMatch(/prototype/i)
+  })
+
   it('always shows the 988 crisis line', () => {
     mockFetch(() => new Promise(() => {}))
     renderAt('/')

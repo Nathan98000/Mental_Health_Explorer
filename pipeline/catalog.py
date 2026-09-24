@@ -44,6 +44,31 @@ def groups() -> tuple[dict, ...]:
     return tuple(load(GROUPS_PATH)["groups"])
 
 
+@lru_cache(maxsize=None)
+def implications(cohort: str) -> dict[str, frozenset[str]]:
+    """For every indicator id in the cohort, the ids a yes implies by definition: the
+    transitive closure of the catalog's `implies` (e.g. mde_severe -> mde_py -> mde_lifetime)."""
+    direct = {ind["id"]: list(ind.get("implies", [])) for ind in indicators() if ind["cohort"] == cohort}
+    closure = {}
+    for start in direct:
+        seen: set[str] = set()
+        stack = list(direct[start])
+        while stack:
+            x = stack.pop()
+            if x not in seen:
+                seen.add(x)
+                stack.extend(direct.get(x, []))
+        closure[start] = frozenset(seen)
+    return closure
+
+
+def nested(a: str, b: str, cohort: str) -> bool:
+    """True when either indicator implies the other, directly or through a chain, so the
+    pair is true by definition and not a meaningful association."""
+    closure = implications(cohort)
+    return b in closure.get(a, ()) or a in closure.get(b, ())
+
+
 def group_sources(group: dict) -> list[str]:
     source = group["source"]
     return list(source) if isinstance(source, list) else [source]

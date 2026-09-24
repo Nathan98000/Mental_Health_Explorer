@@ -48,7 +48,8 @@
         "years": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/year" }, "description": "Years the item was collected; checked against the data" },
         "caveats": { "type": "array", "items": { "type": "string", "minLength": 1 } },
         "codebook": { "$ref": "#/$defs/variable", "description": "Entry name in the PUF codebook (normally the source variable)" },
-        "status": { "type": "string", "enum": ["launch", "later"] }
+        "status": { "type": "string", "enum": ["launch", "later"] },
+        "implies": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/slug" }, "description": "Indicator ids in the same cohort that a yes on this indicator implies by definition (directly; chains follow), e.g. mde_severe implies mde_py. Nested pairs are left out of the associations." }
       },
       "required": ["id", "cohort", "topic", "label", "phrase", "definition", "source", "yes", "no", "years", "caveats", "codebook", "status"],
       "additionalProperties": false
