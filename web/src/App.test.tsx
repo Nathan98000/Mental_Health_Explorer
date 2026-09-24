@@ -1,57 +1,19 @@
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import App from './App'
-import type { EstimateShard } from './lib/data'
+import { clearCache } from './lib/data'
+import { HEADLINES } from './lib/headlines'
 import { SITE_NAME } from './lib/site'
+import { flatShard, mockData, readCatalog, teenMdeShard } from './test/fixtures'
 
-type Row = { year: number; p: number; lo: number; hi: number; n: number }
+const catalog = readCatalog()
 
-/** A minimal shard in the committed column-wise format: overall single-year cells only. */
-function shard(indicator: string, rows: Row[]): EstimateShard {
-  const years = rows.map((r) => r.year)
-  return {
-    cohort: 'teen',
-    indicator,
-    years,
-    year_sets: Object.fromEntries(years.map((y) => [String(y), { years: [y], weight: 'ANALWT2_C1' }])),
-    crosses: years.map(String),
-    cells: {
-      year_set: years.map(String),
-      group: rows.map(() => null),
-      level: rows.map(() => null),
-      group2: rows.map(() => null),
-      level2: rows.map(() => null),
-      p: rows.map((r) => r.p),
-      lo: rows.map((r) => r.lo),
-      hi: rows.map((r) => r.hi),
-      se: rows.map(() => 0.006),
-      n: rows.map((r) => r.n),
-      pop: rows.map((r) => Math.round(r.p * 25_000) * 1000),
-      suppressed: rows.map(() => false),
-      reason: rows.map(() => null),
-    },
-    trend_tests: { group: [null], level: [null], year_a: [2021], year_b: [2024], diff: [-0.057], se: [0.0088], p_value: [0] },
-    group_tests: [],
+function allShards() {
+  const files: Record<string, unknown> = { 'catalog.json': catalog }
+  for (const cohort of ['teen', 'young_adult'] as const) {
+    for (const id of HEADLINES[cohort]) files[`estimates/${cohort}/${id}.json`] = cohort === 'teen' && id === 'mde_py' ? teenMdeShard() : flatShard(cohort, id)
   }
-}
-
-const shards: Record<string, EstimateShard> = {
-  mde_py: shard('mde_py', [
-    { year: 2021, p: 0.20537, lo: 0.19196, hi: 0.21948, n: 10317 },
-    { year: 2024, p: 0.14837, lo: 0.13754, hi: 0.15991, n: 10917 },
-  ]),
-  mde_severe: shard('mde_severe', [
-    { year: 2021, p: 0.15229, lo: 0.13908, hi: 0.16657, n: 10317 },
-    { year: 2024, p: 0.10975, lo: 0.10012, hi: 0.12024, n: 10917 },
-  ]),
-}
-
-function mockFetch(handler: (url: string) => Promise<Response>) {
-  vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => handler(String(input))))
-}
-
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
+  return files
 }
 
 function renderAt(path: string) {
@@ -64,41 +26,47 @@ function renderAt(path: string) {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  clearCache()
 })
 
 describe('App', () => {
-  it('renders the home page with the headline estimate from the data files', async () => {
+  it('renders the overview with a headline tile for each teen measure', async () => {
     const requested: string[] = []
-    mockFetch(async (url) => {
-      requested.push(url)
-      const id = url.match(/estimates\/teen\/(\w+)\.json$/)?.[1]
-      return id && shards[id] ? jsonResponse(shards[id]) : jsonResponse({ error: 'not found' }, 404)
-    })
+    mockData(allShards(), (url) => requested.push(url))
     renderAt('/')
     expect(screen.getByRole('link', { name: SITE_NAME })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 1, name: /how are young people/i })).toBeInTheDocument()
-    expect(screen.getByRole('status')).toHaveTextContent(/loading/i)
-    const card = within(await screen.findByRole('article'))
-    expect(card.getByText('15%')).toBeInTheDocument()
-    expect(card.getByText(/1 in 7/)).toBeInTheDocument()
-    expect(card.getByText(/down from 21% \(about 1 in 5\) in 2021/)).toBeInTheDocument()
-    expect(requested.sort()).toEqual([
-      `${import.meta.env.BASE_URL}data/estimates/teen/mde_py.json`,
-      `${import.meta.env.BASE_URL}data/estimates/teen/mde_severe.json`,
-    ])
+    expect(await screen.findByRole('heading', { level: 1, name: /how are young people/i })).toBeInTheDocument()
+    const mde = (await screen.findByRole('link', { name: 'Major depressive episode in the past year' })).closest('li')!
+    expect(mde).toHaveTextContent('15%')
+    expect(mde).toHaveTextContent('of teens ages 12–17 in 2024')
+    expect(within(mde).getByText('Fell since 2021')).toHaveAttribute('data-change', 'fell')
+    expect(within(mde).getByRole('link', { name: 'Major depressive episode in the past year' })).toHaveAttribute('href', '/explore/teen/mde_py')
+    expect(within(mde).getByRole('img').getAttribute('aria-label')).toMatch(/^2021: 21%, 2022: 19%, 2023: 18%, 2024: 15%$/)
+    const same = screen.getByRole('link', { name: 'Alcohol use in the past month' }).closest('li')!
+    expect(within(same).getByText('About the same as 2021')).toHaveAttribute('data-change', 'same')
+    const shardsRequested = requested.filter((u) => u.includes('/estimates/')).sort()
+    expect(shardsRequested).toEqual(HEADLINES.teen.map((id) => `${import.meta.env.BASE_URL}data/estimates/teen/${id}.json`).sort())
+    expect(document.title).toBe(SITE_NAME)
+  })
+
+  it('switches cohorts from the URL', async () => {
+    mockData(allShards())
+    renderAt('/?cohort=young_adult')
+    expect(await screen.findByRole('link', { name: 'Serious psychological distress in the past year' })).toHaveAttribute('href', '/explore/young_adult/spd_py')
+    expect(screen.getAllByText('of young adults ages 18–25 in 2024').length).toBe(6)
+    expect(screen.getByRole('link', { name: 'Young adults ages 18–25' })).toHaveAttribute('aria-current', 'page')
   })
 
   it('shows an error state when the data files cannot be loaded', async () => {
-    mockFetch(async () => jsonResponse({ error: 'nope' }, 500))
+    mockData({ 'catalog.json': catalog })
     renderAt('/')
     expect(await screen.findByRole('alert')).toHaveTextContent(/could not be loaded/i)
-    expect(screen.queryByRole('article')).not.toBeInTheDocument()
   })
 
-  it('shows the early-preview note without the prototype wording', () => {
-    mockFetch(() => new Promise(() => {}))
+  it('shows the early-preview note without the prototype wording', async () => {
+    mockData({})
     renderAt('/')
-    const note = screen.getByRole('note')
+    const note = await screen.findByRole('note')
     expect(note).toHaveTextContent(
       "Early preview. This site is still being built. Numbers are computed from the survey and checked against SAMHSA's reference tables; a final review happens before launch.",
     )
@@ -106,14 +74,25 @@ describe('App', () => {
   })
 
   it('always shows the 988 crisis line', () => {
-    mockFetch(() => new Promise(() => {}))
+    mockData({})
     renderAt('/')
     expect(screen.getAllByText('988').length).toBeGreaterThan(0)
   })
 
-  it('renders a not-found page for unknown routes', () => {
-    mockFetch(() => new Promise(() => {}))
+  it('links to every live page from the header', () => {
+    mockData({})
+    renderAt('/')
+    const nav = within(screen.getByRole('navigation', { name: 'Main' }))
+    expect(nav.getByRole('link', { name: 'Overview' })).toHaveAttribute('aria-current', 'page')
+    expect(nav.getByRole('link', { name: 'Explore' })).toHaveAttribute('href', '/explore/teen/mde_py')
+    expect(nav.getByRole('link', { name: 'Trends' })).toHaveAttribute('href', '/trends/teen/mde_py')
+    expect(nav.getByRole('link', { name: 'Methods' })).toHaveAttribute('href', '/methods')
+    expect(screen.getByRole('button', { name: 'Menu' })).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('renders a not-found page for unknown routes', async () => {
+    mockData({})
     renderAt('/nope')
-    expect(screen.getByRole('heading', { name: /couldn't find/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /couldn't find/i })).toBeInTheDocument()
   })
 })

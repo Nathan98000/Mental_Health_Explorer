@@ -15,7 +15,7 @@ const FALLBACK: ChartTheme = {
   ink2: '#4b4f6b',
   muted: '#6b6f86',
   grid: '#ede6da',
-  series: ['#2a78d6', '#eb6834', '#1baf7a', '#eda100'],
+  series: ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4'],
 }
 
 function readTheme(): ChartTheme {

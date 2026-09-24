@@ -1,43 +1,30 @@
-import { EstimateCard } from '../components/EstimateCard'
-import { TrendChart, type TrendRow } from '../components/TrendChart'
-import { overallByYear, overallTrendTest, type EstimateShard } from '../lib/data'
-import { formatPct, oneInN } from '../lib/format'
+import { Link, useSearchParams } from 'react-router'
+import { CohortSwitcher } from '../components/CohortSwitcher'
+import { HeadlineTile } from '../components/HeadlineTile'
+import { Loading, LoadError } from '../components/Status'
+import { cohortInfo, findIndicator, type Catalog } from '../lib/catalog'
+import type { Cohort, EstimateShard } from '../lib/data'
+import { HEADLINES } from '../lib/headlines'
+import { DEFAULT_COHORT, explorePath, parseCohort, trendsPath } from '../lib/routes'
+import { useCatalog } from '../lib/useCatalog'
+import { useDocumentTitle } from '../lib/useDocumentTitle'
 import { useEstimates } from '../lib/useEstimates'
 
-const MDE_SERIES = 'Major depressive episode'
-const MDE_SEVERE_SERIES = 'With severe impairment'
-const HOME_INDICATORS = ['mde_py', 'mde_severe'] as const
-
-/** "That's down from 21% (about 1 in 5) in 2021." when the change is significant; otherwise a plain comparison. */
-function comparison(shard: EstimateShard): string | undefined {
-  const years = overallByYear(shard)
-  if (years.length < 2) return undefined
-  const first = years[0]
-  const last = years[years.length - 1]
-  const then = oneInN(first.p)
-  const about = then ? ` (about ${then})` : ''
-  const test = overallTrendTest(shard, first.year, last.year)
-  if (test && test.pValue < 0.05) {
-    return `That's ${test.diff < 0 ? 'down' : 'up'} from ${formatPct(first.p)}${about} in ${first.year}.`
-  }
-  return `Compared with ${formatPct(first.p)}${about} in ${first.year}.`
-}
-
-function trendRows(mde: EstimateShard, severe: EstimateShard): TrendRow[] {
-  const rows = (shard: EstimateShard, series: string) => overallByYear(shard).map((y) => ({ year: y.year, series, p: y.p, lo: y.lo, hi: y.hi }))
-  return [...rows(mde, MDE_SERIES), ...rows(severe, MDE_SEVERE_SERIES)]
-}
-
-const upcoming = [
-  { title: 'Explore any measure', body: 'Depression, suicidal thoughts, substance use, school and family life — for teens and young adults.', shape: 'circle' },
-  { title: 'Trends', body: 'See how each measure changed from 2021 to 2024, and whether the change is real.', shape: 'wave' },
-  { title: "Who's most affected", body: 'Compare by sex, race and ethnicity, family income, insurance and where people live.', shape: 'bars' },
-  { title: 'What goes together', body: 'For example, how common depression is among teens who vape compared with teens who don’t.', shape: 'dots' },
-  { title: 'Young adults', body: 'The same tools for ages 18–25, with measures designed for adults.', shape: 'circle' },
-  { title: 'How we did it', body: 'Where the numbers come from, how sure we can be, and how to cite them.', shape: 'wave' },
+const live = [
+  { title: 'Explore any measure', body: 'Depression, suicidal thoughts, substance use, school and family life — for teens and young adults, by year and population.', shape: 'circle', to: (c: Cohort) => explorePath(c, 'mde_py') },
+  { title: 'Trends', body: 'See how each measure changed from 2021 to 2024, split by sex, age, income and more, and whether the change is real.', shape: 'wave', to: (c: Cohort) => trendsPath(c, 'mde_py') },
+  { title: 'How we did it', body: 'Where the numbers come from, how sure we can be, every measure defined, and how to cite them.', shape: 'dots', to: () => '/methods' },
 ] as const
 
-function Shape({ kind }: { kind: (typeof upcoming)[number]['shape'] }) {
+const upcoming = [
+  { title: "Who's most affected", body: 'Compare by sex, race and ethnicity, family income, insurance and where people live.', shape: 'bars' },
+  { title: 'What goes together', body: 'For example, how common depression is among teens who vape compared with teens who don’t.', shape: 'dots' },
+  { title: 'Advanced mode', body: 'Run your own cross-tabulations in the browser, with the same statistical rules.', shape: 'circle' },
+] as const
+
+type ShapeKind = 'circle' | 'wave' | 'bars' | 'dots'
+
+function Shape({ kind }: { kind: ShapeKind }) {
   return (
     <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
       <rect width="44" height="44" rx="14" fill="var(--surface-tint)" />
@@ -60,41 +47,25 @@ function Shape({ kind }: { kind: (typeof upcoming)[number]['shape'] }) {
   )
 }
 
-function FirstLook({ mde, severe }: { mde: EstimateShard; severe: EstimateShard }) {
-  const years = overallByYear(mde)
-  const latest = years[years.length - 1]
-  const firstYear = years[0]?.year
-  const lastYear = latest?.year
+function Tiles({ catalog, cohort, shards }: { catalog: Catalog; cohort: Cohort; shards: Record<string, EstimateShard> }) {
+  const info = cohortInfo(catalog, cohort)
   return (
-    <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-      <div className="lg:self-start">
-        {latest ? (
-          <EstimateCard
-            measure="had a major depressive episode in the past year"
-            population="teens ages 12–17"
-            year={latest.year}
-            p={latest.p}
-            lo={latest.lo}
-            hi={latest.hi}
-            n={latest.n}
-            comparison={comparison(mde)}
-          />
-        ) : null}
-      </div>
-      <div className="rounded-3xl bg-surface p-6 ring-1 ring-line">
-        <TrendChart
-          title={`Teens with a major depressive episode, ${firstYear}–${lastYear}`}
-          rows={trendRows(mde, severe)}
-          series={[MDE_SERIES, MDE_SEVERE_SERIES]}
-          caption="Share of U.S. teens ages 12–17, past year. Shaded bands show 95% confidence intervals. “Severe impairment” means depression seriously interfered with home, school, family or social life."
-        />
-      </div>
-    </div>
+    <ul className="mt-5 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
+      {HEADLINES[cohort].map((id) => {
+        const indicator = findIndicator(catalog, cohort, id)
+        const shard = shards[id]
+        return indicator && shard ? <HeadlineTile key={id} indicator={indicator} shard={shard} cohort={info} /> : null
+      })}
+    </ul>
   )
 }
 
-export function Home() {
-  const estimates = useEstimates('teen', HOME_INDICATORS)
+export default function Home() {
+  const [search] = useSearchParams()
+  const cohort = parseCohort(search.get('cohort')) ?? DEFAULT_COHORT
+  useDocumentTitle(null)
+  const catalog = useCatalog()
+  const estimates = useEstimates(cohort, HEADLINES[cohort])
   return (
     <>
       <section className="relative overflow-hidden rounded-[2rem] bg-surface-tint px-6 py-12 sm:px-10 sm:py-16">
@@ -120,19 +91,34 @@ export function Home() {
         survey and checked against SAMHSA&apos;s reference tables; a final review happens before launch.
       </p>
 
-      <section className="mt-10" aria-labelledby="first-look">
-        <h2 id="first-look" className="m-0 font-display text-2xl font-extrabold text-ink">A first look: teen depression</h2>
-        {estimates.status === 'loading' ? (
-          <p className="mt-5 rounded-3xl bg-surface p-6 text-ink-2 ring-1 ring-line" role="status">
-            Loading the latest estimates…
-          </p>
-        ) : estimates.status === 'error' ? (
-          <p className="mt-5 rounded-3xl bg-surface p-6 text-ink-2 ring-1 ring-line" role="alert">
-            The estimates could not be loaded. Please try again later.
-          </p>
+      <section className="mt-10" aria-labelledby="at-a-glance">
+        <div className="flex min-h-11 flex-wrap items-center justify-between gap-4">
+          <h2 id="at-a-glance" className="m-0 font-display text-2xl font-extrabold text-ink">At a glance</h2>
+          {catalog.status === 'ready' ? <CohortSwitcher catalog={catalog.data} cohort={cohort} /> : null}
+        </div>
+        <p className="m-0 mt-2 text-ink-2">The latest year for six headline measures, with the change since the first year each was asked. Select a measure to explore it.</p>
+        {catalog.status === 'error' || estimates.status === 'error' ? (
+          <LoadError />
+        ) : catalog.status === 'loading' || estimates.status === 'loading' ? (
+          <Loading />
         ) : (
-          <FirstLook mde={estimates.shards.mde_py} severe={estimates.shards.mde_severe} />
+          <Tiles catalog={catalog.data} cohort={cohort} shards={estimates.shards} />
         )}
+      </section>
+
+      <section className="mt-14" aria-labelledby="explore-the-data">
+        <h2 id="explore-the-data" className="m-0 font-display text-2xl font-extrabold text-ink">Explore the data</h2>
+        <ul className="mt-5 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
+          {live.map((item) => (
+            <li key={item.title} className="rounded-3xl bg-surface p-5 ring-1 ring-line">
+              <Shape kind={item.shape} />
+              <h3 className="m-0 mt-3 font-display text-lg font-bold text-ink">
+                <Link to={item.to(cohort)} className="text-ink no-underline hover:text-primary-ink hover:underline">{item.title}</Link>
+              </h3>
+              <p className="m-0 mt-1 text-sm leading-relaxed text-ink-2">{item.body}</p>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="mt-14" aria-labelledby="coming-soon">

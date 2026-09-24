@@ -21,3 +21,16 @@ export function oneInN(p: number): string | null {
 export function formatCount(n: number): string {
   return n.toLocaleString('en-US')
 }
+
+/** Estimated number of people, e.g. 3720000 -> "3.7 million", 720000 -> "720,000". */
+export function formatPeople(pop: number): string {
+  if (pop >= 1_000_000) return `${(pop / 1_000_000).toFixed(1).replace(/\.0$/, '')} million`
+  return formatCount(pop)
+}
+
+/** A difference between two proportions in percentage points, e.g. -0.057 -> "−5.7 points". */
+export function formatPoints(diff: number, digits = 1): string {
+  const value = Math.abs(diff * 100).toFixed(digits)
+  const sign = diff < 0 ? '−' : diff > 0 ? '+' : ''
+  return `${sign}${value} points`
+}

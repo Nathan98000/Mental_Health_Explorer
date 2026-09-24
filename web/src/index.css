@@ -5,7 +5,8 @@
   Contrast checked: ink/page 14.7:1, ink-2/page 7.6:1, muted/surface 4.9:1,
   white on primary 5.2:1, primary-ink on page 5.4:1 (light); ink/page 15.9:1,
   ink-2/surface 9.6:1, muted/surface 5.9:1, page on primary 7.6:1 (dark).
-  Chart series slots come from the validated categorical palette (adjacent CVD ΔE ≥ 8.4).
+  Chart series slots come from the validated categorical palette (adjacent CVD ΔE ≥ 8.4);
+  series-5 is below 3:1 against the surface in light mode, so charts carry direct labels and a table view.
 */
 :root {
   color-scheme: light;
@@ -27,6 +28,7 @@
   --series-2: #eb6834;
   --series-3: #1baf7a;
   --series-4: #eda100;
+  --series-5: #e87ba4;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -50,6 +52,7 @@
     --series-2: #d95926;
     --series-3: #199e70;
     --series-4: #c98500;
+    --series-5: #d55181;
   }
 }
 
@@ -73,6 +76,7 @@
   --series-2: #d95926;
   --series-3: #199e70;
   --series-4: #c98500;
+  --series-5: #d55181;
 }
 
 @theme inline {
