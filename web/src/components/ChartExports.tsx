@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { downloadPng, downloadSvg, downloadText } from '../lib/exports'
+import { downloadPng, downloadSvg, downloadText, type ExportLegendItem } from '../lib/exports'
 import { useChartTheme } from '../lib/theme'
 
 type Props = {
@@ -9,13 +9,16 @@ type Props = {
   /** Base file name without extension. */
   filename: string
   citation: string
+  /** What the exported image is framed with; the source line is always added. */
+  frame: { title: string; subtitle?: string; legend?: ExportLegendItem[] }
 }
 
 /** Download links for a chart (CSV, PNG, SVG) and a copyable citation. */
-export function ChartExports({ getSvg, csv, filename, citation }: Props) {
+export function ChartExports({ getSvg, csv, filename, citation, frame }: Props) {
   const theme = useChartTheme()
   const [message, setMessage] = useState<string | null>(null)
   const buttonClass = 'rounded-full border border-line bg-surface px-3 py-1 text-sm font-medium text-ink-2 hover:bg-surface-tint hover:text-ink'
+  const exportFrame = { ...frame, ink: theme.ink, muted: theme.muted }
 
   const withSvg = (action: (svg: SVGSVGElement) => void | Promise<void>) => async () => {
     const svg = getSvg()
@@ -45,8 +48,8 @@ export function ChartExports({ getSvg, csv, filename, citation }: Props) {
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-semibold">Download:</span>
         <button type="button" className={buttonClass} onClick={() => downloadText(`${filename}.csv`, csv, 'text/csv')}>CSV</button>
-        <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadPng(svg, `${filename}.png`, theme.surface))}>PNG</button>
-        <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadSvg(svg, `${filename}.svg`, theme.surface))}>SVG</button>
+        <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadPng(svg, `${filename}.png`, theme.surface, exportFrame))}>PNG</button>
+        <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadSvg(svg, `${filename}.svg`, theme.surface, exportFrame))}>SVG</button>
         <button type="button" className={buttonClass} onClick={copy}>Copy citation</button>
       </div>
       <p className="m-0 mt-2 wrap-anywhere text-xs leading-relaxed text-muted">{citation}</p>

@@ -1,5 +1,5 @@
 import { readCatalog } from '../test/fixtures'
-import { findGroup, findLevel, indicatorsByTopic, levelsFor, populationPhrase, yearSetLabel, yearSetsFor, yearSetWhen } from './catalog'
+import { findGroup, findIndicator, findLevel, indicatorsByTopic, levelsFor, populationPhrase, withUniverse, yearSetLabel, yearSetsFor, yearSetWhen } from './catalog'
 
 const catalog = readCatalog()
 
@@ -16,6 +16,17 @@ describe('populationPhrase', () => {
     const income = findGroup(catalog, 'young_adult', 'family_income')!
     expect(populationPhrase(catalog, 'young_adult', income, findLevel(catalog, 'young_adult', income, 'under_20k'))).toBe('young adults in families earning less than $20,000')
     expect(populationPhrase(catalog, 'young_adult', income, findLevel(catalog, 'young_adult', income, 'from_75k'))).toBe('young adults in families earning $75,000 or more')
+  })
+})
+
+describe('withUniverse', () => {
+  it('appends the denominator clause of a restricted measure and leaves everyone alone', () => {
+    const treatment = findIndicator(catalog, 'teen', 'mde_any_treatment')!
+    expect(treatment.universe_phrase).toBe('who had a major depressive episode in the past year')
+    expect(withUniverse('female teens ages 12–17', treatment)).toBe('female teens ages 12–17 who had a major depressive episode in the past year')
+    expect(withUniverse('teens ages 12–17', findIndicator(catalog, 'teen', 'mde_py'))).toBe('teens ages 12–17')
+    expect(findIndicator(catalog, 'teen', 'liked_school')?.universe_phrase).toBe('who attended school in the past year')
+    expect(treatment.label).not.toMatch(/\bMDE\b/)
   })
 })
 

@@ -1,4 +1,4 @@
-import { changeKind, changeLabel, changeSentence, levelSentence, SUPPRESSED_TAKEAWAY, takeaway, vsOverallSentence } from './takeaways'
+import { changeKind, changeLabel, changeSentence, isWideInterval, levelSentence, SUPPRESSED_TAKEAWAY, takeaway, vsOverallSentence } from './takeaways'
 
 const level = { p: 0.14837, population: 'teens ages 12–17', phrase: 'had a major depressive episode in the past year', when: '2024' }
 
@@ -121,5 +121,36 @@ describe('wording', () => {
       SUPPRESSED_TAKEAWAY,
     ]
     for (const text of outputs) expect(text).not.toMatch(banned)
+  })
+})
+
+describe('restricted denominators and wide intervals', () => {
+  it('composes the denominator clause with the population', () => {
+    expect(
+      levelSentence({
+        p: 0.5234,
+        lo: 0.49,
+        hi: 0.556,
+        population: 'female teens ages 12–17 who had a major depressive episode in the past year',
+        phrase: 'got treatment or medication for depression in the past year',
+        when: '2024',
+      }),
+    ).toBe('52% of female teens ages 12–17 who had a major depressive episode in the past year got treatment or medication for depression in the past year (2024).')
+    expect(vsOverallSentence({ overallP: 0.4512, people: 'teens who had a major depressive episode in the past year', overallSignificant: true, diff: 0.07, pValue: 0.001 })).toBe(
+      "That's higher than all teens who had a major depressive episode in the past year (45%).",
+    )
+  })
+  it('calls an interval wide from 10 points or a 3x ratio, and only with both ends', () => {
+    expect(isWideInterval(0.02, 0.12)).toBe(true)
+    expect(isWideInterval(0.02, 0.061)).toBe(true)
+    expect(isWideInterval(0.1, 0.19)).toBe(false)
+    expect(isWideInterval(0.1375, 0.1599)).toBe(false)
+    expect(isWideInterval(0, 0.05)).toBe(true)
+    expect(isWideInterval(null, 0.2)).toBe(false)
+    expect(isWideInterval(0.1, undefined)).toBe(false)
+  })
+  it('gives the range instead of "1 in N" when the interval is wide', () => {
+    expect(levelSentence({ ...level, p: 0.061, lo: 0.021, hi: 0.152 })).toBe('Between 2% and 15% of teens ages 12–17 had a major depressive episode in the past year (best estimate 6%, 2024).')
+    expect(levelSentence({ ...level, p: 0.14837, lo: 0.13754, hi: 0.15991 })).toMatch(/^About 1 in 7 /)
   })
 })

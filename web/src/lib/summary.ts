@@ -1,5 +1,5 @@
 /** Assemble the explorer's estimate card from a shard and the URL state (pure; see takeaways.ts for wording). */
-import { cohortInfo, firstYear, populationPhrase, yearSetWhen, type Catalog } from './catalog'
+import { cohortInfo, firstYear, populationPhrase, withUniverse, yearSetWhen, type Catalog } from './catalog'
 import { findCell, trendTest, vsOverall, type Cell, type EstimateShard } from './data'
 import type { ExploreState } from './routes'
 import { takeaway, type ChangeInput, type VsOverallInput } from './takeaways'
@@ -8,7 +8,7 @@ export type ExploreSummary = { cell: Cell | undefined; population: string; when:
 
 export function exploreSummary(catalog: Catalog, shard: EstimateShard, state: ExploreState): ExploreSummary {
   const { cohort, indicator, yearSet, group, level } = state
-  const population = populationPhrase(catalog, cohort, group, level)
+  const population = withUniverse(populationPhrase(catalog, cohort, group, level), indicator)
   const when = yearSetWhen(yearSet, indicator.years)
   const g = group?.id ?? null
   const l = level?.id ?? null
@@ -32,10 +32,10 @@ export function exploreSummary(catalog: Catalog, shard: EstimateShard, state: Ex
     const overall = findCell(shard, yearSet)
     const test = vsOverall(shard, yearSet, group.id, level.id)
     if (overall && !overall.suppressed && overall.p !== null && test) {
-      vs = { overallP: overall.p, people: cohortInfo(catalog, cohort).people, overallSignificant: test.overallSignificant, diff: test.diff, pValue: test.pValue }
+      vs = { overallP: overall.p, people: withUniverse(cohortInfo(catalog, cohort).people, indicator), overallSignificant: test.overallSignificant, diff: test.diff, pValue: test.pValue }
     }
   }
 
-  const sentences = takeaway({ suppressed: false, level: { p: cell.p, population, phrase: indicator.phrase, when }, change, vsOverall: vs })
+  const sentences = takeaway({ suppressed: false, level: { p: cell.p, lo: cell.lo, hi: cell.hi, population, phrase: indicator.phrase, when }, change, vsOverall: vs })
   return { cell, population, when, sentences }
 }

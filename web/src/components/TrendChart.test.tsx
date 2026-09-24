@@ -4,6 +4,7 @@ import { SURVEY_YEARS } from '../lib/catalog'
 import { resolveTrends } from '../lib/routes'
 import { trendData } from '../lib/trends'
 import { makeShard, readCatalog } from '../test/fixtures'
+import { dodgeLabels, truncateLabel } from '../lib/labels'
 import { TrendChart, type TrendRow } from './TrendChart'
 
 const catalog = readCatalog()
@@ -77,5 +78,80 @@ describe('TrendChart', () => {
     const suppressed = table.getByRole('row', { name: /2023/ })
     expect(suppressed).toHaveTextContent('—')
     expect(within(suppressed).getByRole('tooltip')).toHaveTextContent('Not reported: estimate is too imprecise.')
+  })
+})
+
+function seriesRows(name: string, values: (number | null)[]): TrendRow[] {
+  return SURVEY_YEARS.map((year, i) => {
+    const p = values[i]
+    return p === null ? { year, series: name, p: null, lo: null, hi: null, status: 'not_collected' } : { year, series: name, p, lo: p - 0.01, hi: p + 0.01, status: 'ok' }
+  })
+}
+
+const LONG = 'Native Hawaiian or Pacific Islander (non-Hispanic)'
+
+describe('end labels', () => {
+  it('truncates long names and dodges labels apart with a minimum gap', () => {
+    expect(truncateLabel('Female')).toBe('Female')
+    expect(truncateLabel(LONG)).toBe('Native Hawaiian or Paci…')
+    expect(truncateLabel(LONG)).toHaveLength(24)
+    expect(dodgeLabels([100, 104, 200])).toEqual([100, 114, 200])
+    expect(dodgeLabels([104, 100, 200])).toEqual([114, 100, 200])
+    // Labels at the bottom are pulled back up so they stay inside the plot.
+    expect(dodgeLabels([290, 296], 14, 0, 300)).toEqual([286, 300])
+    expect(dodgeLabels([296, 296, 296], 14, 0, 300)).toEqual([272, 286, 300])
+    expect(dodgeLabels([], 14)).toEqual([])
+  })
+  it('labels only series with a point in the final year, once each, with a leader where a label moved', () => {
+    const rows = [...seriesRows('Male', [0.1, 0.11, 0.115, 0.12]), ...seriesRows('Female', [0.2, 0.19, 0.15, 0.122]), ...seriesRows(LONG, [0.3, 0.31, 0.32, null])]
+    render(<TrendChart title="Split" rows={rows} series={['Male', 'Female', LONG]} years={SURVEY_YEARS} />)
+    const svg = screen.getByRole('img', { name: 'Split' })
+    const labels = [...svg.querySelectorAll('[data-end-label]')]
+    expect(labels.map((l) => l.textContent)).toEqual(['Male 12.0%', 'Female 12.2%'])
+    const ys = labels.map((l) => Number(l.getAttribute('y')))
+    expect(Math.abs(ys[0] - ys[1])).toBeGreaterThanOrEqual(14)
+    expect(svg.querySelectorAll('[data-leader]').length).toBeGreaterThanOrEqual(1)
+    // The full name stays in the legend.
+    expect(within(screen.getByRole('list', { name: 'Legend' })).getByText(LONG)).toBeInTheDocument()
+  })
+  it('shows the value alone for a single series and nothing when the final year is missing', () => {
+    render(<TrendChart title="Vaping" rows={rows} series={['All teens']} years={SURVEY_YEARS} />)
+    expect([...screen.getByRole('img', { name: 'Vaping' }).querySelectorAll('[data-end-label]')].map((l) => l.textContent)).toEqual(['12.0%'])
+    const noFinal = seriesRows('All teens', [0.1, 0.11, 0.12, null])
+    render(<TrendChart title="Short" rows={noFinal} series={['All teens']} years={SURVEY_YEARS} />)
+    expect(screen.getByRole('img', { name: 'Short' }).querySelectorAll('[data-end-label]')).toHaveLength(0)
+  })
+  it('drops end labels on narrow containers', () => {
+    class NarrowObserver {
+      cb: (entries: { contentRect: { width: number } }[]) => void
+      constructor(cb: (entries: { contentRect: { width: number } }[]) => void) {
+        this.cb = cb
+      }
+      observe() {
+        this.cb([{ contentRect: { width: 400 } }])
+      }
+      disconnect() {}
+    }
+    vi.stubGlobal('ResizeObserver', NarrowObserver)
+    try {
+      render(<TrendChart title="Narrow" rows={rows} series={['All teens']} years={SURVEY_YEARS} />)
+      expect(screen.getByRole('img', { name: 'Narrow' }).querySelectorAll('[data-end-label]')).toHaveLength(0)
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+})
+
+describe('comparison styling', () => {
+  it('marks the compared years and dashes series whose change is not significant', () => {
+    const rows = [...seriesRows('Male', [0.1, 0.11, 0.115, 0.12]), ...seriesRows('Female', [0.2, 0.19, 0.15, 0.122])]
+    render(<TrendChart title="Compared" rows={rows} series={['Male', 'Female']} years={SURVEY_YEARS} caption="Share." comparison={{ yearA: 2021, yearB: 2024, significant: ['Female'] }} />)
+    const svg = screen.getByRole('img', { name: 'Compared' })
+    expect([...svg.querySelectorAll('[data-compared-year]')].map((l) => l.getAttribute('data-compared-year'))).toEqual(['2021', '2024'])
+    expect(svg.querySelector('[stroke-dasharray="6 4"]')).not.toBeNull()
+    expect(screen.getByText(/Dashed lines: the change from 2021 to 2024 is not statistically significant/)).toBeInTheDocument()
+    const legend = within(screen.getByRole('list', { name: 'Legend' }))
+    expect(legend.getByText('Male').querySelector('line')).toHaveAttribute('stroke-dasharray', '4 3')
+    expect(legend.getByText('Female').querySelector('line')).not.toHaveAttribute('stroke-dasharray')
   })
 })

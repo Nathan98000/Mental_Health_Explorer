@@ -6,6 +6,8 @@ export type ChartTheme = {
   ink2: string
   muted: string
   grid: string
+  line: string
+  primary: string
   series: string[]
 }
 
@@ -15,6 +17,8 @@ const FALLBACK: ChartTheme = {
   ink2: '#4b4f6b',
   muted: '#6b6f86',
   grid: '#ede6da',
+  line: '#ede6da',
+  primary: '#c2410c',
   series: ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4'],
 }
 
@@ -28,6 +32,8 @@ function readTheme(): ChartTheme {
     ink2: get('--ink-2', FALLBACK.ink2),
     muted: get('--muted', FALLBACK.muted),
     grid: get('--grid', FALLBACK.grid),
+    line: get('--line', FALLBACK.line),
+    primary: get('--primary', FALLBACK.primary),
     series: FALLBACK.series.map((c, i) => get(`--series-${i + 1}`, c)),
   }
 }

@@ -8,8 +8,22 @@ import { formatPct, oneInN } from './format'
 export const SIGNIFICANCE = 0.05
 export const SUPPRESSED_TAKEAWAY = 'Not enough responses to report this reliably.'
 
+/** A 95% interval is "wide" when it spans at least this many points (10)... */
+export const WIDE_INTERVAL_POINTS = 0.1
+/** ...or its upper end is at least this many times its lower end (3). */
+export const WIDE_INTERVAL_RATIO = 3
+
+/** The one rule for an imprecise estimate: hi − lo ≥ 0.10 or hi / lo ≥ 3. False when either end is missing. */
+export function isWideInterval(lo: number | null | undefined, hi: number | null | undefined): boolean {
+  if (lo === null || lo === undefined || hi === null || hi === undefined) return false
+  return hi - lo >= WIDE_INTERVAL_POINTS || (lo <= 0 ? hi > 0 : hi / lo >= WIDE_INTERVAL_RATIO)
+}
+
 export type LevelInput = {
   p: number
+  /** 95% interval; when it is wide the sentence gives the range instead of "1 in N". */
+  lo?: number | null
+  hi?: number | null
   /** Population wording from the catalog, e.g. "teens ages 12–17" or "female teens ages 12–17". */
   population: string
   /** Indicator phrase from the catalog, e.g. "had a major depressive episode in the past year". */
@@ -18,8 +32,12 @@ export type LevelInput = {
   when: string
 }
 
-/** "About 1 in 7 teens ages 12–17 had a major depressive episode in the past year (15%, 2024)." */
-export function levelSentence({ p, population, phrase, when }: LevelInput): string {
+/**
+ * "About 1 in 7 teens ages 12–17 had a major depressive episode in the past year (15%, 2024)."
+ * A wide interval gives the range instead: "Between 2% and 15% of … (best estimate 6%, 2024)."
+ */
+export function levelSentence({ p, lo, hi, population, phrase, when }: LevelInput): string {
+  if (isWideInterval(lo, hi)) return `Between ${formatPct(lo as number)} and ${formatPct(hi as number)} of ${population} ${phrase} (best estimate ${formatPct(p)}, ${when}).`
   const ratio = oneInN(p)
   if (ratio) return `About ${ratio} ${population} ${phrase} (${formatPct(p)}, ${when}).`
   return `${formatPct(p)} of ${population} ${phrase} (${when}).`
@@ -53,7 +71,7 @@ export function changeLabel(kind: ChangeKind, sinceYear: number): string {
 
 export type VsOverallInput = {
   overallP: number
-  /** Short cohort noun, e.g. "teens". */
+  /** Short cohort noun, e.g. "teens", with the denominator clause when there is one ("teens who had a major depressive episode in the past year"). */
   people: string
   overallSignificant: boolean
   diff: number | null

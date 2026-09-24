@@ -5,7 +5,7 @@ import { clearCache } from '../lib/data'
 import { exploreSummary } from '../lib/summary'
 import { resolveExplore } from '../lib/routes'
 import { SUPPRESSED_TAKEAWAY } from '../lib/takeaways'
-import { mockData, readCatalog, teenMdeShard } from '../test/fixtures'
+import { makeShard, mockData, readCatalog, teenMdeShard } from '../test/fixtures'
 
 const catalog = readCatalog()
 const shard = teenMdeShard()
@@ -72,10 +72,33 @@ describe('Explore page', () => {
     expect(card.getByText('about 2.7 million')).toBeInTheDocument()
     expect(document.title).toBe('Major depressive episode in the past year · Teens · Mental Health Explorer')
   })
-  it('redirects an unknown indicator to the default one', async () => {
+  it('normalizes an unknown indicator to the default one and says so', async () => {
     renderAt('/explore/teen/not_a_measure?year=2024')
     expect(await screen.findByRole('heading', { level: 1, name: 'Major depressive episode in the past year' })).toBeInTheDocument()
     expect((screen.getByLabelText('Years') as HTMLSelectElement).value).toBe('2024')
     expect(await screen.findByTestId('estimate-value')).toHaveTextContent('15%')
+    expect(screen.getByText("We couldn't find that measure; showing Major depressive episode in the past year.")).toBeInTheDocument()
+    // The citation uses the canonical URL, not the one that was typed.
+    expect(screen.getByText(/Estimates computed from SAMHSA/)).toHaveTextContent('/explore/teen/mde_py?year=2024.')
+  })
+  it('names the restricted denominator everywhere a population is named', async () => {
+    const treatment = makeShard('teen', 'mde_any_treatment', [2021, 2022, 2023, 2024], [
+      { yearSet: '2021', p: 0.41, lo: 0.37, hi: 0.45, n: 2000 },
+      { yearSet: '2024', p: 0.52, lo: 0.48, hi: 0.56, n: 1600 },
+    ], [{ yearA: 2021, yearB: 2024, diff: 0.11, p: 0.001 }])
+    mockData({ 'catalog.json': catalog, 'estimates/teen/mde_any_treatment.json': treatment })
+    renderAt('/explore/teen/mde_any_treatment')
+    const card = within(await screen.findByRole('article', { name: 'Estimate' }))
+    expect(card.getByText('52% of teens ages 12–17 who had a major depressive episode in the past year got treatment or medication for depression in the past year (2024).')).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: 'Everyone (teens ages 12–17 who had a major depressive episode in the past year)' })).toBeInTheDocument()
+  })
+  it('flags a wide margin of error and gives the range instead of a ratio', async () => {
+    const wide = makeShard('teen', 'mde_py', [2021, 2022, 2023, 2024], [{ yearSet: '2024', group: 'race_ethnicity', level: 'aian', p: 0.061, lo: 0.021, hi: 0.152, n: 120 }])
+    mockData({ 'catalog.json': catalog, 'estimates/teen/mde_py.json': wide })
+    renderAt('/explore/teen/mde_py?group=race_ethnicity&level=aian')
+    const card = within(await screen.findByRole('article', { name: 'Estimate' }))
+    expect(card.getByTestId('wide-margin')).toHaveTextContent('Wide margin of error')
+    expect(card.getByText(/^Between 2% and 15% of non-Hispanic American Indian or Alaska Native teens ages 12–17 /)).toBeInTheDocument()
+    expect(card.queryByText(/about 1 in/)).not.toBeInTheDocument()
   })
 })

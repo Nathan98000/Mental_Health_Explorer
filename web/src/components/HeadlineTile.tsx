@@ -1,5 +1,5 @@
 import { Link } from 'react-router'
-import { SURVEY_YEARS, type CohortInfo, type Indicator } from '../lib/catalog'
+import { SURVEY_YEARS, withUniverse, type CohortInfo, type Indicator } from '../lib/catalog'
 import { seriesByYear, trendTest, type EstimateShard } from '../lib/data'
 import { formatPct } from '../lib/format'
 import { explorePath } from '../lib/routes'
@@ -27,7 +27,10 @@ export function HeadlineTile({ indicator, shard, cohort }: { indicator: Indicato
       {latest ? (
         <>
           <p className="m-0 mt-3 font-display text-5xl font-extrabold leading-none text-ink">{formatPct(latest.cell.p as number)}</p>
-          <p className="m-0 mt-1 text-sm text-ink-2">of {cohort.phrase} in {latest.year}</p>
+          <p className="m-0 mt-1 text-sm text-ink-2">
+            of {withUniverse(cohort.phrase, indicator)}
+            {indicator.universe_phrase ? ` (${latest.year})` : ` in ${latest.year}`}
+          </p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
             <Sparkline points={points} years={SURVEY_YEARS} />
             {kind ? (

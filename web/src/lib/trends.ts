@@ -1,6 +1,6 @@
 /** Rows, notes and comparisons for the trends page (pure). */
 import type { Annotation, TrendRow } from '../components/TrendChart'
-import { cohortInfo, levelsFor, populationPhrase, SURVEY_YEARS, type Catalog } from './catalog'
+import { cohortInfo, levelsFor, populationPhrase, SURVEY_YEARS, withUniverse, type Catalog } from './catalog'
 import { findCell, gapYears, trendTest, type Cell, type EstimateShard, type TrendTest } from './data'
 import type { CsvRow } from './exports'
 import type { TrendsState } from './routes'
@@ -11,10 +11,10 @@ export type TrendSeries = { label: string; group: string | null; level: string |
 export type TrendData = { series: string[]; rows: TrendRow[]; csv: CsvRow[]; notes: string[]; annotations: Annotation[] }
 
 export function trendSeries(catalog: Catalog, state: TrendsState): TrendSeries[] {
-  const { cohort, split } = state
+  const { cohort, indicator, split } = state
   const info = cohortInfo(catalog, cohort)
-  if (!split) return [{ label: `All ${info.people}`, group: null, level: null, population: info.phrase }]
-  return levelsFor(catalog, cohort, split).map((level) => ({ label: level.label, group: split.id, level: level.id, population: populationPhrase(catalog, cohort, split, level) }))
+  if (!split) return [{ label: `All ${info.people}`, group: null, level: null, population: withUniverse(info.phrase, indicator) }]
+  return levelsFor(catalog, cohort, split).map((level) => ({ label: level.label, group: split.id, level: level.id, population: withUniverse(populationPhrase(catalog, cohort, split, level), indicator) }))
 }
 
 const YEAR_IN_TEXT = /\b(20\d\d)\b/

@@ -15,6 +15,8 @@ export type Indicator = {
   topic: string
   label: string
   phrase: string
+  /** Denominator clause when the measure is asked only of some of the cohort, e.g. "who had a major depressive episode in the past year"; null for everyone. */
+  universe_phrase: string | null
   definition: string
   source: string
   years: number[]
@@ -98,6 +100,11 @@ export function populationPhrase(catalog: Catalog, cohort: Cohort, group?: Group
   if (!group || !level) return info.phrase
   const template = level.phrase ?? group.phrase ?? '{cohort} ({level})'
   return fillTemplate(template, { cohort: info.phrase, people: info.people, level: level.label })
+}
+
+/** Append an indicator's denominator clause to a population phrase: "female teens ages 12–17" + "who had a major depressive episode in the past year". */
+export function withUniverse(population: string, indicator: Pick<Indicator, 'universe_phrase'> | null | undefined): string {
+  return indicator?.universe_phrase ? `${population} ${indicator.universe_phrase}` : population
 }
 
 /** Year sets an indicator can have: each collected year, then the pooled sets when there is more than one year. */
