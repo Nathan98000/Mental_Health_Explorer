@@ -26,6 +26,9 @@ commit produces no diff. `schema/` holds JSON Schemas that CI validates the file
   age band, sex, race/ethnicity (5 groups) and poverty, fitted with R `survey::svyglm`
   (quasibinomial; CI = exp(b ± t50·SE)). Odds ratios are null with a reason when a rate is suppressed
   or the model fails. `or_matrix`: unadjusted odds ratios for every unordered pair, latest common year.
+- `catalog.json` — (`python -m pipeline.export_catalog`, `schema/catalog.schema.json`) the launch indicators
+  (label, phrase, definition, source variable, years, caveats), groups with their population phrases, topics
+  and cohorts, for the website. CI checks that it matches `catalog/*.yaml`.
 - `manifest.json` — every file above with its size and SHA-256, the catalog content hash, the pipeline
   git SHA at generation time and the generation date.
 

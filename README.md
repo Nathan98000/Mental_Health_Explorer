@@ -4,7 +4,7 @@ An interactive, public website for exploring youth mental health in the United S
 National Survey on Drug Use and Health (NSDUH) 2021–2024 public use file from SAMHSA. It covers teens
 ages 12–17 and young adults ages 18–25.
 
-**Status:** phase 2 (estimation engine) — committed estimates, tests and associations; the Home page reads them. Phase 3 adds the explorer pages.
+**Status:** phase 3 (MVP site) — overview, indicator explorer, trends and methods pages on the committed estimates. Phase 4 adds "Who's most affected" and "What goes together"; phase 5 the advanced mode.
 **Live site:** https://nathan98000.github.io/Mental_Health_Explorer/
 
 ## How it fits together
@@ -25,7 +25,7 @@ suppression check, following the NSDUH public use file users' guide.
 | `catalog/` | Indicator and group definitions (`indicators.yaml`, `groups.yaml`, `schema.json`) and the PUF column list |
 | `validation/` | Local-only checks: codebook golden tables, R `survey` cross-check, codebook frequencies, regressions; `REPORT.md` |
 | `data/` | Committed pipeline outputs read by the site: estimate shards, associations, manifest, availability and JSON schemas (see `data/README.md`) |
-| `web/` | The website |
+| `web/` | The website: `/` overview, `/explore/:cohort/:indicator` explorer, `/trends/:cohort/:indicator` trends, `/methods` methods and data dictionary; state lives in the URL (`?year=&group=&level=`, `?split=&a=&b=`) |
 
 ## Running it locally
 
@@ -36,7 +36,12 @@ cd web
 npm install
 npm run dev        # http://localhost:5173/Mental_Health_Explorer/
 npm test && npm run lint && npm run typecheck
+npm run build && npm run e2e          # Playwright + axe against `vite preview` (first: npx playwright install chromium)
+npm run lighthouse                    # Lighthouse (mobile) on the preview build, local Chrome -> validation/site.json
 ```
+
+`data/catalog.json` (what the site knows about indicators, groups and topics) is written by `python -m pipeline.export_catalog`;
+CI checks that it is current.
 
 Pipeline (Python 3.11+):
 
@@ -48,6 +53,7 @@ python -m pipeline.ingest --catalog                   # -> pipeline/.cache/catal
 python -m pipeline.harmonize                          # -> pipeline/.cache/harmonized.parquet + data/availability.json
 python -m pipeline.cube                               # -> data/estimates/{cohort}/{indicator}.json + data/manifest.json (~30 s)
 python -m pipeline.associations                       # -> data/associations/{cohort}.json; runs Rscript pipeline/models.R (~1 min)
+python -m pipeline.export_catalog                     # -> data/catalog.json (no data needed)
 python -m pipeline.export_microdata                   # -> pipeline/.cache/microdata_12_25.parquet (git-ignored, advanced mode)
 python -m pipeline.make_fixtures                      # -> validation/fixtures/estimator.json (pins the TypeScript port)
 python -m pytest validation -q                        # golden tables, R cross-check, codebook frequencies, regressions (~3 min)
