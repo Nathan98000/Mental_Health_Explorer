@@ -1,5 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { useLocation } from 'react-router'
+import { showsCrisisNote } from '../lib/cards'
+import { EARLY_PREVIEW } from '../lib/site'
 import { Footer } from './Footer'
 import { Header } from './Header'
 
@@ -13,11 +15,16 @@ export function Layout({ children }: { children: ReactNode }) {
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-10 focus:rounded-full focus:bg-surface focus:px-4 focus:py-2">
         Skip to content
       </a>
+      {EARLY_PREVIEW ? (
+        <p role="note" className="m-0 bg-surface-cool px-4 py-2 text-center text-sm text-ink">
+          Early preview. This site is still being built; a final review happens before launch.
+        </p>
+      ) : null}
       <Header />
       <main id="main" className="mx-auto min-h-screen w-full max-w-6xl flex-1 px-4 sm:px-6">
         {children}
       </main>
-      <Footer />
+      <Footer crisisNote={!showsCrisisNote(pathname)} />
     </div>
   )
 }

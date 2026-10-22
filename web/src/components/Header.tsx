@@ -1,16 +1,24 @@
 import { useId, useState } from 'react'
 import { Link, useLocation } from 'react-router'
+import { cohortFromLocation, DEFAULT_COHORT, DEFAULT_INDICATOR, explorePath, indicatorFromLocation, trendsPath } from '../lib/routes'
 import { SITE_NAME } from '../lib/site'
+import type { Cohort } from '../lib/data'
 
-const NAV = [
-  { to: '/', label: 'Overview', match: (path: string) => path === '/' },
-  { to: '/explore/teen/mde_py', label: 'Explore', match: (path: string) => path.startsWith('/explore') },
-  { to: '/trends/teen/mde_py', label: 'Trends', match: (path: string) => path.startsWith('/trends') },
-  { to: '/methods', label: 'Methods', match: (path: string) => path.startsWith('/methods') },
-]
+/** The main links carry the cohort and, on Explore and Trends, the measure the visitor is looking at, so switching pages keeps them. */
+function nav(cohort: Cohort, indicator: string) {
+  return [
+    { to: cohort === DEFAULT_COHORT ? '/' : `/?cohort=${cohort}`, label: 'Overview', match: (path: string) => path === '/' },
+    { to: explorePath(cohort, indicator), label: 'Explore', match: (path: string) => path.startsWith('/explore') },
+    { to: trendsPath(cohort, indicator), label: 'Trends', match: (path: string) => path.startsWith('/trends') },
+    { to: '/methods', label: 'Methods', match: (path: string) => path.startsWith('/methods') },
+  ]
+}
 
 export function Header() {
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
+  const cohort = cohortFromLocation(pathname, search)
+  // A measure is carried only with the cohort it belongs to (an unknown one is normalized by the page it lands on).
+  const NAV = nav(cohort ?? DEFAULT_COHORT, (cohort && indicatorFromLocation(pathname)) || DEFAULT_INDICATOR)
   // The menu remembers the path it was opened on, so it closes itself after navigation.
   const [openedOn, setOpenedOn] = useState<string | null>(null)
   const open = openedOn === pathname
@@ -28,7 +36,6 @@ export function Header() {
           <span className="font-display text-xl font-extrabold tracking-tight">{SITE_NAME}</span>
         </Link>
         <div className="flex items-center gap-3">
-          <span className="hidden rounded-full bg-surface-cool px-3 py-1 text-xs font-semibold text-ink-2 sm:inline">Preview</span>
           <button
             type="button"
             className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-semibold text-ink sm:hidden"

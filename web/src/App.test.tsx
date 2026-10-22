@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import App from './App'
+import { Loading } from './components/Status'
 import { clearCache } from './lib/data'
 import { HEADLINES } from './lib/headlines'
 import { SITE_NAME } from './lib/site'
@@ -39,11 +40,14 @@ describe('App', () => {
     const mde = (await screen.findByRole('link', { name: 'Major depressive episode in the past year' })).closest('li')!
     expect(mde).toHaveTextContent('15%')
     expect(mde).toHaveTextContent('of teens ages 12–17 in 2024')
-    expect(within(mde).getByText('Fell since 2021')).toHaveAttribute('data-change', 'fell')
+    expect(mde.querySelector('[data-change="fell"]')).toHaveTextContent('↓ Down from 21% in 2021')
     expect(within(mde).getByRole('link', { name: 'Major depressive episode in the past year' })).toHaveAttribute('href', '/explore/teen/mde_py')
     expect(within(mde).getByRole('img').getAttribute('aria-label')).toMatch(/^2021: 21%, 2022: 19%, 2023: 18%, 2024: 15%$/)
     const same = screen.getByRole('link', { name: 'Alcohol use in the past month' }).closest('li')!
-    expect(within(same).getByText('About the same as 2021')).toHaveAttribute('data-change', 'same')
+    expect(same.querySelector('[data-change="same"]')).toHaveTextContent('About the same as in 2021 (10.0%)')
+    // Severe depression is part of all depression, which is also on the page.
+    const severe = screen.getByRole('link', { name: /with severe impairment/ }).closest('li')!
+    expect(within(severe).getByText('Part of the 15% who had a major depressive episode in the past year.')).toBeInTheDocument()
     const shardsRequested = requested.filter((u) => u.includes('/estimates/')).sort()
     expect(shardsRequested).toEqual(HEADLINES.teen.map((id) => `${import.meta.env.BASE_URL}data/estimates/teen/${id}.json`).sort())
     expect(document.title).toBe(SITE_NAME)
@@ -63,20 +67,41 @@ describe('App', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/could not be loaded/i)
   })
 
-  it('shows the early-preview note without the prototype wording', async () => {
+  it('shows the early-preview banner on every page without the prototype wording', async () => {
     mockData({})
-    renderAt('/')
-    const note = await screen.findByRole('note')
-    expect(note).toHaveTextContent(
-      "Early preview. This site is still being built. Numbers are computed from the survey and checked against SAMHSA's reference tables; a final review happens before launch.",
-    )
-    expect(note.textContent).not.toMatch(/prototype/i)
+    for (const path of ['/', '/methods']) {
+      const { unmount } = renderAt(path)
+      const note = (await screen.findAllByRole('note')).find((n) => n.textContent?.startsWith('Early preview'))
+      expect(note).toHaveTextContent('Early preview. This site is still being built; a final review happens before launch.')
+      expect(note?.textContent).not.toMatch(/prototype/i)
+      unmount()
+    }
+  })
+
+  it('renders the key terms and how to cite on Methods', async () => {
+    mockData({ 'catalog.json': catalog })
+    renderAt('/methods')
+    expect(await screen.findByRole('heading', { level: 2, name: 'Key terms' })).toBeInTheDocument()
+    expect(document.getElementById('key-terms')).not.toBeNull()
+    expect(document.getElementById('how-to-cite')).not.toBeNull()
+    expect(screen.getByRole('navigation', { name: 'On this page' })).toHaveTextContent(/Key terms.*How to cite/)
   })
 
   it('always shows the 988 crisis line', () => {
     mockData({})
     renderAt('/')
     expect(screen.getAllByText('988').length).toBeGreaterThan(0)
+  })
+
+  it('words the 988 note the same in the footer and in the strip above a suicide chart', async () => {
+    mockData({ 'catalog.json': catalog })
+    const footer = renderAt('/')
+    const inFooter = within(screen.getByRole('contentinfo')).getByTestId('crisis-note').textContent
+    footer.unmount()
+    renderAt('/explore/teen/suicide_thoughts')
+    const strip = await screen.findByRole('complementary', { name: 'Support' })
+    expect(strip.textContent).toBe(inFooter)
+    expect(strip.textContent).toMatch(/any time\.$/)
   })
 
   it('links to every live page from the header', () => {
@@ -88,6 +113,20 @@ describe('App', () => {
     expect(nav.getByRole('link', { name: 'Trends' })).toHaveAttribute('href', '/trends/teen/mde_py')
     expect(nav.getByRole('link', { name: 'Methods' })).toHaveAttribute('href', '/methods')
     expect(screen.getByRole('button', { name: 'Menu' })).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('has loading placeholders sized like the estimate card and the trend chart', () => {
+    render(
+      <>
+        <Loading variant="card" />
+        <Loading variant="chart" />
+      </>,
+    )
+    const [card, chart] = screen.getAllByRole('status')
+    expect(card).toHaveAttribute('data-variant', 'card')
+    expect(card.className).toMatch(/min-h-\[/)
+    expect(chart).toHaveAttribute('data-variant', 'chart')
+    expect(chart.className).toMatch(/min-h-\[/)
   })
 
   it('renders a not-found page for unknown routes', async () => {

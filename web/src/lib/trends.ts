@@ -1,20 +1,20 @@
 /** Rows, notes and comparisons for the trends page (pure). */
 import type { Annotation, TrendRow } from '../components/TrendChart'
-import { cohortInfo, levelsFor, populationPhrase, SURVEY_YEARS, type Catalog } from './catalog'
+import { cohortInfo, levelsFor, populationPhrase, SURVEY_YEARS, withUniverse, type Catalog } from './catalog'
 import { findCell, gapYears, trendTest, type Cell, type EstimateShard, type TrendTest } from './data'
 import type { CsvRow } from './exports'
 import type { TrendsState } from './routes'
-import { changeKind, type ChangeKind } from './takeaways'
+import { changeKind, trendHeadlineSentence, type ChangeKind } from './takeaways'
 
 export type TrendSeries = { label: string; group: string | null; level: string | null; population: string }
 
 export type TrendData = { series: string[]; rows: TrendRow[]; csv: CsvRow[]; notes: string[]; annotations: Annotation[] }
 
 export function trendSeries(catalog: Catalog, state: TrendsState): TrendSeries[] {
-  const { cohort, split } = state
+  const { cohort, indicator, split } = state
   const info = cohortInfo(catalog, cohort)
-  if (!split) return [{ label: `All ${info.people}`, group: null, level: null, population: info.phrase }]
-  return levelsFor(catalog, cohort, split).map((level) => ({ label: level.label, group: split.id, level: level.id, population: populationPhrase(catalog, cohort, split, level) }))
+  if (!split) return [{ label: `All ${info.people}`, group: null, level: null, population: withUniverse(info.phrase, indicator) }]
+  return levelsFor(catalog, cohort, split).map((level) => ({ label: level.label, group: split.id, level: level.id, population: withUniverse(populationPhrase(catalog, cohort, split, level), indicator) }))
 }
 
 const YEAR_IN_TEXT = /\b(20\d\d)\b/
@@ -41,21 +41,22 @@ export function trendData(catalog: Catalog, shard: EstimateShard, state: TrendsS
       if (suppressed) suppressedBy.set(s.label, [...(suppressedBy.get(s.label) ?? []), year])
       csv.push({
         cohort,
-        indicator: indicator.id,
-        yearSet: String(year),
-        weight: shard.year_sets[String(year)]?.weight ?? '',
+        measure: indicator.id,
+        measureLabel: indicator.label,
+        years: String(year),
         population: s.population,
         p: cell.p,
         lo: cell.lo,
         hi: cell.hi,
         n: cell.n,
         suppressed: cell.suppressed,
+        weight: shard.year_sets[String(year)]?.weight ?? '',
       })
     }
   }
   const notes: string[] = []
   const gaps = gapYears(indicator.years)
-  if (gaps.length) notes.push(`Not asked in ${joinYears(gaps)}.`)
+  if (gaps.length) notes.push(`Not available in ${joinYears(gaps)}.`)
   for (const [label, years] of suppressedBy) notes.push(`${label}: not shown for ${joinYears(years)} because there were not enough responses to report it reliably.`)
   const annotations: Annotation[] = []
   for (const caveat of indicator.caveats) {
@@ -75,5 +76,24 @@ export function comparisons(catalog: Catalog, shard: EstimateShard, state: Trend
     const b = findCell(shard, String(state.yearB), s.group, s.level)
     const test = trendTest(shard, s.group, s.level, state.yearA, state.yearB)
     return { label: s.label, a, b, test, kind: test ? changeKind(test.diff, test.pValue) : null }
+  })
+}
+
+function shownP(cell: Cell | undefined): number | null {
+  return cell && !cell.suppressed && cell.p !== null ? cell.p : null
+}
+
+/** The answer-first sentence at the top of the trends page (wording in takeaways.ts). */
+export function trendHeadline(catalog: Catalog, state: TrendsState, comps: Comparison[]): string {
+  const info = cohortInfo(catalog, state.cohort)
+  return trendHeadlineSentence({
+    cohort: info.phrase,
+    people: withUniverse(info.phrase, state.indicator),
+    universe: state.indicator.universe_phrase,
+    phrase: state.indicator.phrase,
+    yearA: state.yearA,
+    yearB: state.yearB,
+    series: comps.map((c) => ({ kind: c.kind, a: shownP(c.a), b: shownP(c.b) })),
+    split: !!state.split,
   })
 }

@@ -117,7 +117,7 @@ def site_section() -> list[str]:
     for page in site["pages"]:
         path = "/" + page["url"].split("/Mental_Health_Explorer/", 1)[-1]
         lines.append(f"| `{path}` | {page['performance']} | {page['accessibility']} | {page['lcp_ms'] / 1000:.1f} s | {page['tbt_ms']} ms | {page['cls']} |")
-    lines += ["", "The Playwright suite (`npm run e2e`) checks every route with axe (WCAG 2.1 A and AA) in light and dark mode at 1280 px and 390 px, and that nothing scrolls horizontally at 360 px.", ""]
+    lines += ["", "The Playwright suite (`npm run e2e`) checks every route with axe (WCAG 2.1 A and AA) at 1280 px and 390 px, and that nothing scrolls horizontally at 360 px.", ""]
     return lines
 
 

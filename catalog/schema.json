@@ -46,6 +46,7 @@
           "additionalProperties": { "$ref": "#/$defs/codes" },
           "minProperties": 1
         },
+        "universe_phrase": { "type": "string", "minLength": 1, "pattern": "^who ", "description": "Suffix clause naming a restricted denominator, appended to the population phrase: 'teens ages 12–17' + 'who had a major depressive episode in the past year'. Required whenever the denominator is not the whole cohort (a `universe` or a skip pattern in the questionnaire)" },
         "years": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/year" }, "description": "Years the item was collected; checked against the data" },
         "caveats": { "type": "array", "items": { "type": "string", "minLength": 1 } },
         "codebook": { "$ref": "#/$defs/variable", "description": "Entry name in the PUF codebook (normally the source variable)" },
