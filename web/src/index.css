@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 /*
-  Design tokens. Every color is defined once per mode here and used by role.
+  Design tokens. Every color is defined once here and used by role; the site has a single light
+  color scheme (no dark mode).
   Contrast checked: ink/page 14.7:1, ink-2/page 7.6:1, muted/surface 4.9:1,
-  white on primary 5.2:1, primary-ink on page 5.4:1 (light); ink/page 15.9:1,
-  ink-2/surface 9.6:1, muted/surface 5.9:1, page on primary 7.6:1 (dark).
+  white on primary 5.2:1, primary-ink on page 5.4:1.
   Chart series slots come from the validated categorical palette (adjacent CVD ΔE ≥ 8.4), darkened
-  where needed so every slot is at least 3:1 against the card surface (light: 4.3, 3.2, 3.9, 3.6, 3.6;
-  dark: 4.4, 4.1, 4.7, 5.2, 4.0). seq-1…5 is the single-hue ramp for ordered groups (age, income),
-  light to dark, every step at least 3:1 against the surface. Charts also carry direct labels and a table view.
+  where needed so every slot is at least 3:1 against the card surface (4.3, 3.2, 3.9, 3.6, 3.6).
+  seq-1…5 is the single-hue ramp for ordered groups (age, income), light to dark, every step at least
+  3:1 against the surface. Charts also carry direct labels and a table view.
 */
 :root {
   color-scheme: light;
@@ -36,64 +36,6 @@
   --seq-3: #1d5fb0;
   --seq-4: #164a8a;
   --seq-5: #0f3563;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme="light"])) {
-    color-scheme: dark;
-    --page: #16172a;
-    --surface: #1f2036;
-    --surface-tint: #2a2440;
-    --surface-cool: #232646;
-    --ink: #f7f3ea;
-    --ink-2: #c9c7d8;
-    --muted: #9a9cb3;
-    --line: #2e3050;
-    --primary: #ff8a5c;
-    --primary-ink: #ff9d76;
-    --on-primary: #16172a;
-    --accent: #5fd0c5;
-    --sun: #ffc857;
-    --grid: #2e3050;
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --series-3: #199e70;
-    --series-4: #c98500;
-    --series-5: #d55181;
-    --seq-1: #bcd6f5;
-    --seq-2: #8fbaee;
-    --seq-3: #63a0e6;
-    --seq-4: #3987e5;
-    --seq-5: #2a6fc4;
-  }
-}
-
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --page: #16172a;
-  --surface: #1f2036;
-  --surface-tint: #2a2440;
-  --surface-cool: #232646;
-  --ink: #f7f3ea;
-  --ink-2: #c9c7d8;
-  --muted: #9a9cb3;
-  --line: #2e3050;
-  --primary: #ff8a5c;
-  --primary-ink: #ff9d76;
-  --on-primary: #16172a;
-  --accent: #5fd0c5;
-  --sun: #ffc857;
-  --grid: #2e3050;
-  --series-1: #3987e5;
-  --series-2: #d95926;
-  --series-3: #199e70;
-  --series-4: #c98500;
-  --series-5: #d55181;
-  --seq-1: #bcd6f5;
-  --seq-2: #8fbaee;
-  --seq-3: #63a0e6;
-  --seq-4: #3987e5;
-  --seq-5: #2a6fc4;
 }
 
 @theme inline {

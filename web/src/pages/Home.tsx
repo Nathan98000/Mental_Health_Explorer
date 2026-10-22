@@ -88,10 +88,10 @@ export default function Home() {
   return (
     <>
       <section className="relative overflow-hidden rounded-[2rem] bg-surface-tint px-5 py-8 sm:px-10 sm:py-16">
-        <svg className="pointer-events-none absolute -right-16 -top-16 hidden h-64 w-64 opacity-70 sm:block dark:opacity-35" viewBox="0 0 200 200" aria-hidden="true">
+        <svg className="pointer-events-none absolute -right-16 -top-16 hidden h-64 w-64 opacity-70 sm:block" viewBox="0 0 200 200" aria-hidden="true">
           <circle cx="100" cy="100" r="90" fill="var(--sun)" />
         </svg>
-        <svg className="pointer-events-none absolute -bottom-20 right-24 hidden h-48 w-48 opacity-40 sm:block dark:opacity-25" viewBox="0 0 200 200" aria-hidden="true">
+        <svg className="pointer-events-none absolute -bottom-20 right-24 hidden h-48 w-48 opacity-40 sm:block" viewBox="0 0 200 200" aria-hidden="true">
           <circle cx="100" cy="100" r="90" fill="var(--primary)" />
         </svg>
         <div className="relative max-w-2xl">

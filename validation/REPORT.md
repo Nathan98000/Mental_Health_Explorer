@@ -54,4 +54,4 @@ Lighthouse 13.5.0 on 2026-09-24, mobile emulation against `vite preview` in loca
 | `/` | 91 | 100 | 3.4 s | 0 ms | 0 |
 | `/explore/teen/mde_py` | 95 | 100 | 2.9 s | 0 ms | 0 |
 
-The Playwright suite (`npm run e2e`) checks every route with axe (WCAG 2.1 A and AA) in light and dark mode at 1280 px and 390 px, and that nothing scrolls horizontally at 360 px.
+The Playwright suite (`npm run e2e`) checks every route with axe (WCAG 2.1 A and AA) at 1280 px and 390 px, and that nothing scrolls horizontally at 360 px.

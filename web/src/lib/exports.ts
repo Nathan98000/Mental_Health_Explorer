@@ -58,7 +58,7 @@ const EXPORT_FONT = 'Inter Variable, Inter, system-ui, sans-serif'
 /** The source line under every exported image. */
 export const EXPORT_SOURCE = `Source: SAMHSA NSDUH 2021–2024 public use file · ${SITE_NAME}`
 
-/** Light-mode values of the tokens SVGs use, for when a computed style is unavailable (tests, detached documents). */
+/** The tokens SVGs use, for when a computed style is unavailable (tests, detached documents). */
 export const TOKEN_FALLBACKS: Record<string, string> = {
   '--page': '#fff8ee',
   '--surface': '#fffdf8',

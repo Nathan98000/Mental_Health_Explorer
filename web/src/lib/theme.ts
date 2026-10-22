@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { Group } from './catalog'
 
 export type ChartTheme = {
@@ -45,18 +45,11 @@ function readTheme(): ChartTheme {
 }
 
 /**
- * Chart colors resolved from the CSS tokens. SVG attributes cannot use var(),
- * so charts read the computed values and re-render when the color scheme changes.
+ * Chart colors resolved from the CSS tokens, read once per chart. SVG attributes cannot use var(),
+ * so charts take the computed values; the site has one color scheme, so they never change.
  */
 export function useChartTheme(): ChartTheme {
-  const [theme, setTheme] = useState<ChartTheme>(readTheme)
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const update = () => setTheme(readTheme())
-    mq.addEventListener('change', update)
-    return () => mq.removeEventListener('change', update)
-  }, [])
+  const [theme] = useState<ChartTheme>(readTheme)
   return theme
 }
 
