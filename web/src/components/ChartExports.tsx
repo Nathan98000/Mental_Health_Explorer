@@ -40,6 +40,17 @@ export function ChartExports({ getSvg, csv, filename, citation, frame }: Props) 
     }
   }
 
+  // Offered only where the browser can hand the page to another app (mostly phones).
+  const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
+  const share = async () => {
+    try {
+      await navigator.share({ title: frame.title, url: frame.url ?? window.location.href })
+      setMessage(null)
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === 'AbortError')) setMessage('Sharing is not available here; copy the address instead.')
+    }
+  }
+
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(citation)
@@ -58,6 +69,7 @@ export function ChartExports({ getSvg, csv, filename, citation, frame }: Props) 
           <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadPng(svg, `${filename}.png`, theme.surface, exportFrame))}>Download chart (PNG)</button>
         ) : null}
         <button type="button" className={buttonClass} onClick={copy} aria-live="polite">{copied ? 'Copied' : 'Copy citation'}</button>
+        {canShare ? <button type="button" className={buttonClass} onClick={share}>Share</button> : null}
       </div>
       <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
         {getSvg ? (

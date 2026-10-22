@@ -242,6 +242,7 @@ test('the explorer shows the number high on the page and a labelled chart over t
   await settled(page)
   const top = await page.getByTestId('estimate-value').evaluate((el) => el.getBoundingClientRect().top)
   expect(top).toBeLessThan(450)
+  await expect(page.getByTestId('data-date')).toContainText('Data generated')
   const overTime = page.getByRole('region', { name: 'Over time' }).getByRole('img')
   await expect(overTime).toContainText('2021')
   await expect(overTime).toContainText('2024')
@@ -266,6 +267,16 @@ test('a URL notice comes before the page title', async ({ page }) => {
   await expect(notice).toContainText("We couldn't find that measure")
   const before = await notice.evaluate((el) => !!(el.compareDocumentPosition(document.querySelector('h1') as Node) & Node.DOCUMENT_POSITION_FOLLOWING))
   expect(before).toBe(true)
+})
+
+test('on phones the age-group toggle stays on one line', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith('mobile'), 'phone labels')
+  await page.goto('')
+  await settled(page)
+  const toggle = page.getByRole('navigation', { name: 'Cohort' }).first()
+  expect(await toggle.evaluate((el) => (el as HTMLElement).innerText)).toContain('Teens 12–17')
+  const height = await toggle.evaluate((el) => el.getBoundingClientRect().height)
+  expect(height).toBeLessThan(48)
 })
 
 test('the mobile menu is a disclosure', async ({ page }, testInfo) => {

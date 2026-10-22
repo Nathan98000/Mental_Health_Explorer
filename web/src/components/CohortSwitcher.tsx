@@ -15,9 +15,10 @@ export function CohortSwitcher({ catalog, cohort, hrefFor = (c) => `/?cohort=${c
             key={c.id}
             to={hrefFor(c.id)}
             aria-current={current ? 'page' : undefined}
-            className={`rounded-full px-4 py-1.5 text-sm font-semibold no-underline ${current ? 'bg-primary text-on-primary' : 'text-ink-2 hover:text-ink'}`}
+            className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-semibold no-underline ${current ? 'bg-primary text-on-primary' : 'text-ink-2 hover:text-ink'}`}
           >
-            {c.label} <span className="whitespace-nowrap">ages {c.ages}</span>
+            {/* Phones show "Teens 12–17"; the hidden word drops out of the link's name there too. */}
+            {c.label} <span className="hidden sm:inline">ages</span> {c.ages}
           </Link>
         )
       })}

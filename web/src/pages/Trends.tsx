@@ -10,7 +10,7 @@ import { Loading, LoadError } from '../components/Status'
 import { SuppressedValue } from '../components/SuppressedValue'
 import { TrendChart } from '../components/TrendChart'
 import { cohortInfo, firstYear, isSuicideMeasure, latestYear, SURVEY_YEARS, withUniverse, type Catalog } from '../lib/catalog'
-import { loadEstimates, type Cell } from '../lib/data'
+import { loadEstimates, loadManifest, type Cell } from '../lib/data'
 import { capitalize, citation, safeFilename, toCsv } from '../lib/exports'
 import { formatSharePair } from '../lib/format'
 import { absoluteUrl, explorePath, resolveTrends, splitGroups, trendsCohortPath, trendsPath, type TrendsState } from '../lib/routes'
@@ -53,6 +53,7 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
   const ids = { indicator: useId(), split: useId(), a: useId(), b: useId(), headline: useId() }
   const info = cohortInfo(catalog, cohort)
   const shard = useResource(`estimates/${cohort}/${indicator.id}`, () => loadEstimates(cohort, indicator.id))
+  const manifest = useResource('manifest', loadManifest)
   const go = (next: Partial<{ indicator: string; split: string | null; yearA: number; yearB: number }>) =>
     navigate(trendsPath(cohort, next.indicator ?? indicator.id, { split: 'split' in next ? next.split : split?.id, yearA: next.yearA ?? yearA, yearB: next.yearB ?? yearB }))
   const span = `${firstYear(indicator)}–${latestYear(indicator)}`
@@ -82,6 +83,7 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
           See the latest estimate and compare groups <span aria-hidden="true">→</span>
         </Link>
       </p>
+      {manifest.status === 'ready' ? <p className="m-0 mt-1 text-sm text-muted" data-testid="data-date">Data generated {manifest.data.generated}</p> : null}
       <Filters summary={`${info.label} · ${split ? split.label : 'No split'} · ${yearA} vs ${yearB}`}>
         <div className="min-w-0">
           <span className="mb-1 block text-sm font-semibold text-ink-2">Age group</span>
@@ -127,7 +129,7 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
 
       <div className="mt-6 rounded-2xl bg-surface p-4 shadow-[0_2px_0_var(--line),0_12px_32px_-18px_rgba(30,34,64,0.35)] ring-1 ring-line sm:p-6">
         {shard.status === 'loading' ? (
-          <Loading className="min-h-96" />
+          <Loading variant="chart" />
         ) : shard.status === 'error' || !data ? (
           <LoadError />
         ) : (

@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import App from './App'
+import { Loading } from './components/Status'
 import { clearCache } from './lib/data'
 import { HEADLINES } from './lib/headlines'
 import { SITE_NAME } from './lib/site'
@@ -112,6 +113,20 @@ describe('App', () => {
     expect(nav.getByRole('link', { name: 'Trends' })).toHaveAttribute('href', '/trends/teen/mde_py')
     expect(nav.getByRole('link', { name: 'Methods' })).toHaveAttribute('href', '/methods')
     expect(screen.getByRole('button', { name: 'Menu' })).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('has loading placeholders sized like the estimate card and the trend chart', () => {
+    render(
+      <>
+        <Loading variant="card" />
+        <Loading variant="chart" />
+      </>,
+    )
+    const [card, chart] = screen.getAllByRole('status')
+    expect(card).toHaveAttribute('data-variant', 'card')
+    expect(card.className).toMatch(/min-h-\[/)
+    expect(chart).toHaveAttribute('data-variant', 'chart')
+    expect(chart.className).toMatch(/min-h-\[/)
   })
 
   it('renders a not-found page for unknown routes', async () => {

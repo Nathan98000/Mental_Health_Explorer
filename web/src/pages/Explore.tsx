@@ -11,7 +11,7 @@ import { Notices } from '../components/Notices'
 import { LabeledSparkline } from '../components/Sparkline'
 import { Loading, LoadError } from '../components/Status'
 import { cohortInfo, firstYear, groupsFor, isSuicideMeasure, latestYear, levelsFor, SURVEY_YEARS, withUniverse, yearSetLabel, yearSetsFor, yearSetSpan, type Catalog } from '../lib/catalog'
-import { findCell, loadEstimates, seriesByYear, type EstimateShard } from '../lib/data'
+import { findCell, loadEstimates, loadManifest, seriesByYear, type EstimateShard } from '../lib/data'
 import { capitalize, citation, safeFilename, toCsv, type CsvRow } from '../lib/exports'
 import { absoluteUrl, exploreCohortPath, explorePath, resolveExplore, splitGroups, trendsPath, type ExploreState } from '../lib/routes'
 import { describeSparkline } from '../lib/sparkline'
@@ -79,6 +79,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
       ]
     : []
 
+  const manifest = useResource('manifest', loadManifest)
   const overTimeRef = useRef<SVGSVGElement>(null)
   const missing = SURVEY_YEARS.filter((y) => !points.some((d) => d.year === y && d.p !== null))
   const splitOk = group && splitGroups(catalog, cohort).some((g) => g.id === group.id)
@@ -88,6 +89,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
       <DocumentTitle title={`${indicator.label} · ${info.label}`} />
       <Notices items={notices} />
       <h1 className="m-0 font-display text-h1 font-extrabold tracking-tight text-ink">{indicator.label}</h1>
+      {manifest.status === 'ready' ? <p className="m-0 mt-1 text-sm text-muted" data-testid="data-date">Data generated {manifest.data.generated}</p> : null}
       <Filters
         summary={`${info.label} · ${yearSetSpan(yearSet, indicator.years)} · ${level ? level.label : 'Everyone'}`}
         className="lg:grid-cols-[auto_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1.5fr)] lg:items-start"
@@ -138,7 +140,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
 
       <div className="mt-6 max-w-3xl">
         {shard.status === 'loading' ? (
-          <Loading className="min-h-80" />
+          <Loading variant="card" />
         ) : shard.status === 'error' ? (
           <LoadError />
         ) : summary?.cell ? (
