@@ -34,7 +34,6 @@ export function Header() {
           <span className="font-display text-xl font-extrabold tracking-tight">{SITE_NAME}</span>
         </Link>
         <div className="flex items-center gap-3">
-          <span className="hidden rounded-full bg-surface-cool px-3 py-1 text-xs font-semibold text-ink-2 sm:inline">Preview</span>
           <button
             type="button"
             className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-semibold text-ink sm:hidden"

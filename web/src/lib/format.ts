@@ -34,3 +34,14 @@ export function formatPoints(diff: number, digits = 1): string {
   const sign = diff < 0 ? '−' : diff > 0 ? '+' : ''
   return `${sign}${value} points`
 }
+
+/** The one rounding rule for lay-facing values: whole percents from 10% up (9.95% and above), one decimal below, e.g. 0.148 -> "15%", 0.058 -> "5.8%". */
+export function formatShare(p: number): string {
+  return p * 100 >= 9.95 ? formatPct(p, 0) : formatPct(p, 1)
+}
+
+/** Two values side by side under the same rule; if they would read the same, both get one decimal, e.g. (0.343, 0.338) -> ["34.3%", "33.8%"]. */
+export function formatSharePair(a: number, b: number): [string, string] {
+  const pair: [string, string] = [formatShare(a), formatShare(b)]
+  return pair[0] === pair[1] ? [formatPct(a, 1), formatPct(b, 1)] : pair
+}

@@ -23,7 +23,7 @@ export function exploreSummary(catalog: Catalog, shard: EstimateShard, state: Ex
     const prior = findCell(shard, String(first), g, l)
     if (prior && !prior.suppressed && prior.p !== null) {
       const test = trendTest(shard, g, l, first, year)
-      change = { priorP: prior.p, priorYear: first, diff: test?.diff ?? null, pValue: test?.pValue ?? null }
+      change = { priorP: prior.p, priorYear: first, diff: test?.diff ?? null, pValue: test?.pValue ?? null, p: cell.p }
     }
   }
 
@@ -32,7 +32,7 @@ export function exploreSummary(catalog: Catalog, shard: EstimateShard, state: Ex
     const overall = findCell(shard, yearSet)
     const test = vsOverall(shard, yearSet, group.id, level.id)
     if (overall && !overall.suppressed && overall.p !== null && test) {
-      vs = { overallP: overall.p, people: withUniverse(cohortInfo(catalog, cohort).people, indicator), overallSignificant: test.overallSignificant, diff: test.diff, pValue: test.pValue }
+      vs = { overallP: overall.p, p: cell.p, people: withUniverse(cohortInfo(catalog, cohort).people, indicator), overallSignificant: test.overallSignificant, diff: test.diff, pValue: test.pValue }
     }
   }
 

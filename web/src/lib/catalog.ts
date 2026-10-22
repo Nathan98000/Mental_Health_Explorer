@@ -133,9 +133,9 @@ export function yearSetSpan(yearSet: string, years: number[]): string {
   return yearSet
 }
 
-/** Picker label for a year set. */
+/** Picker label for a year set; "All available years" when the measure was not asked in every survey year. */
 export function yearSetLabel(yearSet: string, years: number[]): string {
-  if (yearSet === 'all') return `All years combined (${yearSetSpan('all', years)})`
+  if (yearSet === 'all') return `${SURVEY_YEARS.every((y) => years.includes(y)) ? 'All years' : 'All available years'} combined (${yearSetSpan('all', years)})`
   if (yearSet === 'recent2') return `Latest two years combined (${yearSetSpan('recent2', years)})`
   return yearSet
 }

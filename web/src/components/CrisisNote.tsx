@@ -1,3 +1,6 @@
+/** The 988 note as plain text, for exported images; the strip below renders the same words. */
+export const CRISIS_TEXT = 'If you or someone you know is struggling, you can call or text 988 or chat at 988lifeline.org to reach the 988 Suicide & Crisis Lifeline, any time.'
+
 /** The 988 note, shown as one full-width strip above the result or chart of a suicide measure (the footer carries it everywhere else). */
 export function CrisisNote() {
   return (

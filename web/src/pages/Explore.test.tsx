@@ -5,7 +5,7 @@ import { clearCache } from '../lib/data'
 import { exploreSummary } from '../lib/summary'
 import { resolveExplore } from '../lib/routes'
 import { SUPPRESSED_TAKEAWAY } from '../lib/takeaways'
-import { makeShard, mockData, readCatalog, teenMdeShard } from '../test/fixtures'
+import { flatShard, makeShard, mockData, readCatalog, teenMdeShard } from '../test/fixtures'
 
 const catalog = readCatalog()
 const shard = teenMdeShard()
@@ -38,8 +38,8 @@ describe('exploreSummary', () => {
     const { state } = resolveExplore(catalog, 'teen', 'mde_py', new URLSearchParams('year=2024&group=sex&level=female'))
     expect(exploreSummary(catalog, shard, state).sentences).toEqual([
       'About 1 in 5 female teens ages 12–17 had a major depressive episode in the past year (22%, 2024).',
-      "That's down from 29.8% in 2021.",
-      "That's higher than all teens (14.8%).",
+      "That's down from 30% in 2021.",
+      "That's higher than all teens (15%).",
     ])
   })
   it('has no change sentence for the first year or a pooled set', () => {
@@ -51,46 +51,66 @@ describe('exploreSummary', () => {
 })
 
 describe('Explore page', () => {
-  it('shows a dash with the reason for a suppressed estimate', async () => {
+  it('says "Not reported" with the reason for a suppressed estimate', async () => {
     renderAt('/explore/teen/mde_py?year=2024&group=race_ethnicity&level=nhopi')
     const card = within(await screen.findByRole('article', { name: 'Estimate' }))
-    const value = card.getByTestId('estimate-value')
-    expect(value).toHaveTextContent('—')
-    expect(within(value).getByRole('tooltip')).toHaveTextContent('Not reported: fewer than 50 respondents.')
-    expect(card.getByText(SUPPRESSED_TAKEAWAY)).toBeInTheDocument()
+    expect(card.getByTestId('estimate-value')).toHaveTextContent('Not reported')
+    expect(card.getByTestId('estimate-of')).toHaveTextContent('of non-Hispanic Native Hawaiian or Pacific Islander teens ages 12–17 · 2024')
+    expect(card.getAllByRole('tooltip')[0]).toHaveTextContent(SUPPRESSED_TAKEAWAY)
+    expect(card.getByText(SUPPRESSED_TAKEAWAY, { selector: 'p' })).toBeInTheDocument()
     expect(card.queryByText(/about 1 in/)).not.toBeInTheDocument()
-    expect(card.getByRole('link', { name: 'Try all years combined' })).toHaveAttribute('href', '/explore/teen/mde_py?year=all&group=race_ethnicity&level=nhopi')
+    // The pooled estimate is suppressed too, so the card does not offer it.
+    expect(card.queryByRole('link', { name: 'Try all years combined' })).not.toBeInTheDocument()
     expect(card.getByRole('link', { name: 'Try everyone' })).toHaveAttribute('href', '/explore/teen/mde_py?year=2024')
     expect((screen.getByLabelText('Population') as HTMLSelectElement).value).toBe('race_ethnicity:nhopi')
     // Every year is suppressed for this level, so there is no mini chart and no image to download.
     expect(screen.queryByRole('img', { name: /^Major depressive episode in the past year: / })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'PNG' })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'CSV' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Download chart (PNG)' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Download data (CSV)' })).toBeInTheDocument()
+  })
+  it('offers all years combined when the pooled estimate is reported', async () => {
+    const small = makeShard('teen', 'mde_py', [2021, 2022, 2023, 2024], [
+      { yearSet: '2024', group: 'race_ethnicity', level: 'nhopi', p: null },
+      { yearSet: 'all', group: 'race_ethnicity', level: 'nhopi', p: 0.15, n: 160 },
+    ])
+    mockData({ 'catalog.json': catalog, 'estimates/teen/mde_py.json': small })
+    renderAt('/explore/teen/mde_py?group=race_ethnicity&level=nhopi')
+    const card = within(await screen.findByRole('article', { name: 'Estimate' }))
+    expect(card.getByRole('link', { name: 'Try all years combined' })).toHaveAttribute('href', '/explore/teen/mde_py?year=all&group=race_ethnicity&level=nhopi')
+  })
+  it('words the note for an estimate of 0% or 100%', async () => {
+    const same = makeShard('teen', 'mde_py', [2021, 2022, 2023, 2024], [{ yearSet: '2024', group: 'race_ethnicity', level: 'nhopi', p: null, n: 63, reason: 'estimate is 0% or 100%' }])
+    mockData({ 'catalog.json': catalog, 'estimates/teen/mde_py.json': same })
+    renderAt('/explore/teen/mde_py?group=race_ethnicity&level=nhopi')
+    const card = within(await screen.findByRole('article', { name: 'Estimate' }))
+    expect(card.getByText("Everyone surveyed in this group gave the same answer, so this can't be estimated reliably.", { selector: 'p' })).toBeInTheDocument()
+    expect(card.getByText('answers from 63 teens')).toBeInTheDocument()
   })
   it('words the suppression note for an imprecise estimate', async () => {
     const imprecise = makeShard('teen', 'mde_py', [2021, 2022, 2023, 2024], [{ yearSet: '2024', group: 'sex', level: 'male', p: null, reason: 'estimate is too imprecise' }])
     mockData({ 'catalog.json': catalog, 'estimates/teen/mde_py.json': imprecise })
     renderAt('/explore/teen/mde_py?group=sex&level=male')
     const card = within(await screen.findByRole('article', { name: 'Estimate' }))
-    expect(card.getByText('This estimate is too imprecise to report reliably.')).toBeInTheDocument()
+    expect(card.getByText('This estimate is too imprecise to report reliably.', { selector: 'p' })).toBeInTheDocument()
   })
   it('shows the value, details and takeaway for a level, with the selected year highlighted', async () => {
     renderAt('/explore/teen/mde_py?year=2024&group=sex&level=female')
     const card = within(await screen.findByRole('article', { name: 'Estimate' }))
     expect(card.getByTestId('estimate-value')).toHaveTextContent('22%')
     expect(card.queryByText(/about 1 in 5 of/)).not.toBeInTheDocument()
-    expect(card.getByText("That's higher than all teens (14.8%).")).toBeInTheDocument()
+    expect(card.getByText("That's higher than all teens (15%).")).toBeInTheDocument()
     expect(screen.getByRole('img', { name: /^Major depressive episode in the past year: / }).querySelector('[data-highlighted="true"]')).not.toBeNull()
     expect(screen.getByLabelText('Population')).toHaveAttribute('title', 'Female')
     expect(screen.getByLabelText('Measure')).toHaveAttribute('title', 'Major depressive episode in the past year')
     // Every level of the chosen group, with the selected one highlighted and everyone as the reference.
-    const plot = screen.getByRole('img', { name: /by sex, 2024/ })
+    expect(screen.getByRole('heading', { level: 2, name: 'Compared with other groups · 2024' })).toBeInTheDocument()
+    const plot = screen.getByRole('table', { name: 'By sex' })
     expect(plot.querySelector('[data-level="female"][data-selected="true"]')).not.toBeNull()
     expect(plot.querySelector('[data-level="male"]')).not.toBeNull()
-    expect(plot.querySelector('[data-overall]')).not.toBeNull()
-    expect(plot.textContent).toContain('All teens 14.8%')
-    expect(card.getByText('20.2% to 23.4%')).toBeInTheDocument()
-    expect(card.getByText('5,251')).toBeInTheDocument()
+    expect(within(plot).getByRole('row', { name: /^All teens/ })).toHaveTextContent('15%')
+    expect(within(plot).getByRole('row', { name: /^Female/ })).toHaveTextContent('Higher')
+    expect(card.getByText(/^20\.2% to 23\.4%/)).toBeInTheDocument()
+    expect(card.getByText('answers from 5,251 teens')).toBeInTheDocument()
     expect(card.getByText('about 2.7 million')).toBeInTheDocument()
     expect(document.title).toBe('Major depressive episode in the past year · Teens · Mental Health Explorer')
   })
@@ -126,7 +146,28 @@ describe('Explore page', () => {
     renderAt('/explore/teen/mde_py?group=race_ethnicity&level=aian')
     const card = within(await screen.findByRole('article', { name: 'Estimate' }))
     expect(card.getByTestId('wide-margin')).toHaveTextContent('Wide margin of error')
-    expect(card.getByText(/^Between 2% and 15% of non-Hispanic American Indian or Alaska Native teens ages 12–17 /)).toBeInTheDocument()
+    expect(card.getByText(/^Between 2\.1% and 15% of non-Hispanic American Indian or Alaska Native teens ages 12–17 /)).toBeInTheDocument()
+    expect(card.getByTestId('estimate-value')).toHaveTextContent('2.1%–15%')
+    expect(card.getByText('best estimate 6.1%')).toBeInTheDocument()
     expect(card.queryByText(/about 1 in/)).not.toBeInTheDocument()
+  })
+  it('compares every group for everyone: eight tables for teens and nine for young adults', async () => {
+    renderAt('/explore/teen/mde_py?year=2024')
+    expect(await screen.findByRole('heading', { level: 2, name: 'Compared with other groups · 2024' })).toBeInTheDocument()
+    expect(screen.getAllByRole('table')).toHaveLength(8)
+    // Only sex has a significant group test in the fixture: female is higher and male lower.
+    const sex = within(screen.getByRole('table', { name: 'By sex' }))
+    expect(sex.getByRole('row', { name: /^Female/ })).toHaveTextContent('Higher')
+    expect(sex.getByRole('row', { name: /^Male/ })).toHaveTextContent('Lower')
+    expect(screen.getAllByText('Higher')).toHaveLength(1)
+    expect(screen.getAllByText('Lower')).toHaveLength(1)
+  })
+  it('compares nine groups for young adults', async () => {
+    mockData({ 'catalog.json': catalog, 'estimates/young_adult/mde_py.json': flatShard('young_adult', 'mde_py') })
+    renderAt('/explore/young_adult/mde_py')
+    expect(await screen.findByRole('heading', { level: 2, name: /^Compared with other groups/ })).toBeInTheDocument()
+    expect(screen.getAllByRole('table')).toHaveLength(9)
+    expect(screen.queryByText('Higher')).not.toBeInTheDocument()
+    expect(screen.queryByText('Lower')).not.toBeInTheDocument()
   })
 })

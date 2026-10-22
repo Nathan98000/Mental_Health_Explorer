@@ -1,95 +1,114 @@
-import { levelsFor, type Catalog, type Group, type Indicator, type Level } from '../lib/catalog'
-import { findCell, type Cell, type Cohort, type EstimateShard } from '../lib/data'
-import { formatPct, formatRange } from '../lib/format'
-import { truncateLabel } from '../lib/labels'
-import { useChartTheme } from '../lib/theme'
+import { levelsFor, type Catalog, type Group, type Level } from '../lib/catalog'
+import { findCell, vsOverall, type Cell, type Cohort, type EstimateShard } from '../lib/data'
+import { formatRange, formatShare } from '../lib/format'
+import { vsOverallKind, type VsOverallKind } from '../lib/takeaways'
+import { SuppressedValue } from './SuppressedValue'
 
 type Props = {
   catalog: Catalog
   cohort: Cohort
   shard: EstimateShard
-  indicator: Indicator
   group: Group
-  level: Level
+  /** The level picked in the filters, drawn bold with a highlighted dot. */
+  selected?: Level | null
   yearSet: string
-  /** e.g. "2024" or "2021–2024 combined". */
-  when: string
-  /** Short cohort noun for the reference line, e.g. "teens". */
+  /** The cohort noun with the measure's denominator clause, e.g. "teens" or "teens who had a major depressive episode in the past year". */
   people: string
 }
 
-// A narrow canvas so the plot, scaled to the card's width, stays legible on phones.
-const W = 440
-const LABEL_W = 150
-const LEFT = LABEL_W + 10
-const RIGHT = W - 52
-const ROW = 30
-const TOP = 30
-const AXIS = 24
+const KIND_LABEL: Record<VsOverallKind, string> = { higher: 'Higher', lower: 'Lower', similar: 'Similar' }
+/** Axis ends in percent; the midpoint of each is a whole number too. */
+const NICE_MAX = [2, 4, 6, 8, 10, 12, 16, 20, 24, 30, 40, 50, 60, 80, 100]
 
-function value(cell: Cell | undefined): cell is Cell & { p: number; lo: number; hi: number } {
+function shown(cell: Cell | undefined): cell is Cell & { p: number; lo: number; hi: number } {
   return !!cell && !cell.suppressed && cell.p !== null && cell.lo !== null && cell.hi !== null
 }
 
-/** Every level of the selected group for the chosen year: dots with 95% whiskers, the selected level highlighted, everyone as a reference line. Plain SVG. */
-export function GroupDotPlot({ catalog, cohort, shard, indicator, group, level, yearSet, when, people }: Props) {
-  const theme = useChartTheme()
-  const rows = levelsFor(catalog, cohort, group).map((l) => ({ level: l, cell: findCell(shard, yearSet, group.id, l.id) }))
+/**
+ * Every level of one group for the chosen years, as a table: the estimate with its 95% interval drawn as a bar and a dot
+ * on a scale shared across the table, and whether it differs from everyone (only when both tests say so).
+ * The first row is everyone, also drawn as a vertical reference line.
+ */
+export function GroupDotPlot({ catalog, cohort, shard, group, selected, yearSet, people }: Props) {
   const overall = findCell(shard, yearSet)
-  const shown = rows.filter((r) => value(r.cell))
-  if (!shown.length) return null
-  const overallP = value(overall) ? overall.p : null
-  const max = Math.max(0.02, ...shown.map((r) => (r.cell as Cell).hi as number), overallP ?? 0) * 1.12
-  const x = (p: number) => LEFT + ((RIGHT - LEFT) * p) / max
-  const height = TOP + rows.length * ROW + AXIS
-  const step = max > 0.4 ? 0.2 : max > 0.2 ? 0.1 : max > 0.1 ? 0.05 : max > 0.04 ? 0.02 : 0.01
-  const ticks: number[] = []
-  for (let t = 0; t <= max; t += step) ticks.push(Number(t.toFixed(4)))
-  const description = rows
-    .map((r) => `${r.level.label}: ${value(r.cell) ? `${formatPct(r.cell.p, 1)} (${formatRange(r.cell.lo, r.cell.hi)})` : 'not reported'}`)
-    .join('; ')
-  return (
-    <figure className="m-0 mt-4 rounded-3xl bg-surface p-6 ring-1 ring-line">
-      <h2 className="m-0 font-display text-lg font-bold text-ink">Compared with other groups by {group.label.toLowerCase()}</h2>
-      <svg viewBox={`0 0 ${W} ${height}`} className="mt-3 h-auto w-full" role="img" aria-label={`${indicator.label} by ${group.label.toLowerCase()}, ${when}. ${description}${overallP !== null ? `. All ${people}: ${formatPct(overallP, 1)}` : ''}`} style={{ fontFamily: 'Inter Variable, system-ui, sans-serif', fontSize: 12 }}>
-        {ticks.map((t) => (
-          <g key={t}>
-            <line x1={x(t)} x2={x(t)} y1={TOP - 6} y2={height - AXIS} stroke={theme.grid} />
-            <text x={x(t)} y={height - 6} textAnchor="middle" fill={theme.muted} fontSize={11}>{`${Math.round(t * 100)}%`}</text>
-          </g>
-        ))}
-        {overallP !== null ? (
-          <g data-overall={overallP}>
-            <line x1={x(overallP)} x2={x(overallP)} y1={TOP - 14} y2={height - AXIS} stroke={theme.ink2} strokeWidth={1.5} />
-            <text x={x(overallP)} y={TOP - 18} textAnchor="middle" fill={theme.ink2} fontSize={11} fontWeight={600}>{`All ${people} ${formatPct(overallP, 1)}`}</text>
-          </g>
+  const rows = levelsFor(catalog, cohort, group).map((l) => {
+    const cell = findCell(shard, yearSet, group.id, l.id)
+    const test = vsOverall(shard, yearSet, group.id, l.id)
+    return { level: l, cell, kind: test ? vsOverallKind(test.overallSignificant, test.diff, test.pValue) : null }
+  })
+  const highs = [...rows.map((r) => (shown(r.cell) ? r.cell.hi : 0)), shown(overall) ? overall.hi : 0]
+  const maxPct = NICE_MAX.find((m) => m >= Math.max(...highs) * 100) ?? 100
+  const pos = (p: number) => `${Math.min(100, (p * 100 * 100) / maxPct)}%`
+  const overallLine = shown(overall) ? <span className="absolute inset-y-0 w-px bg-ink-2" style={{ left: pos(overall.p) }} /> : null
+  const td = 'border-b border-line py-2 pr-3 align-middle'
+
+  const visual = (cell: Cell | undefined, strong: boolean) => (
+    <td className={`${td} w-[34%] min-w-20`} aria-hidden="true">
+      <div className="relative h-6">
+        {overallLine}
+        {shown(cell) ? (
+          <>
+            <span className={`absolute top-1/2 h-1 -translate-y-1/2 rounded-full ${strong ? 'bg-primary/45' : 'bg-ink-2/30'}`} style={{ left: pos(cell.lo), width: `calc(${pos(cell.hi)} - ${pos(cell.lo)})` }} />
+            <span
+              className={`absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-surface ${strong ? 'bg-primary' : 'bg-ink-2'}`}
+              style={{ left: pos(cell.p) }}
+              data-dot={strong ? 'selected' : ''}
+            />
+          </>
         ) : null}
-        {rows.map((r, i) => {
-          const cy = TOP + i * ROW + ROW / 2
-          const selected = r.level.id === level.id
-          const color = selected ? theme.primary : theme.ink2
+      </div>
+    </td>
+  )
+
+  const estimate = (cell: Cell | undefined) => {
+    if (!cell) return <span className="text-muted">Not available</span>
+    if (!shown(cell)) return <SuppressedValue reason={cell.reason} />
+    return (
+      <>
+        {formatShare(cell.p)}
+        <span className="sr-only"> (95% confidence interval {formatRange(cell.lo, cell.hi)})</span>
+      </>
+    )
+  }
+
+  return (
+    <table className="tabular w-full border-collapse text-sm text-ink" data-group={group.id}>
+      <caption className="pb-1 text-left font-display text-base font-bold text-ink">By {group.label.toLowerCase()}</caption>
+      <thead>
+        <tr className="text-left align-bottom text-ink-2">
+          <th scope="col" className="border-b border-line py-2 pr-3 font-semibold">{group.label}</th>
+          <td className="border-b border-line py-2 pr-3" aria-hidden="true">
+            <div className="relative h-4 text-xs text-muted">
+              <span className="absolute left-0">0%</span>
+              <span className="absolute -translate-x-1/2" style={{ left: '50%' }}>{maxPct / 2}%</span>
+              <span className="absolute right-0">{maxPct}%</span>
+            </div>
+          </td>
+          <th scope="col" className="border-b border-line py-2 pr-3 font-semibold">Estimate</th>
+          <th scope="col" className="border-b border-line py-2 font-semibold">Compared with all {people}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-overall="">
+          <th scope="row" className={`${td} text-left font-semibold`}>All {people}</th>
+          {visual(overall, false)}
+          <td className={`${td} font-semibold`}>{estimate(overall)}</td>
+          <td className={`${td} pr-0`} />
+        </tr>
+        {rows.map((r) => {
+          const isSelected = r.level.id === selected?.id
           return (
-            <g key={r.level.id} data-level={r.level.id} data-selected={selected ? 'true' : undefined}>
-              <text x={LABEL_W} y={cy} dy="0.35em" textAnchor="end" fill={selected ? theme.ink : theme.ink2} fontWeight={selected ? 700 : 400}>
-                <title>{r.level.label}</title>
-                {truncateLabel(r.level.label, 22)}
-              </text>
-              {value(r.cell) ? (
-                <>
-                  <line x1={x(r.cell.lo)} x2={x(r.cell.hi)} y1={cy} y2={cy} stroke={color} strokeWidth={selected ? 2.5 : 1.5} strokeOpacity={selected ? 1 : 0.7} />
-                  <circle cx={x(r.cell.p)} cy={cy} r={selected ? 6 : 4.5} fill={color} stroke={theme.surface} strokeWidth={1.5} />
-                  <text x={Math.min(x(r.cell.hi) + 8, W - 4)} y={cy} dy="0.35em" fill={selected ? theme.ink : theme.ink2} fontWeight={selected ? 700 : 400} fontSize={11}>{formatPct(r.cell.p, 1)}</text>
-                </>
-              ) : (
-                <text x={LEFT} y={cy} dy="0.35em" fill={theme.muted} fontSize={11}>Not reported</text>
-              )}
-            </g>
+            <tr key={r.level.id} data-level={r.level.id} data-selected={isSelected ? 'true' : undefined}>
+              <th scope="row" className={`${td} text-left ${isSelected ? 'font-bold' : 'font-normal'}`} data-group-label="">
+                {r.level.label}
+              </th>
+              {visual(r.cell, isSelected)}
+              <td className={`${td} ${isSelected ? 'font-bold' : ''}`}>{estimate(r.cell)}</td>
+              <td className={`${td} pr-0`}>{shown(r.cell) && r.kind ? KIND_LABEL[r.kind] : null}</td>
+            </tr>
           )
         })}
-      </svg>
-      <figcaption className="mt-2 text-sm text-muted">
-        Dots are estimates and the lines through them 95% confidence intervals, {when}. The vertical line is all {people}.
-      </figcaption>
-    </figure>
+      </tbody>
+    </table>
   )
 }

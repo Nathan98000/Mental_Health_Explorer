@@ -1,4 +1,4 @@
-import { formatPct } from './format'
+import { formatShare } from './format'
 
 export type SparkPoint = { year: number; p: number | null }
 
@@ -6,7 +6,7 @@ export type SparkPoint = { year: number; p: number | null }
 export function describeSparkline(points: SparkPoint[], years: readonly number[]): string {
   return years.map((y) => {
     const point = points.find((d) => d.year === y)
-    return `${y}: ${point && point.p !== null ? formatPct(point.p) : 'not available'}`
+    return `${y}: ${point && point.p !== null ? formatShare(point.p) : 'not available'}`
   }).join(', ')
 }
 
@@ -65,7 +65,7 @@ export function labeledSparklineSvg(points: SparkPoint[], years: readonly number
   for (const d of segments) svg.append(node('polyline', { points: d, fill: 'none', stroke: colors.primary, 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }))
   for (const d of dots) {
     svg.append(node('circle', { cx: d.cx, cy: d.cy, r: 4.5, fill: colors.primary }))
-    svg.append(node('text', { x: d.cx, y: d.cy - 10, 'text-anchor': 'middle', fill: colors.ink, 'font-weight': 600 }, formatPct(d.p, 1)))
+    svg.append(node('text', { x: d.cx, y: d.cy - 10, 'text-anchor': 'middle', fill: colors.ink, 'font-weight': 600 }, formatShare(d.p)))
   }
   return svg
 }

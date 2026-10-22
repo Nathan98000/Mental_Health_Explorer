@@ -2,12 +2,15 @@
  * Chart exports: CSV of the rows behind a view, SVG and PNG of a chart framed with a title,
  * subtitle, legend and source line (every var(--token) resolved to a color first), and a citation.
  */
-import { SITE_NAME } from './site'
+import { CRISIS_TEXT } from '../components/CrisisNote'
+import { EARLY_PREVIEW, SITE_NAME } from './site'
 
 export type CsvRow = {
   cohort: string
   /** Indicator id, e.g. "mde_py". */
   measure: string
+  /** The measure's label from the catalog, e.g. "Major depressive episode in the past year". */
+  measureLabel: string
   /** The year or span the row pools, e.g. "2024" or "2021–2024". */
   years: string
   population: string
@@ -20,7 +23,7 @@ export type CsvRow = {
   weight: string
 }
 
-export const CSV_COLUMNS = ['cohort', 'measure', 'years', 'population', 'estimate_pct', 'ci_low_pct', 'ci_high_pct', 'responses', 'suppressed', 'weight_variable'] as const
+export const CSV_COLUMNS = ['cohort', 'measure', 'measure_label', 'years', 'population', 'estimate_pct', 'ci_low_pct', 'ci_high_pct', 'responses', 'suppressed', 'weight_variable'] as const
 
 function csvField(value: string | number | boolean | null): string {
   if (value === null) return ''
@@ -33,9 +36,10 @@ function pct(value: number | null): string {
   return value === null ? '' : (value * 100).toFixed(1)
 }
 
+/** CSV text with a byte-order mark first, so spreadsheet apps read the en dashes as UTF-8. */
 export function toCsv(rows: CsvRow[]): string {
-  const lines = rows.map((r) => [r.cohort, r.measure, r.years, r.population, pct(r.p), pct(r.lo), pct(r.hi), r.n, r.suppressed, r.weight].map(csvField).join(','))
-  return [CSV_COLUMNS.join(','), ...lines].join('\n') + '\n'
+  const lines = rows.map((r) => [r.cohort, r.measure, r.measureLabel, r.years, r.population, pct(r.p), pct(r.lo), pct(r.hi), r.n, r.suppressed, r.weight].map(csvField).join(','))
+  return '\ufeff' + [CSV_COLUMNS.join(','), ...lines].join('\n') + '\n'
 }
 
 export function downloadBlob(filename: string, blob: Blob): void {
@@ -99,14 +103,20 @@ export function resolveCssVars(text: string, lookup: CssVarLookup): string {
   return out
 }
 
-export type ExportLegendItem = { label: string; color: string; dashed?: boolean }
+export type ExportLegendItem = { label: string; color: string }
 
 export type ExportFrame = {
   title: string
-  /** Population and years, e.g. "teens ages 12–17 · 2021–2024". */
+  /** Population and years, e.g. "Teens ages 12–17, by sex · 2021–2024". */
   subtitle?: string
   /** Given when there are several series. */
   legend?: ExportLegendItem[]
+  /** Sentences drawn between the chart and the source line (intervals, survey changes, gaps). */
+  notes?: string[]
+  /** Suicide measures: the 988 note is the last note. */
+  crisis?: boolean
+  /** The page the chart is from, added to the source line. */
+  url?: string
   source?: string
   /** Text colors; the light theme by default. */
   ink?: string
@@ -126,6 +136,41 @@ function chartSize(svg: SVGSVGElement): { width: number; height: number } {
 
 const PAD = 20
 const CHAR_WIDTH = 6.5
+const NOTE_LINE = 16
+
+/** Upper-case the first letter, e.g. "teens ages 12–17 · 2024" -> "Teens ages 12–17 · 2024". */
+export function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
+/** Break text into lines of at most `max` characters at spaces; a longer word (a URL) is split after a slash where it can be. */
+export function wrapText(text: string, max: number): string[] {
+  const lines: string[] = []
+  let line = ''
+  for (let word of text.split(/\s+/).filter(Boolean)) {
+    while (word.length > max) {
+      if (line) lines.push(line)
+      const slash = word.lastIndexOf('/', max - 1)
+      const cut = slash > 0 ? slash + 1 : max
+      lines.push(word.slice(0, cut))
+      word = word.slice(cut)
+      line = ''
+    }
+    if (!line) line = word
+    else if (line.length + 1 + word.length <= max) line += ` ${word}`
+    else {
+      lines.push(line)
+      line = word
+    }
+  }
+  if (line) lines.push(line)
+  return lines
+}
+
+/** The line under every exported image: the data source, the page and, while the site is in preview, a note saying so. */
+export function exportSource(url?: string): string {
+  return [EXPORT_SOURCE, url, EARLY_PREVIEW ? 'Early preview' : null].filter(Boolean).join(' · ')
+}
 
 /** A stand-alone copy of the chart (var() resolved, explicit size), framed with a title, subtitle, legend and source line. */
 export function framedSvg(svg: SVGSVGElement, background: string, frame?: ExportFrame, lookup: CssVarLookup = rootCssVarLookup()): { markup: string; width: number; height: number } {
@@ -162,9 +207,7 @@ export function framedSvg(svg: SVGSVGElement, background: string, frame?: Export
           x = PAD
           y += 18
         }
-        const swatch = svgEl('line', { x1: x, y1: y - 4, x2: x + 18, y2: y - 4, stroke: item.color, 'stroke-width': 2.5 })
-        if (item.dashed) swatch.setAttribute('stroke-dasharray', '5 4')
-        root.append(swatch)
+        root.append(svgEl('line', { x1: x, y1: y - 4, x2: x + 18, y2: y - 4, stroke: item.color, 'stroke-width': 2.5 }))
         root.append(svgEl('text', { x: x + 24, y, fill: ink, 'font-size': 12, 'data-export-legend': '' }, item.label))
         x += itemWidth
       }
@@ -172,9 +215,21 @@ export function framedSvg(svg: SVGSVGElement, background: string, frame?: Export
     chartTop = y + 12
     chart.setAttribute('x', '0')
     chart.setAttribute('y', String(chartTop))
-    total = chartTop + height + 22 + PAD
     root.append(chart)
-    root.append(svgEl('text', { x: PAD, y: chartTop + height + 22, fill: muted, 'font-size': 11, 'data-export-source': '' }, frame.source ?? EXPORT_SOURCE))
+    const max = Math.max(20, Math.floor((width - 2 * PAD) / CHAR_WIDTH))
+    let line = chartTop + height + 4
+    for (const note of [...(frame.notes ?? []), ...(frame.crisis ? [CRISIS_TEXT] : [])]) {
+      for (const text of wrapText(note, max)) {
+        line += NOTE_LINE
+        root.append(svgEl('text', { x: PAD, y: line, fill: ink, 'font-size': 12, 'data-export-note': '' }, text))
+      }
+      line += 4
+    }
+    for (const text of wrapText(frame.source ?? exportSource(frame.url), Math.floor((width - 2 * PAD) / 6))) {
+      line += 15
+      root.append(svgEl('text', { x: PAD, y: line, fill: muted, 'font-size': 11, 'data-export-source': '' }, text))
+    }
+    total = line + PAD
   } else {
     root.append(chart)
   }

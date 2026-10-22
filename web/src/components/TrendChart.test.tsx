@@ -87,7 +87,7 @@ describe('TrendChart', () => {
     expect(table.getByRole('row', { name: /2022/ })).toHaveTextContent('13.9% (13.0% to 14.8%)')
     const suppressed = table.getByRole('row', { name: /2023/ })
     expect(suppressed).toHaveTextContent('—')
-    expect(within(suppressed).getByRole('tooltip')).toHaveTextContent('Not reported: estimate is too imprecise.')
+    expect(within(suppressed).getByRole('tooltip')).toHaveTextContent('This estimate is too imprecise to report reliably.')
   })
 })
 
@@ -117,7 +117,7 @@ describe('end labels', () => {
     render(<TrendChart title="Split" rows={rows} series={['Male', 'Female', LONG]} years={SURVEY_YEARS} />)
     const svg = screen.getByRole('img', { name: 'Split' })
     const labels = [...svg.querySelectorAll('[data-end-label]')]
-    expect(labels.map((l) => l.textContent)).toEqual(['Male 12.0%', 'Female 12.2%'])
+    expect(labels.map((l) => l.textContent)).toEqual(['Male 12%', 'Female 12%'])
     const ys = labels.map((l) => Number(l.getAttribute('y')))
     expect(Math.abs(ys[0] - ys[1])).toBeGreaterThanOrEqual(16)
     expect(labels.every((l) => l.getAttribute('style')?.includes('text-anchor: start'))).toBe(true)
@@ -127,7 +127,7 @@ describe('end labels', () => {
   })
   it('shows the value alone for a single series and nothing when the final year is missing', () => {
     render(<TrendChart title="Vaping" rows={rows} series={['All teens']} years={SURVEY_YEARS} />)
-    expect([...screen.getByRole('img', { name: 'Vaping' }).querySelectorAll('[data-end-label]')].map((l) => l.textContent)).toEqual(['12.0%'])
+    expect([...screen.getByRole('img', { name: 'Vaping' }).querySelectorAll('[data-end-label]')].map((l) => l.textContent)).toEqual(['12%'])
     const noFinal = seriesRows('All teens', [0.1, 0.11, 0.12, null])
     render(<TrendChart title="Short" rows={noFinal} series={['All teens']} years={SURVEY_YEARS} />)
     expect(screen.getByRole('img', { name: 'Short' }).querySelectorAll('[data-end-label]')).toHaveLength(0)
@@ -154,16 +154,26 @@ describe('end labels', () => {
 })
 
 describe('comparison styling', () => {
-  it('marks the compared years and dashes series whose change is not significant', () => {
-    const rows = [...seriesRows('Male', [0.1, 0.11, 0.115, 0.12]), ...seriesRows('Female', [0.2, 0.19, 0.15, 0.122])]
-    render(<TrendChart title="Compared" rows={rows} series={['Male', 'Female']} years={SURVEY_YEARS} caption="Share." comparison={{ yearA: 2021, yearB: 2024, significant: ['Female'] }} />)
+  it('draws every series solid and marks the compared years with larger dots', () => {
+    // A third series has no 2021 point, so it gets no compared dots.
+    const rows = [...seriesRows('Male', [0.1, 0.11, 0.115, 0.12]), ...seriesRows('Female', [0.2, 0.19, 0.15, 0.122]), ...seriesRows('Other', [null, 0.3, 0.31, 0.32])]
+    render(<TrendChart title="Compared" rows={rows} series={['Male', 'Female', 'Other']} years={SURVEY_YEARS} caption="Share." comparison={{ yearA: 2021, yearB: 2024 }} />)
     const svg = screen.getByRole('img', { name: 'Compared' })
-    expect([...svg.querySelectorAll('[data-compared-year]')].map((l) => l.getAttribute('data-compared-year'))).toEqual(['2021', '2024'])
-    expect(svg.querySelector('[stroke-dasharray="6 4"]')).not.toBeNull()
-    expect(screen.getByText(/Dashed lines: the change from 2021 to 2024 is not statistically significant/)).toBeInTheDocument()
-    const legend = within(screen.getByRole('list', { name: 'Legend' }))
-    expect(legend.getByText('Male').querySelector('line')).toHaveAttribute('stroke-dasharray', '4 3')
-    expect(legend.getByText('Female').querySelector('line')).not.toHaveAttribute('stroke-dasharray')
+    expect(svg.querySelector('[stroke-dasharray="6 4"]')).toBeNull()
+    expect(svg.querySelector('[data-compared-year]')).toBeNull()
+    expect(svg.querySelectorAll('[data-compared-point]')).toHaveLength(2 * 2)
+    expect(screen.getByText(/Larger dots mark 2021 and 2024, the years compared in the table\./)).toBeInTheDocument()
+    expect(screen.queryByText(/Dashed lines/)).not.toBeInTheDocument()
+    const legend = screen.getByRole('list', { name: 'Legend' })
+    expect(legend.querySelector('[stroke-dasharray]')).toBeNull()
+  })
+  it('gives each of three or more series its own dot shape, in the legend too', () => {
+    const names = ['A', 'B', 'C', 'D']
+    const rows = names.flatMap((n, i) => seriesRows(n, [0.1 + i * 0.05, 0.11 + i * 0.05, 0.12 + i * 0.05, 0.13 + i * 0.05]))
+    render(<TrendChart title="Shapes" rows={rows} series={names} years={SURVEY_YEARS} />)
+    const symbols = [...screen.getByRole('list', { name: 'Legend' }).querySelectorAll('[data-symbol]')].map((n) => n.getAttribute('data-symbol'))
+    expect(symbols).toHaveLength(4)
+    expect(new Set(symbols).size).toBe(4)
   })
 })
 
@@ -184,6 +194,6 @@ describe('legend and intervals', () => {
   it('keeps shaded bands for one or two series and takes explicit colors', () => {
     render(<TrendChart title="Bands" rows={rows} series={['All teens']} years={SURVEY_YEARS} colors={['#c2410c']} />)
     expect(screen.getByText(/Shaded bands show 95% confidence intervals/)).toBeInTheDocument()
-    expect(within(screen.getByRole('list', { name: 'Legend' })).getByText('All teens').querySelector('line')).toHaveAttribute('stroke', '#c2410c')
+    expect(within(screen.getByRole('list', { name: 'Legend' })).getByText('All teens').closest('li')?.querySelector('line')).toHaveAttribute('stroke', '#c2410c')
   })
 })

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { downloadPng, downloadSvg, downloadText, type ExportLegendItem } from '../lib/exports'
+import { downloadPng, downloadSvg, downloadText, type ExportFrame } from '../lib/exports'
 import { useChartTheme } from '../lib/theme'
 
 type Props = {
@@ -9,11 +9,11 @@ type Props = {
   /** Base file name without extension. */
   filename: string
   citation: string
-  /** What the exported image is framed with; the source line is always added. */
-  frame: { title: string; subtitle?: string; legend?: ExportLegendItem[] }
+  /** What the exported image is framed with: title, subtitle, legend, notes, the 988 note and the page URL; the source line is always added. */
+  frame: Omit<ExportFrame, 'ink' | 'muted' | 'source'>
 }
 
-/** Download links for a chart (CSV, PNG, SVG) and a copyable citation. */
+/** Download buttons for a chart (data as CSV, the chart as PNG, SVG under "More formats") and a copyable citation. */
 export function ChartExports({ getSvg, csv, filename, citation, frame }: Props) {
   const theme = useChartTheme()
   const [message, setMessage] = useState<string | null>(null)
@@ -53,20 +53,24 @@ export function ChartExports({ getSvg, csv, filename, citation, frame }: Props) 
   return (
     <div className="mt-3 text-sm text-ink-2">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="font-semibold">Download:</span>
-        <button type="button" className={buttonClass} onClick={() => downloadText(`${filename}.csv`, csv, 'text/csv')}>CSV</button>
+        <button type="button" className={buttonClass} onClick={() => downloadText(`${filename}.csv`, csv, 'text/csv;charset=utf-8')}>Download data (CSV)</button>
         {getSvg ? (
-          <>
-            <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadPng(svg, `${filename}.png`, theme.surface, exportFrame))}>PNG</button>
-            <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadSvg(svg, `${filename}.svg`, theme.surface, exportFrame))}>SVG</button>
-          </>
+          <button type="button" className={buttonClass} onClick={withSvg((svg) => downloadPng(svg, `${filename}.png`, theme.surface, exportFrame))}>Download chart (PNG)</button>
         ) : null}
         <button type="button" className={buttonClass} onClick={copy} aria-live="polite">{copied ? 'Copied' : 'Copy citation'}</button>
       </div>
-      <details className="mt-2">
-        <summary className="cursor-pointer text-xs font-semibold text-ink-2">Cite this</summary>
-        <p className="m-0 mt-1 wrap-anywhere text-xs leading-relaxed text-muted">{citation}</p>
-      </details>
+      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
+        {getSvg ? (
+          <details>
+            <summary className="cursor-pointer text-xs font-semibold text-ink-2">More formats</summary>
+            <button type="button" className={`${buttonClass} mt-2`} onClick={withSvg((svg) => downloadSvg(svg, `${filename}.svg`, theme.surface, exportFrame))}>Download chart (SVG)</button>
+          </details>
+        ) : null}
+        <details>
+          <summary className="cursor-pointer text-xs font-semibold text-ink-2">Cite this</summary>
+          <p className="m-0 mt-1 wrap-anywhere text-xs leading-relaxed text-muted">{citation}</p>
+        </details>
+      </div>
       <p className="m-0 mt-1 min-h-5 text-xs" role="status">{message}</p>
     </div>
   )

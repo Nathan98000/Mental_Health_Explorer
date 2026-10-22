@@ -1,4 +1,4 @@
-import { changeKind, changeLabel, changeSentence, IMPRECISE_TAKEAWAY, isWideInterval, levelSentence, SUPPRESSED_TAKEAWAY, suppressedTakeaway, takeaway, vsOverallSentence } from './takeaways'
+import { changeKind, changeSentence, countWord, IMPRECISE_TAKEAWAY, isWideInterval, levelSentence, SAME_ANSWER_TAKEAWAY, SUPPRESSED_TAKEAWAY, suppressedTakeaway, takeaway, tileChange, vsOverallKind, vsOverallSentence } from './takeaways'
 
 const level = { p: 0.14837, population: 'teens ages 12–17', phrase: 'had a major depressive episode in the past year', when: '2024' }
 
@@ -36,44 +36,67 @@ describe('changeKind', () => {
 })
 
 describe('changeSentence', () => {
-  it('says down from when the change is significant and negative, with one decimal for the compared value', () => {
-    expect(changeSentence({ priorP: 0.20537, priorYear: 2021, diff: -0.057, pValue: 0 })).toBe("That's down from 20.5% in 2021.")
+  it('says down from when the change is significant and negative, rounding the compared value with the latest one', () => {
+    expect(changeSentence({ priorP: 0.20537, priorYear: 2021, diff: -0.057, pValue: 0, p: 0.14837 })).toBe("That's down from 21% in 2021.")
   })
   it('says up from when significant and positive', () => {
-    expect(changeSentence({ priorP: 0.1, priorYear: 2022, diff: 0.03, pValue: 0.01 })).toBe("That's up from 10.0% in 2022.")
+    expect(changeSentence({ priorP: 0.1, priorYear: 2022, diff: 0.03, pValue: 0.01, p: 0.13 })).toBe("That's up from 10% in 2022.")
   })
   it('says about the same when not significant', () => {
-    expect(changeSentence({ priorP: 0.20537, priorYear: 2021, diff: -0.012, pValue: 0.19 })).toBe("That's about the same as in 2021 (20.5%).")
+    expect(changeSentence({ priorP: 0.20537, priorYear: 2021, diff: -0.012, pValue: 0.19, p: 0.19322 })).toBe("That's about the same as in 2021 (21%).")
+  })
+  it('gives one decimal when the two values would otherwise read the same', () => {
+    expect(changeSentence({ priorP: 0.343, priorYear: 2021, diff: -0.005, pValue: 0.6, p: 0.338 })).toBe("That's about the same as in 2021 (34.3%).")
   })
   it('is null when the change cannot be tested', () => {
-    expect(changeSentence({ priorP: 0.2, priorYear: 2021, diff: null, pValue: null })).toBeNull()
+    expect(changeSentence({ priorP: 0.2, priorYear: 2021, diff: null, pValue: null, p: 0.2 })).toBeNull()
   })
 })
 
-describe('changeLabel', () => {
-  it('labels every kind', () => {
-    expect(changeLabel('fell', 2021)).toBe('Fell since 2021')
-    expect(changeLabel('rose', 2022)).toBe('Rose since 2022')
-    expect(changeLabel('same', 2021)).toBe('About the same as 2021')
+describe('tileChange', () => {
+  it('words every kind like the explorer sentences', () => {
+    expect(tileChange('fell', 0.20537, 2021, 0.14837)).toBe('↓ Down from 21% in 2021')
+    expect(tileChange('rose', 0.052, 2022, 0.071)).toBe('↑ Up from 5.2% in 2022')
+    expect(tileChange('same', 0.11, 2021, 0.104)).toBe('About the same as in 2021 (11%)')
+    expect(tileChange('same', 0.104, 2021, 0.0996)).toBe('About the same as in 2021 (10.4%)')
   })
 })
 
 describe('vsOverallSentence', () => {
-  const base = { overallP: 0.14837, people: 'teens' }
-  it('says higher when both the group test and the level test are significant, with one decimal for the compared value', () => {
-    expect(vsOverallSentence({ ...base, overallSignificant: true, diff: 0.069, pValue: 0 })).toBe("That's higher than all teens (14.8%).")
+  const base = { overallP: 0.14837, p: 0.21777, people: 'teens' }
+  it('says higher when both the group test and the level test are significant', () => {
+    expect(vsOverallSentence({ ...base, overallSignificant: true, diff: 0.069, pValue: 0 })).toBe("That's higher than all teens (15%).")
   })
   it('says lower for a negative difference', () => {
-    expect(vsOverallSentence({ ...base, overallSignificant: true, diff: -0.066, pValue: 0.001 })).toBe("That's lower than all teens (14.8%).")
+    expect(vsOverallSentence({ ...base, p: 0.0821, overallSignificant: true, diff: -0.066, pValue: 0.001 })).toBe("That's lower than all teens (15%).")
   })
   it('says similar when the group test is not significant, even if the level test is', () => {
-    expect(vsOverallSentence({ ...base, overallSignificant: false, diff: 0.069, pValue: 0.001 })).toBe("That's similar to all teens (14.8%).")
+    expect(vsOverallSentence({ ...base, overallSignificant: false, diff: 0.069, pValue: 0.001 })).toBe("That's similar to all teens (15%).")
   })
   it('says similar when the level test is not significant', () => {
-    expect(vsOverallSentence({ ...base, overallSignificant: true, diff: 0.01, pValue: 0.4 })).toBe("That's similar to all teens (14.8%).")
+    expect(vsOverallSentence({ ...base, overallSignificant: true, diff: 0.01, pValue: 0.4 })).toBe("That's similar to all teens (15%).")
   })
   it('says similar when the level was not tested', () => {
-    expect(vsOverallSentence({ ...base, overallSignificant: true, diff: null, pValue: null })).toBe("That's similar to all teens (14.8%).")
+    expect(vsOverallSentence({ ...base, overallSignificant: true, diff: null, pValue: null })).toBe("That's similar to all teens (15%).")
+  })
+})
+
+describe('vsOverallKind', () => {
+  it('needs both tests for higher or lower, and is null without a test', () => {
+    expect(vsOverallKind(true, 0.069, 0)).toBe('higher')
+    expect(vsOverallKind(true, -0.066, 0.001)).toBe('lower')
+    expect(vsOverallKind(false, 0.069, 0)).toBe('similar')
+    expect(vsOverallKind(true, 0.01, 0.4)).toBe('similar')
+    expect(vsOverallKind(true, null, null)).toBeNull()
+  })
+})
+
+describe('countWord', () => {
+  it('spells out one to ten and keeps larger numbers as digits', () => {
+    expect(countWord(1)).toBe('one')
+    expect(countWord(4)).toBe('four')
+    expect(countWord(10)).toBe('ten')
+    expect(countWord(11)).toBe('11')
   })
 })
 
@@ -82,7 +105,11 @@ describe('takeaway', () => {
     expect(takeaway({ suppressed: true, level })).toEqual([SUPPRESSED_TAKEAWAY])
     expect(takeaway({ suppressed: false, level: null })).toEqual([SUPPRESSED_TAKEAWAY])
     expect(takeaway({ suppressed: true, reason: 'estimate is too imprecise', level: null })).toEqual([IMPRECISE_TAKEAWAY])
-    expect(suppressedTakeaway('fewer than 50 respondents')).toBe(SUPPRESSED_TAKEAWAY)
+  })
+  it('has one sentence for each suppression reason', () => {
+    expect(suppressedTakeaway('fewer than 50 respondents')).toBe('Not enough responses to report this reliably.')
+    expect(suppressedTakeaway('estimate is too imprecise')).toBe('This estimate is too imprecise to report reliably.')
+    expect(suppressedTakeaway('estimate is 0% or 100%')).toBe("Everyone surveyed in this group gave the same answer, so this can't be estimated reliably.")
     expect(suppressedTakeaway('no respondents')).toBe(SUPPRESSED_TAKEAWAY)
     expect(suppressedTakeaway(null)).toBe(SUPPRESSED_TAKEAWAY)
   })
@@ -93,17 +120,17 @@ describe('takeaway', () => {
     const sentences = takeaway({
       suppressed: false,
       level: { ...level, population: 'female teens ages 12–17', p: 0.21777 },
-      change: { priorP: 0.29752, priorYear: 2021, diff: -0.07975, pValue: 0 },
-      vsOverall: { overallP: 0.14837, people: 'teens', overallSignificant: true, diff: 0.069, pValue: 0 },
+      change: { priorP: 0.29752, priorYear: 2021, diff: -0.07975, pValue: 0, p: 0.21777 },
+      vsOverall: { overallP: 0.14837, p: 0.21777, people: 'teens', overallSignificant: true, diff: 0.069, pValue: 0 },
     })
     expect(sentences).toEqual([
       'About 1 in 5 female teens ages 12–17 had a major depressive episode in the past year (22%, 2024).',
-      "That's down from 29.8% in 2021.",
-      "That's higher than all teens (14.8%).",
+      "That's down from 30% in 2021.",
+      "That's higher than all teens (15%).",
     ])
   })
   it('skips an untestable change', () => {
-    expect(takeaway({ suppressed: false, level, change: { priorP: 0.2, priorYear: 2021, diff: null, pValue: null } })).toHaveLength(1)
+    expect(takeaway({ suppressed: false, level, change: { priorP: 0.2, priorYear: 2021, diff: null, pValue: null, p: 0.14837 } })).toHaveLength(1)
   })
 })
 
@@ -113,17 +140,18 @@ describe('wording', () => {
     const outputs = [
       levelSentence(level),
       levelSentence({ ...level, p: 0.7 }),
-      changeSentence({ priorP: 0.2, priorYear: 2021, diff: -0.05, pValue: 0 }),
-      changeSentence({ priorP: 0.2, priorYear: 2021, diff: 0.05, pValue: 0 }),
-      changeSentence({ priorP: 0.2, priorYear: 2021, diff: 0.05, pValue: 0.5 }),
-      vsOverallSentence({ overallP: 0.15, people: 'teens', overallSignificant: true, diff: 0.1, pValue: 0 }),
-      vsOverallSentence({ overallP: 0.15, people: 'teens', overallSignificant: true, diff: -0.1, pValue: 0 }),
-      vsOverallSentence({ overallP: 0.15, people: 'teens', overallSignificant: false, diff: -0.1, pValue: 0 }),
-      changeLabel('fell', 2021),
-      changeLabel('rose', 2021),
-      changeLabel('same', 2021),
+      changeSentence({ priorP: 0.2, priorYear: 2021, diff: -0.05, pValue: 0, p: 0.15 }),
+      changeSentence({ priorP: 0.2, priorYear: 2021, diff: 0.05, pValue: 0, p: 0.25 }),
+      changeSentence({ priorP: 0.2, priorYear: 2021, diff: 0.05, pValue: 0.5, p: 0.25 }),
+      vsOverallSentence({ overallP: 0.15, p: 0.25, people: 'teens', overallSignificant: true, diff: 0.1, pValue: 0 }),
+      vsOverallSentence({ overallP: 0.15, p: 0.05, people: 'teens', overallSignificant: true, diff: -0.1, pValue: 0 }),
+      vsOverallSentence({ overallP: 0.15, p: 0.05, people: 'teens', overallSignificant: false, diff: -0.1, pValue: 0 }),
+      tileChange('fell', 0.2, 2021, 0.15),
+      tileChange('rose', 0.2, 2021, 0.25),
+      tileChange('same', 0.2, 2021, 0.19),
       SUPPRESSED_TAKEAWAY,
       IMPRECISE_TAKEAWAY,
+      SAME_ANSWER_TAKEAWAY,
     ]
     for (const text of outputs) expect(text).not.toMatch(banned)
   })
@@ -141,8 +169,8 @@ describe('restricted denominators and wide intervals', () => {
         when: '2024',
       }),
     ).toBe('52% of female teens ages 12–17 who had a major depressive episode in the past year got treatment or medication for depression in the past year (2024).')
-    expect(vsOverallSentence({ overallP: 0.4512, people: 'teens who had a major depressive episode in the past year', overallSignificant: true, diff: 0.07, pValue: 0.001 })).toBe(
-      "That's higher than all teens who had a major depressive episode in the past year (45.1%).",
+    expect(vsOverallSentence({ overallP: 0.4512, p: 0.5234, people: 'teens who had a major depressive episode in the past year', overallSignificant: true, diff: 0.07, pValue: 0.001 })).toBe(
+      "That's higher than all teens who had a major depressive episode in the past year (45%).",
     )
   })
   it('calls an interval wide from 10 points or a 3x ratio, and only with both ends', () => {
@@ -155,7 +183,7 @@ describe('restricted denominators and wide intervals', () => {
     expect(isWideInterval(0.1, undefined)).toBe(false)
   })
   it('gives the range instead of "1 in N" when the interval is wide', () => {
-    expect(levelSentence({ ...level, p: 0.061, lo: 0.021, hi: 0.152 })).toBe('Between 2% and 15% of teens ages 12–17 had a major depressive episode in the past year (best estimate 6%, 2024).')
+    expect(levelSentence({ ...level, p: 0.061, lo: 0.021, hi: 0.152 })).toBe('Between 2.1% and 15% of teens ages 12–17 had a major depressive episode in the past year (best estimate 6.1%, 2024).')
     expect(levelSentence({ ...level, p: 0.14837, lo: 0.13754, hi: 0.15991 })).toMatch(/^About 1 in 7 /)
   })
 })

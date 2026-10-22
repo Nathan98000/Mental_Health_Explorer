@@ -4,7 +4,7 @@ import { cohortInfo, levelsFor, populationPhrase, SURVEY_YEARS, withUniverse, ty
 import { findCell, gapYears, trendTest, type Cell, type EstimateShard, type TrendTest } from './data'
 import type { CsvRow } from './exports'
 import type { TrendsState } from './routes'
-import { changeKind, type ChangeKind } from './takeaways'
+import { changeKind, trendHeadlineSentence, type ChangeKind } from './takeaways'
 
 export type TrendSeries = { label: string; group: string | null; level: string | null; population: string }
 
@@ -42,6 +42,7 @@ export function trendData(catalog: Catalog, shard: EstimateShard, state: TrendsS
       csv.push({
         cohort,
         measure: indicator.id,
+        measureLabel: indicator.label,
         years: String(year),
         population: s.population,
         p: cell.p,
@@ -75,5 +76,24 @@ export function comparisons(catalog: Catalog, shard: EstimateShard, state: Trend
     const b = findCell(shard, String(state.yearB), s.group, s.level)
     const test = trendTest(shard, s.group, s.level, state.yearA, state.yearB)
     return { label: s.label, a, b, test, kind: test ? changeKind(test.diff, test.pValue) : null }
+  })
+}
+
+function shownP(cell: Cell | undefined): number | null {
+  return cell && !cell.suppressed && cell.p !== null ? cell.p : null
+}
+
+/** The answer-first sentence at the top of the trends page (wording in takeaways.ts). */
+export function trendHeadline(catalog: Catalog, state: TrendsState, comps: Comparison[]): string {
+  const info = cohortInfo(catalog, state.cohort)
+  return trendHeadlineSentence({
+    cohort: info.phrase,
+    people: withUniverse(info.phrase, state.indicator),
+    universe: state.indicator.universe_phrase,
+    phrase: state.indicator.phrase,
+    yearA: state.yearA,
+    yearB: state.yearB,
+    series: comps.map((c) => ({ kind: c.kind, a: shownP(c.a), b: shownP(c.b) })),
+    split: !!state.split,
   })
 }

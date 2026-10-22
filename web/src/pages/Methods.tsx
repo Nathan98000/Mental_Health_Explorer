@@ -16,6 +16,8 @@ const REPO_URL = 'https://github.com/Nathan98000/Mental_Health_Explorer'
 
 /** The page's sections, in order; the jump links at the top follow this list. */
 const SECTIONS = {
+  'key-terms': 'Key terms',
+  'how-to-cite': 'How to cite',
   'data-source': 'Data source',
   'how-computed': 'How the estimates are computed',
   suppression: 'When a number is not shown',
@@ -26,8 +28,21 @@ const SECTIONS = {
   dictionary: 'Data dictionary',
   availability: 'Which years each measure was asked',
   groups: 'Population groups',
-  citation: 'Data generation and citation',
 } as const
+
+/** Plain definitions of the terms the pages use. */
+const KEY_TERMS: [string, string][] = [
+  ['Share (percentage)', 'The percentage of a group who answered yes, for example 15% of teens ages 12–17. Some measures are out of a smaller group, such as teens who had a major depressive episode; the line under each number says which group.'],
+  ['95% confidence interval', 'Because the survey asks a sample of people rather than everyone, every estimate has some uncertainty. The 95% confidence interval is the range the true value most likely falls in. A wide interval usually means few people in that group answered.'],
+  ['Statistically significant', 'We say a number fell, rose, or is higher or lower than another only when a statistical test shows the difference is unlikely to be due to chance (p < 0.05). Otherwise we say it is about the same or similar. A significant difference doesn’t explain why it happened.'],
+  ['Not reported', 'When too few people in a group answered, or an estimate is too imprecise, we leave the number out rather than show something misleading. Tap or hover over the dash to see why.'],
+  ['Not available', 'The measure is not in the data for that year.'],
+  ['Years combined', 'Combining years gives more answers for small groups. The result is an average for one year in that span.'],
+  ['Past year, past month', 'The 12 months, or the 30 days, before the survey interview.'],
+  ['Major depressive episode', 'At least two weeks of depressed mood or loss of interest or pleasure in daily activities, plus most of the other symptoms of depression, based on DSM criteria. It is determined from survey answers, not by a clinician.'],
+  ['DSM', 'The Diagnostic and Statistical Manual of Mental Disorders, the manual clinicians in the U.S. use to diagnose mental health conditions.'],
+  ['Survey weights', 'Each person’s answers are weighted so that the people surveyed represent all U.S. teens or young adults.'],
+]
 
 type SectionId = keyof typeof SECTIONS
 
@@ -87,7 +102,7 @@ function Dictionary({ catalog }: { catalog: Catalog }) {
                 <thead>
                   <tr className="text-ink-2">
                     <th scope="col" className={th}>Measure</th>
-                    <th scope="col" className={th}>Cohort</th>
+                    <th scope="col" className={th}>Age group</th>
                     <th scope="col" className={th}>Definition</th>
                     <th scope="col" className={th}>Source variable</th>
                     <th scope="col" className={th}>Years</th>
@@ -216,6 +231,27 @@ export default function Methods() {
         </ul>
       </nav>
 
+      <Section id="key-terms">
+        <dl className="m-0 space-y-3">
+          {KEY_TERMS.map(([term, text]) => (
+            <div key={term}>
+              <dt className="font-semibold">{term}</dt>
+              <dd className="m-0 text-ink-2">{text}</dd>
+            </div>
+          ))}
+        </dl>
+      </Section>
+
+      <Section id="how-to-cite">
+        <p>To cite a number or chart, use &ldquo;Copy citation&rdquo; on its page.</p>
+        <p className="wrap-anywhere rounded-2xl bg-surface p-4 text-sm ring-1 ring-line">To cite this page: {cite}</p>
+        <p>
+          Data: Substance Abuse and Mental Health Services Administration, Center for Behavioral Health Statistics and Quality. National Survey
+          on Drug Use and Health 2021–2024 public use file. SAMHSA&rsquo;s data may be used only for statistical purposes.
+        </p>
+        {manifest.status === 'ready' ? <Generated manifest={manifest.data} /> : null}
+      </Section>
+
       <Section id="data-source">
         <p>
           All estimates come from the National Survey on Drug Use and Health (NSDUH), run every year by the Substance Abuse and Mental Health
@@ -306,15 +342,6 @@ export default function Methods() {
 
       <Section id="groups">
         {catalog.status === 'ready' ? <Groups catalog={catalog.data} /> : null}
-      </Section>
-
-      <Section id="citation">
-        {manifest.status === 'ready' ? <Generated manifest={manifest.data} /> : null}
-        <p>
-          Source: Substance Abuse and Mental Health Services Administration, Center for Behavioral Health Statistics and Quality. National Survey
-          on Drug Use and Health 2021–2024 public use file. SAMHSA&rsquo;s data may be used only for statistical purposes.
-        </p>
-        <p className="wrap-anywhere rounded-2xl bg-surface p-4 text-sm ring-1 ring-line">To cite this page: {cite}</p>
       </Section>
     </>
   )

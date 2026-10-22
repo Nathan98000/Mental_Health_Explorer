@@ -1,4 +1,4 @@
-import { formatCount, formatPct, formatRange, oneInN } from './format'
+import { formatCount, formatPct, formatRange, formatShare, formatSharePair, oneInN } from './format'
 
 describe('formatPct', () => {
   it('rounds to whole percent by default', () => {
@@ -6,6 +6,19 @@ describe('formatPct', () => {
   })
   it('supports decimals', () => {
     expect(formatPct(0.1484, 1)).toBe('14.8%')
+  })
+})
+
+describe('formatShare', () => {
+  it('uses whole percents from 10% up and one decimal below', () => {
+    expect(formatShare(0.148)).toBe('15%')
+    expect(formatShare(0.058)).toBe('5.8%')
+    expect(formatShare(0.0999)).toBe('10%')
+    expect(formatShare(0.1)).toBe('10%')
+  })
+  it('gives a pair one decimal when the two would read the same', () => {
+    expect(formatSharePair(0.343, 0.338)).toEqual(['34.3%', '33.8%'])
+    expect(formatSharePair(0.205, 0.148)).toEqual(['21%', '15%'])
   })
 })
 

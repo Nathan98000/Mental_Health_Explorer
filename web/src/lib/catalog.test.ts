@@ -47,6 +47,7 @@ describe('year sets', () => {
   })
   it('labels and describes them', () => {
     expect(yearSetLabel('all', [2021, 2022, 2023, 2024])).toBe('All years combined (2021–2024)')
+    expect(yearSetLabel('all', [2022, 2023])).toBe('All available years combined (2022–2023)')
     expect(yearSetLabel('recent2', [2022, 2023, 2024])).toBe('Latest two years combined (2023–2024)')
     expect(yearSetLabel('2023', [2022, 2023])).toBe('2023')
     expect(yearSetWhen('all', [2022, 2023])).toBe('2022–2023 combined')

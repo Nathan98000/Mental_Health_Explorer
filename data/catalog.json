@@ -431,7 +431,7 @@
    "label": "Major depressive episode with severe impairment",
    "phrase": "had a major depressive episode with severe impairment in the past year",
    "universe_phrase": null,
-   "definition": "Had a major depressive episode in the past year that severely interfered with chores at home, school or work, family relationships, or social life (Sheehan Disability Scale). The denominator is all teens.",
+   "definition": "Had a major depressive episode in the past year that severely interfered with chores at home, school or work, family relationships, or social life (Sheehan Disability Scale). Percentages are out of all teens.",
    "source": "MDEIMPY",
    "years": [
     2021,
@@ -536,7 +536,7 @@
     2024
    ],
    "caveats": [
-    "The denominator is teens with a past-year major depressive episode."
+    "Percentages are out of teens with a past-year major depressive episode."
    ],
    "status": "launch"
   },
@@ -556,7 +556,7 @@
     2024
    ],
    "caveats": [
-    "The denominator is teens with a past-year major depressive episode."
+    "Percentages are out of teens with a past-year major depressive episode."
    ],
    "status": "launch"
   },
@@ -576,7 +576,7 @@
     2024
    ],
    "caveats": [
-    "The denominator is teens with a past-year major depressive episode."
+    "Percentages are out of teens with a past-year major depressive episode."
    ],
    "status": "launch"
   },
@@ -1109,7 +1109,7 @@
    "label": "Major depressive episode with severe impairment",
    "phrase": "had a major depressive episode with severe impairment in the past year",
    "universe_phrase": null,
-   "definition": "Had a major depressive episode in the past year that severely interfered with home management, work, close relationships, or social life (Sheehan Disability Scale). The denominator is all young adults.",
+   "definition": "Had a major depressive episode in the past year that severely interfered with home management, work, close relationships, or social life (Sheehan Disability Scale). Percentages are out of all young adults.",
    "source": "AMDEIMP",
    "years": [
     2021,
@@ -1214,7 +1214,7 @@
     2024
    ],
    "caveats": [
-    "Estimated from a statistical model of survey scales calibrated to clinical interviews, not from a diagnosis."
+    "Estimated from survey answers with a statistical model developed using clinical interviews; it is not a diagnosis."
    ],
    "status": "launch"
   },
@@ -1234,7 +1234,7 @@
     2024
    ],
    "caveats": [
-    "Estimated from a statistical model of survey scales calibrated to clinical interviews, not from a diagnosis."
+    "Estimated from survey answers with a statistical model developed using clinical interviews; it is not a diagnosis."
    ],
    "status": "launch"
   },
@@ -1254,7 +1254,7 @@
     2024
    ],
    "caveats": [
-    "Mental illness is estimated from a statistical model of survey scales calibrated to clinical interviews."
+    "Mental illness is estimated from survey answers with a statistical model developed using clinical interviews."
    ],
    "status": "launch"
   },
@@ -1274,7 +1274,7 @@
     2024
    ],
    "caveats": [
-    "The denominator is young adults with a past-year major depressive episode."
+    "Percentages are out of young adults with a past-year major depressive episode."
    ],
    "status": "launch"
   },

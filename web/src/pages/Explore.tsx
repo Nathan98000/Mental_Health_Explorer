@@ -5,15 +5,15 @@ import { CohortSwitcher } from '../components/CohortSwitcher'
 import { CrisisNote } from '../components/CrisisNote'
 import { EstimateCard } from '../components/EstimateCard'
 import { Filters } from '../components/Filters'
-import { GroupDotPlot } from '../components/GroupDotPlot'
+import { GroupComparison } from '../components/GroupComparison'
 import { IndicatorSelect } from '../components/IndicatorSelect'
 import { Notices } from '../components/Notices'
 import { Sparkline } from '../components/Sparkline'
 import { Loading, LoadError } from '../components/Status'
 import { cohortInfo, firstYear, groupsFor, isSuicideMeasure, latestYear, levelsFor, SURVEY_YEARS, withUniverse, yearSetLabel, yearSetsFor, yearSetSpan, type Catalog } from '../lib/catalog'
 import { findCell, loadEstimates, seriesByYear, type EstimateShard } from '../lib/data'
-import { citation, safeFilename, toCsv, type CsvRow } from '../lib/exports'
-import { formatPct } from '../lib/format'
+import { capitalize, citation, safeFilename, toCsv, type CsvRow } from '../lib/exports'
+import { formatShare } from '../lib/format'
 import { absoluteUrl, exploreCohortPath, explorePath, resolveExplore, trendsPath, type ExploreState } from '../lib/routes'
 import { describeSparkline, labeledSparklineSvg } from '../lib/sparkline'
 import { exploreSummary } from '../lib/summary'
@@ -31,6 +31,7 @@ function csvRows(shard: EstimateShard, state: ExploreState, population: string):
     rows.push({
       cohort: state.cohort,
       measure: state.indicator.id,
+      measureLabel: state.indicator.label,
       years: yearSetSpan(yearSet, state.indicator.years),
       population,
       p: cell.p,
@@ -72,9 +73,11 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
   const pooledYears = yearSet === 'all' ? sorted : yearSet === 'recent2' ? sorted.slice(-2) : []
   const anyShown = points.some((d) => d.p !== null)
   const suppressed = summary?.cell ? summary.cell.suppressed || summary.cell.p === null : false
+  const allYearsTo = explorePath(cohort, indicator.id, { yearSet: 'all', group: group?.id, level: level?.id })
+  const pooledCell = shard.status === 'ready' ? findCell(shard.data, 'all', group?.id ?? null, level?.id ?? null) : undefined
   const nextSteps = suppressed
     ? [
-        ...(yearSet !== 'all' && indicator.years.length > 1 ? [{ label: 'Try all years combined', to: explorePath(cohort, indicator.id, { yearSet: 'all', group: group?.id, level: level?.id }) }] : []),
+        ...(yearSet !== 'all' && pooledCell && !pooledCell.suppressed && pooledCell.p !== null ? [{ label: 'Try all years combined', to: allYearsTo }] : []),
         ...(group && level ? [{ label: 'Try everyone', to: explorePath(cohort, indicator.id, { yearSet }) }] : []),
       ]
     : []
@@ -92,7 +95,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
           <label htmlFor={ids.indicator} className="mb-1 block text-sm font-semibold text-ink-2">Measure</label>
           <IndicatorSelect id={ids.indicator} catalog={catalog} cohort={cohort} value={indicator.id} onChange={(id) => go({ indicator: id })} />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="min-w-0">
             <label htmlFor={ids.year} className="mb-1 block text-sm font-semibold text-ink-2">Years</label>
             <select id={ids.year} value={yearSet} title={yearSetLabel(yearSet, indicator.years)} onChange={(e) => go({ yearSet: e.target.value })} className={selectClass}>
@@ -136,20 +139,17 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
           ) : shard.status === 'error' ? (
             <LoadError />
           ) : summary?.cell ? (
-            <EstimateCard when={summary.when} cell={summary.cell} sentences={summary.sentences} nextSteps={nextSteps} pooled={pooled} />
+            <EstimateCard when={summary.when} cell={summary.cell} population={summary.population} people={info.people} sentences={summary.sentences} nextSteps={nextSteps} pooled={pooled} />
           ) : (
-            <p className="rounded-3xl bg-surface p-6 text-ink-2 ring-1 ring-line" role="status">There is no estimate for this combination of years and population.</p>
+            <p className="rounded-3xl bg-surface p-4 text-ink-2 ring-1 ring-line sm:p-6" role="status">There is no estimate for this combination of years and population.</p>
           )}
-          {shard.status === 'ready' && summary && group && level ? (
-            <GroupDotPlot catalog={catalog} cohort={cohort} shard={shard.data} indicator={indicator} group={group} level={level} yearSet={yearSet} when={summary.when} people={withUniverse(info.people, indicator)} />
-          ) : null}
         </div>
         <div className="min-w-0 space-y-4">
-          <section className="rounded-3xl bg-surface p-6 ring-1 ring-line" aria-labelledby="about-measure">
+          <section className="rounded-3xl bg-surface p-4 ring-1 ring-line sm:p-6" aria-labelledby="about-measure">
             <h2 id="about-measure" className="m-0 font-display text-lg font-bold text-ink">About this measure</h2>
             <p className="m-0 mt-2 leading-relaxed text-ink">{indicator.definition}</p>
             <p className="m-0 mt-2 text-sm text-ink-2">
-              In the survey&apos;s words: {indicator.universe_phrase ? `among ${info.people} ${indicator.universe_phrase}, those who ${indicator.phrase}` : `${info.people} who ${indicator.phrase}`}. Source variable{' '}
+              Measured as: {indicator.universe_phrase ? `among ${info.people} ${indicator.universe_phrase}, those who ${indicator.phrase}` : `${info.people} who ${indicator.phrase}`}. Source variable{' '}
               <code className="rounded bg-surface-cool px-1">{indicator.source}</code> in the NSDUH public use file.
             </p>
             {indicator.caveats.length ? (
@@ -160,7 +160,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
               </ul>
             ) : null}
           </section>
-          <section className="rounded-3xl bg-surface p-6 ring-1 ring-line" aria-labelledby="over-time">
+          <section className="rounded-3xl bg-surface p-4 ring-1 ring-line sm:p-6" aria-labelledby="over-time">
             <h2 id="over-time" className="m-0 font-display text-lg font-bold text-ink">Over time</h2>
             {shard.status === 'ready' && summary ? (
               <>
@@ -183,7 +183,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
                       return (
                         <li key={y} className={`tabular ${looking ? 'font-semibold text-ink' : ''}`} aria-current={looking ? 'true' : undefined}>
                           <span className="inline-block w-12 font-medium text-ink">{y}</span>
-                          {!indicator.years.includes(y) ? 'Not available' : point && point.p !== null ? formatPct(point.p, 1) : 'Not reported'}
+                          {!indicator.years.includes(y) ? 'Not available' : point && point.p !== null ? formatShare(point.p) : 'Not reported'}
                         </li>
                       )
                     })}
@@ -199,13 +199,16 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
                   csv={toCsv(csvRows(shard.data, state, summary.population))}
                   filename={safeFilename(`${cohort}-${indicator.id}-${summary.population}`)}
                   citation={cite}
-                  frame={{ title: indicator.label, subtitle: `${population} · ${span}` }}
+                  frame={{ title: indicator.label, subtitle: capitalize(`${population} · ${span}`), url: absoluteUrl(normalized), crisis: isSuicideMeasure(indicator.id) }}
                 />
               </>
             ) : null}
           </section>
         </div>
       </div>
+      {shard.status === 'ready' && summary ? (
+        <GroupComparison catalog={catalog} cohort={cohort} shard={shard.data} yearSet={yearSet} when={summary.when} people={withUniverse(info.people, indicator)} group={group} level={level} allYearsTo={allYearsTo} />
+      ) : null}
     </>
   )
 }
