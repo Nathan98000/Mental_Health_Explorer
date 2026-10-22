@@ -92,6 +92,17 @@ describe('App', () => {
     expect(screen.getAllByText('988').length).toBeGreaterThan(0)
   })
 
+  it('words the 988 note the same in the footer and in the strip above a suicide chart', async () => {
+    mockData({ 'catalog.json': catalog })
+    const footer = renderAt('/')
+    const inFooter = within(screen.getByRole('contentinfo')).getByTestId('crisis-note').textContent
+    footer.unmount()
+    renderAt('/explore/teen/suicide_thoughts')
+    const strip = await screen.findByRole('complementary', { name: 'Support' })
+    expect(strip.textContent).toBe(inFooter)
+    expect(strip.textContent).toMatch(/any time\.$/)
+  })
+
   it('links to every live page from the header', () => {
     mockData({})
     renderAt('/')

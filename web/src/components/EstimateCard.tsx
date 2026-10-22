@@ -32,10 +32,10 @@ export function EstimateCard({ when, cell, population, people, sentences, nextSt
   const wide = !suppressed && isWideInterval(cell.lo, cell.hi)
   const value = suppressed ? 'Not reported' : wide ? `${formatShare(cell.lo as number)}–${formatShare(cell.hi as number)}` : formatShare(cell.p as number)
   return (
-    <article className="rounded-3xl bg-surface p-4 shadow-[0_2px_0_var(--line),0_12px_32px_-18px_rgba(30,34,64,0.35)] ring-1 ring-line sm:p-6" aria-label="Estimate">
+    <article className="rounded-2xl bg-surface p-4 shadow-[0_2px_0_var(--line),0_12px_32px_-18px_rgba(30,34,64,0.35)] ring-1 ring-line sm:p-6" aria-label="Estimate">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <p
-          className={`tabular m-0 font-display leading-none ${suppressed ? 'text-2xl font-bold text-ink-2' : wide ? 'text-5xl font-bold text-ink-2 sm:text-6xl' : 'text-6xl font-extrabold text-ink'}`}
+          className={`tabular m-0 font-display leading-none ${suppressed ? 'text-h2 font-bold text-ink-2' : wide ? 'text-number font-bold text-ink-2' : 'text-number font-extrabold text-ink'}`}
           data-testid="estimate-value"
         >
           {value}
@@ -50,7 +50,7 @@ export function EstimateCard({ when, cell, population, people, sentences, nextSt
       <p className="m-0 mt-2 text-sm text-ink-2" data-testid="estimate-of">
         of {population} · {when}
       </p>
-      <div className="mt-3 space-y-1 text-lg leading-snug text-ink">
+      <div className="mt-3 space-y-1 text-lede text-ink">
         {sentences.map((s) => (
           <p key={s} className="m-0">{s}</p>
         ))}

@@ -76,6 +76,8 @@ export const TOKEN_FALLBACKS: Record<string, string> = {
   '--primary': '#c2410c',
   '--primary-ink': '#b83d0b',
   '--accent': '#0e6e6d',
+  '--data': '#0e6e6d',
+  '--data-context': '#8a8fa8',
   '--sun': '#ffc857',
   '--series-1': '#2a78d6',
   '--series-2': '#eb6834',

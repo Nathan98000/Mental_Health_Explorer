@@ -147,6 +147,11 @@ export function cohortFromLocation(pathname: string, search: string): Cohort | n
   return inPath ? parseCohort(inPath[1]) : parseCohort(new URLSearchParams(search).get('cohort'))
 }
 
+/** The indicator named in an /explore or /trends path, e.g. "suicide_plan", or null elsewhere. Not checked against the catalog. */
+export function indicatorFromLocation(pathname: string): string | null {
+  return /^\/(?:explore|trends)\/[^/?]+\/([^/?]+)/.exec(pathname)?.[1] ?? null
+}
+
 /** The absolute URL of a site path (origin + base path), for citations. */
 export function absoluteUrl(path: string): string {
   const base = import.meta.env.BASE_URL.replace(/\/$/, '')

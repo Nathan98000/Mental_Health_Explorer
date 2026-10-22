@@ -48,9 +48,9 @@ export function GroupDotPlot({ catalog, cohort, shard, group, selected, yearSet,
         {overallLine}
         {shown(cell) ? (
           <>
-            <span className={`absolute top-1/2 h-1 -translate-y-1/2 rounded-full ${strong ? 'bg-primary/45' : 'bg-ink-2/30'}`} style={{ left: pos(cell.lo), width: `calc(${pos(cell.hi)} - ${pos(cell.lo)})` }} />
+            <span className={`absolute top-1/2 h-1 -translate-y-1/2 rounded-full ${strong ? 'bg-data/45' : 'bg-data-context/45'}`} style={{ left: pos(cell.lo), width: `calc(${pos(cell.hi)} - ${pos(cell.lo)})` }} />
             <span
-              className={`absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-surface ${strong ? 'bg-primary' : 'bg-ink-2'}`}
+              className={`absolute top-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-surface ${strong ? 'bg-data' : 'bg-data-context'}`}
               style={{ left: pos(cell.p) }}
               data-dot={strong ? 'selected' : ''}
             />
@@ -73,7 +73,7 @@ export function GroupDotPlot({ catalog, cohort, shard, group, selected, yearSet,
 
   return (
     <table className="tabular w-full border-collapse text-sm text-ink" data-group={group.id}>
-      <caption className="pb-1 text-left font-display text-base font-bold text-ink">By {group.label.toLowerCase()}</caption>
+      <caption className="pb-1 text-left font-display text-h3 font-bold text-ink">By {group.label.toLowerCase()}</caption>
       <thead>
         <tr className="text-left align-bottom text-ink-2">
           <th scope="col" className="border-b border-line py-2 pr-3 font-semibold">{group.label}</th>

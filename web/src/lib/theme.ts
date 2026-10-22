@@ -9,6 +9,10 @@ export type ChartTheme = {
   grid: string
   line: string
   primary: string
+  /** Teal for single-series charts, sparklines and the selected group. */
+  data: string
+  /** Blue-grey for the other groups beside a selected one. */
+  dataContext: string
   /** Categorical slots for unordered groups (sex, insurance, where they live…). */
   series: string[]
   /** Single-hue ramp, light to dark, for ordered groups (age, income…). */
@@ -23,6 +27,8 @@ const FALLBACK: ChartTheme = {
   grid: '#ede6da',
   line: '#ede6da',
   primary: '#c2410c',
+  data: '#0e6e6d',
+  dataContext: '#8a8fa8',
   series: ['#2a78d6', '#eb6834', '#15915f', '#b57a00', '#d9598c'],
   sequential: ['#4a90e2', '#2a78d6', '#1d5fb0', '#164a8a', '#0f3563'],
 }
@@ -39,6 +45,8 @@ function readTheme(): ChartTheme {
     grid: get('--grid', FALLBACK.grid),
     line: get('--line', FALLBACK.line),
     primary: get('--primary', FALLBACK.primary),
+    data: get('--data', FALLBACK.data),
+    dataContext: get('--data-context', FALLBACK.dataContext),
     series: FALLBACK.series.map((c, i) => get(`--series-${i + 1}`, c)),
     sequential: FALLBACK.sequential.map((c, i) => get(`--seq-${i + 1}`, c)),
   }
@@ -58,15 +66,15 @@ export const ORDERED_GROUPS: readonly string[] = ['age_band', 'poverty', 'family
 
 export type PaletteKind = 'single' | 'categorical' | 'sequential'
 
-/** Which palette a trend split takes: the primary color alone, the ramp for ordered groups, the categorical slots otherwise. */
+/** Which palette a trend split takes: the data color alone, the ramp for ordered groups, the categorical slots otherwise. */
 export function paletteKind(split: Pick<Group, 'id'> | null | undefined): PaletteKind {
   if (!split) return 'single'
   return ORDERED_GROUPS.includes(split.id) ? 'sequential' : 'categorical'
 }
 
-/** One color per series: the primary color, evenly spaced steps of the ramp (light to dark), or the categorical slots. */
+/** One color per series: the data color, evenly spaced steps of the ramp (light to dark), or the categorical slots. */
 export function seriesColors(theme: ChartTheme, count: number, kind: PaletteKind): string[] {
-  if (kind === 'single') return Array.from({ length: count }, () => theme.primary)
+  if (kind === 'single') return Array.from({ length: count }, () => theme.data)
   if (kind === 'sequential') {
     const ramp = theme.sequential
     const last = ramp.length - 1

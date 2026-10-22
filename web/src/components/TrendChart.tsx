@@ -20,22 +20,27 @@ export type Annotation = { year: number; label: string }
 export type ChartComparison = { yearA: number; yearB: number }
 
 type Props = {
+  /** The heading over the chart. */
   title: string
+  /** The measure, when the heading names only the scope: it leads the image's accessible name and titles the downloads. */
+  measure?: string
+  /** Ids of elements that describe the chart (e.g. the page's headline sentence), added to the figure's description. */
+  describedBy?: string
   rows: TrendRow[]
   /** Series names in fixed display order; color slots follow this order. */
   series: string[]
   /** Every year on the axis, so years without a value show as gaps. */
   years: readonly number[]
   caption?: string
-  /** Survey changes: a thin solid rule between the year before and the year named, explained under the chart. */
+  /** Survey changes: a thin dashed rule between the year before and the year named, explained under the chart. */
   annotations?: Annotation[]
   /** Plain notes under the chart (gaps, suppressed points). */
   notes?: string[]
   comparison?: ChartComparison
   /** One color per series; the categorical slots by default (see lib/theme.ts seriesColors). */
   colors?: string[]
-  /** Downloads: the frame title defaults to `title`; `crisis` adds the 988 note to suicide measures' images. */
-  exports?: { csv: string; filename: string; citation: string; title?: string; subtitle?: string; url?: string; crisis?: boolean }
+  /** Downloads, framed with `measure` (or `title`) as the title; `crisis` adds the 988 note to suicide measures' images. */
+  exports?: { csv: string; filename: string; citation: string; subtitle?: string; url?: string; crisis?: boolean }
 }
 
 const HEIGHT = 320
@@ -88,15 +93,28 @@ function endLabels(chart: Chart, ends: (TrendRow & { p: number })[], single: boo
   return g
 }
 
-/** "Survey change" rules: a thin solid line between the year before and the year of the change (or at that year when it is the first), labeled at the top. */
+/** "Not available" at the baseline of every year with no value in any series (the measure was not asked that year). */
+function gapYearLabels(chart: Chart, rows: TrendRow[], years: readonly number[], theme: ChartTheme): SVGElement {
+  const x = scale(chart, 'x')
+  const g = svgEl('g', { 'data-gap-years': '', 'aria-hidden': 'true' })
+  for (const year of years) {
+    const inYear = rows.filter((r) => r.year === year)
+    if (inYear.length && inYear.every((r) => r.status === 'not_collected')) {
+      g.append(svgEl('text', { 'data-gap-year': year, x: x(year), y: HEIGHT - MARGIN.bottom - 8, style: 'text-anchor: middle', fill: theme.muted, 'font-size': 12 }, 'Not available'))
+    }
+  }
+  return g
+}
+
+/** "Survey change" rules: a thin dashed line between the year before and the year of the change (or at that year when it is the first), labeled at the top. */
 function surveyChangeRules(chart: Chart, annotations: Annotation[], years: readonly number[], theme: ChartTheme): SVGElement {
   const x = scale(chart, 'x')
   const g = svgEl('g', { 'data-survey-changes': '', 'aria-hidden': 'true' })
   for (const year of [...new Set(annotations.map((a) => a.year))]) {
     const before = years[years.indexOf(year) - 1]
     const px = before === undefined ? x(year) : (x(before) + x(year)) / 2
-    g.append(svgEl('line', { 'data-survey-change': year, x1: px, x2: px, y1: MARGIN.top, y2: HEIGHT - MARGIN.bottom, stroke: theme.ink2, 'stroke-width': 1 }))
-    g.append(svgEl('text', { x: px, y: MARGIN.top - 5, style: 'text-anchor: middle', fill: theme.ink2, 'font-size': 11 }, 'Survey change'))
+    g.append(svgEl('line', { 'data-survey-change': year, x1: px, x2: px, y1: MARGIN.top, y2: HEIGHT - MARGIN.bottom, stroke: theme.ink2, 'stroke-width': 1, 'stroke-dasharray': '4 3' }))
+    g.append(svgEl('text', { x: px, y: MARGIN.top - 5, style: 'text-anchor: middle', fill: theme.ink2, 'font-size': 12 }, 'Survey change'))
   }
   return g
 }
@@ -137,7 +155,7 @@ function Swatch({ symbol, color }: { symbol: SymbolName; color: string }) {
  * gaps for missing years, a crosshair tooltip, direct end-of-line labels, an HTML legend,
  * numbered annotations and a table view for screen readers and keyboard users.
  */
-export function TrendChart({ title, rows, series, years, caption, annotations = [], notes = [], comparison, colors: seriesColors, exports }: Props) {
+export function TrendChart({ title, measure, describedBy, rows, series, years, caption, annotations = [], notes = [], comparison, colors: seriesColors, exports }: Props) {
   const plotRef = useRef<HTMLDivElement>(null)
   const theme = useChartTheme()
   const [width, setWidth] = useState(640)
@@ -205,9 +223,9 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
       marginTop: MARGIN.top,
       marginBottom: MARGIN.bottom,
       style: { fontFamily: 'Inter Variable, system-ui, sans-serif', fontSize: '13px', color: theme.ink2, background: 'transparent' },
-      ariaLabel: title,
-      x: { type: 'point', domain: [...years], tickFormat: (d: number) => String(d), label: null, padding: 0.3 },
-      y: { domain: [0, yMax], tickFormat: (d: number) => `${Math.round(d * 100)}%`, label: null, ticks: 5 },
+      ariaLabel: measure ? `${measure}: ${title}` : title,
+      x: { type: 'point', domain: [...years], tickFormat: (d: number) => String(d), label: null, padding: 0.3, tickSize: 0 },
+      y: { domain: [0, yMax], tickFormat: (d: number) => `${Math.round(d * 100)}%`, label: null, ticks: 5, tickSize: 0 },
       color: { domain: series, range: colors },
       ...(symbols ? { symbol: { domain: series, range: series.map((_, i) => SYMBOLS[i % SYMBOLS.length]) } } : {}),
       marks,
@@ -227,9 +245,10 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
       chart.append(comparedPoints(chart, points, new Map(series.map((s, i) => [s, colors[i]])), theme))
     }
     if (annotations.length) chart.append(surveyChangeRules(chart, annotations, years, theme))
+    chart.append(gapYearLabels(chart, rows, years, theme))
     el.replaceChildren(chart)
     return () => chart.remove()
-  }, [rows, series, years, annotations, comparison, seriesColors, theme, width, title, showTable, symbols])
+  }, [rows, series, years, annotations, comparison, seriesColors, theme, width, title, measure, showTable, symbols])
 
   const tableCell = (row: TrendRow | undefined) => {
     if (!row || row.status === 'not_collected') return <span className="text-muted">Not available</span>
@@ -248,11 +267,11 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
   ].filter((n): n is string => !!n)
 
   return (
-    <figure className="m-0" aria-labelledby={headingId} aria-describedby={notes.length || annotations.length ? notesId : undefined}>
+    <figure className="m-0" aria-labelledby={headingId} aria-describedby={[describedBy, notes.length || annotations.length ? notesId : null].filter(Boolean).join(' ') || undefined}>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <h3 id={headingId} className="m-0 font-display text-lg font-bold text-ink">
+        <h2 id={headingId} className="m-0 font-display text-h2 font-bold text-ink">
           {title}
-        </h3>
+        </h2>
         <button
           type="button"
           onClick={() => setShowTable((v) => !v)}
@@ -263,7 +282,7 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
         </button>
       </div>
 
-      {showTable ? null : (
+      {showTable || series.length === 1 ? null : (
         <ul className="mt-3 mb-1 flex list-none flex-wrap gap-x-5 gap-y-1 p-0 text-sm text-ink-2" aria-label="Legend">
           {drawn.map((s) => {
             const last = narrow ? lastValue(s) : null
@@ -327,7 +346,7 @@ export function TrendChart({ title, rows, series, years, caption, annotations = 
           csv={exports.csv}
           filename={exports.filename}
           citation={exports.citation}
-          frame={{ title: exports.title ?? title, subtitle: exports.subtitle, legend, notes: exportNotes, url: exports.url, crisis: exports.crisis }}
+          frame={{ title: measure ?? title, subtitle: exports.subtitle, legend, notes: exportNotes, url: exports.url, crisis: exports.crisis }}
         />
       ) : null}
     </figure>

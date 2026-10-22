@@ -4,7 +4,10 @@
   Design tokens. Every color is defined once here and used by role; the site has a single light
   color scheme (no dark mode).
   Contrast checked: ink/page 14.7:1, ink-2/page 7.6:1, muted/surface 4.9:1,
-  white on primary 5.2:1, primary-ink on page 5.4:1.
+  white on primary 5.2:1, primary-ink on page 5.4:1, data on surface 6.0:1, data-context on surface 3.2:1.
+  Color roles: teal (data) draws single-series charts, sparklines and the selected group; blue-grey
+  (data-context) the other groups; orange (primary) is for links, the active nav, toggles, focus and
+  the logo only; peach (surface-tint) is kept for the 988 note.
   Chart series slots come from the validated categorical palette (adjacent CVD ΔE ≥ 8.4), darkened
   where needed so every slot is at least 3:1 against the card surface (4.3, 3.2, 3.9, 3.6, 3.6).
   seq-1…5 is the single-hue ramp for ordered groups (age, income), light to dark, every step at least
@@ -24,6 +27,8 @@
   --primary-ink: #b83d0b;
   --on-primary: #ffffff;
   --accent: #0e6e6d;
+  --data: #0e6e6d;
+  --data-context: #8a8fa8;
   --sun: #ffc857;
   --grid: #ede6da;
   --series-1: #2a78d6;
@@ -36,6 +41,37 @@
   --seq-3: #1d5fb0;
   --seq-4: #164a8a;
   --seq-5: #0f3563;
+
+  /* Type scale, phone sizes (see the media query below for desktop): size / line height. */
+  --fs-display: 2rem;
+  --lh-display: 2.25rem;
+  --fs-h1: 1.75rem;
+  --lh-h1: 2.125rem;
+  --fs-number: 3.5rem;
+  --lh-number: 3.5rem;
+  --fs-lede: 1.125rem;
+  --lh-lede: 1.6875rem;
+  --fs-h2: 1.25rem;
+  --lh-h2: 1.625rem;
+  --fs-body: 1rem;
+  --lh-body: 1.5625rem;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --fs-display: 2.75rem;
+    --lh-display: 3rem;
+    --fs-h1: 2.25rem;
+    --lh-h1: 2.625rem;
+    --fs-number: 4rem;
+    --lh-number: 4rem;
+    --fs-lede: 1.25rem;
+    --lh-lede: 1.875rem;
+    --fs-h2: 1.375rem;
+    --lh-h2: 1.75rem;
+    --fs-body: 1.0625rem;
+    --lh-body: 1.6875rem;
+  }
 }
 
 @theme inline {
@@ -53,7 +89,28 @@
   --color-primary-ink: var(--primary-ink);
   --color-on-primary: var(--on-primary);
   --color-accent: var(--accent);
+  --color-data: var(--data);
+  --color-data-context: var(--data-context);
   --color-sun: var(--sun);
+  /* Type tokens: display (overview hero), h1, number (the big estimate), lede, h2, h3, body, small, micro (the minimum anywhere). */
+  --text-display: var(--fs-display);
+  --text-display--line-height: var(--lh-display);
+  --text-h1: var(--fs-h1);
+  --text-h1--line-height: var(--lh-h1);
+  --text-number: var(--fs-number);
+  --text-number--line-height: var(--lh-number);
+  --text-lede: var(--fs-lede);
+  --text-lede--line-height: var(--lh-lede);
+  --text-h2: var(--fs-h2);
+  --text-h2--line-height: var(--lh-h2);
+  --text-h3: 1.125rem;
+  --text-h3--line-height: 1.5rem;
+  --text-body: var(--fs-body);
+  --text-body--line-height: var(--lh-body);
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.25rem;
+  --text-micro: 0.75rem;
+  --text-micro--line-height: 1rem;
 }
 
 html {
@@ -64,6 +121,8 @@ html {
 body {
   margin: 0;
   font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
   background: var(--page);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;

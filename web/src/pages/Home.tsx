@@ -50,10 +50,10 @@ export default function Home() {
     <>
       <section className="pt-4 sm:pt-8" data-testid="hero">
         <div className="max-w-2xl">
-          <h1 className="m-0 font-display text-3xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
+          <h1 className="m-0 font-display text-display font-extrabold tracking-tight text-ink">
             How are young people in the U.S. doing?
           </h1>
-          <p className="m-0 mt-3 text-base leading-relaxed text-ink-2 sm:mt-4 sm:text-lg">
+          <p className="m-0 mt-3 text-lede text-ink-2 sm:mt-4">
             Explore what a national survey of about 58,000 people each year says about depression, suicidal
             thoughts, substance use and getting help — for teens ages 12–17 and young adults ages 18–25.
           </p>
@@ -65,8 +65,8 @@ export default function Home() {
         ) : null}
       </section>
 
-      <section className="mt-10" aria-labelledby="at-a-glance">
-        <h2 id="at-a-glance" className="m-0 font-display text-2xl font-extrabold text-ink">At a glance</h2>
+      <section className="mt-10 sm:mt-12" aria-labelledby="at-a-glance">
+        <h2 id="at-a-glance" className="m-0 font-display text-h2 font-bold text-ink">At a glance</h2>
         <p className="m-0 mt-2 text-ink-2">The latest year for six headline measures, with the change since the first year each was asked. Select a measure to explore it.</p>
         {catalog.status === 'error' || estimates.status === 'error' ? (
           <LoadError />
@@ -77,9 +77,9 @@ export default function Home() {
         )}
       </section>
 
-      <section className="mt-14" aria-labelledby="explore-the-data">
-        <h2 id="explore-the-data" className="m-0 font-display text-2xl font-extrabold text-ink">Explore the data</h2>
-        <ul className="m-0 mt-4 flex list-none flex-wrap gap-x-8 gap-y-3 p-0 text-lg">
+      <section className="mt-10 border-t border-line pt-8 sm:mt-12" aria-labelledby="explore-the-data">
+        <h2 id="explore-the-data" className="m-0 font-display text-h2 font-bold text-ink">Explore the data</h2>
+        <ul className="m-0 mt-4 flex list-none flex-wrap gap-x-8 gap-y-3 p-0 text-lede">
           {live.map((item) => (
             <li key={item.title}>
               <Link to={item.to(cohort)} className="font-semibold text-primary-ink underline">
@@ -90,7 +90,7 @@ export default function Home() {
         </ul>
       </section>
 
-      <p className="m-0 mt-14 text-ink-2">Coming soon: who&apos;s most affected, what goes together, and an advanced mode.</p>
+      <p className="m-0 mt-10 text-ink-2 sm:mt-12">Coming soon: who&apos;s most affected, what goes together, and an advanced mode.</p>
     </>
   )
 }

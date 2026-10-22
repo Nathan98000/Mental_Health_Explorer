@@ -4,14 +4,16 @@ import { useMediaQuery } from '../lib/useMediaQuery'
 type Props = {
   /** What is currently shown, for the collapsed summary on phones, e.g. "Teens · 2024 · Everyone". */
   summary: string
+  /** Extra grid classes for the form, e.g. one row of columns on wide screens. */
+  className?: string
   children: ReactNode
 }
 
 /** The page's controls: a card from the sm breakpoint up, a collapsed <details> naming the current choice on phones. */
-export function Filters({ summary, children }: Props) {
+export function Filters({ summary, className = '', children }: Props) {
   const wide = useMediaQuery('(min-width: 640px)')
   const form = (
-    <form className="grid gap-4" onSubmit={(e) => e.preventDefault()} aria-label="Choose what to show">
+    <form className={`grid gap-4 ${className}`} onSubmit={(e) => e.preventDefault()} aria-label="Choose what to show">
       {children}
     </form>
   )

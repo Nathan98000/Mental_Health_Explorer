@@ -34,8 +34,8 @@ export function GroupComparison({ catalog, cohort, shard, yearSet, when, people,
   const grid = 'grid gap-x-8 gap-y-6 lg:grid-cols-2'
   const anySuppressed = yearSet !== 'all' && groups.some((g) => hasSuppressedRow(catalog, cohort, shard, g, yearSet))
   return (
-    <section className="mt-6 rounded-3xl bg-surface p-4 ring-1 ring-line sm:p-6" aria-labelledby="compare-groups">
-      <h2 id="compare-groups" className="m-0 font-display text-lg font-bold text-ink">Compared with other groups · {when}</h2>
+    <section className="mt-10 border-t border-line pt-8 sm:mt-12" aria-labelledby="compare-groups">
+      <h2 id="compare-groups" className="m-0 font-display text-h2 font-bold text-ink">Compared with other groups · {when}</h2>
       {anySuppressed ? (
         <p className="m-0 mt-2 text-sm text-ink-2">
           Some groups have too few responses in {when}.{' '}
@@ -45,8 +45,8 @@ export function GroupComparison({ catalog, cohort, shard, yearSet, when, people,
       {group ? (
         <>
           <div className="mt-4">{plot(group)}</div>
-          <details className="mt-6">
-            <summary className="cursor-pointer font-semibold text-ink">Other groups</summary>
+          <details className="mt-8">
+            <summary className="cursor-pointer font-display text-h3 font-bold text-ink">Other groups</summary>
             <div className={`mt-4 ${grid}`}>{others.map(plot)}</div>
           </details>
         </>

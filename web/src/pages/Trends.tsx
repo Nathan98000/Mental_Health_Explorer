@@ -56,7 +56,6 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
   const go = (next: Partial<{ indicator: string; split: string | null; yearA: number; yearB: number }>) =>
     navigate(trendsPath(cohort, next.indicator ?? indicator.id, { split: 'split' in next ? next.split : split?.id, yearA: next.yearA ?? yearA, yearB: next.yearB ?? yearB }))
   const span = `${firstYear(indicator)}–${latestYear(indicator)}`
-  const title = `${indicator.label}, ${span}`
   const population = `${withUniverse(info.phrase, indicator)}${split ? `, by ${split.label.toLowerCase()}` : ''}`
   const data = shard.status === 'ready' ? trendData(catalog, shard.data, state) : null
   const comps = shard.status === 'ready' ? comparisons(catalog, shard.data, state) : []
@@ -64,17 +63,25 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
   const suicide = isSuicideMeasure(indicator.id)
   const noSplit = `No split (all ${info.people})`
   const cite = citation({ title: `${indicator.label}: ${population}, ${span}`, url: absoluteUrl(normalized) })
+  // The h1 names the measure, so the chart heading names the scope.
+  const heading = `${capitalize(population)}, ${span}`
 
   return (
     <>
       <DocumentTitle title={`Trends: ${indicator.label} · ${info.label}`} />
+      <Notices items={notices} />
       <p className="m-0 text-sm font-semibold uppercase tracking-wide text-primary-ink">Trends</p>
-      <h1 className="m-0 mt-1 font-display text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">{indicator.label}</h1>
+      <h1 className="m-0 mt-1 font-display text-h1 font-extrabold tracking-tight text-ink">{indicator.label}</h1>
       {shard.status === 'ready' ? (
-        <p id={ids.headline} data-testid="trend-headline" className="m-0 mt-3 max-w-3xl text-lg leading-snug text-ink sm:text-xl">
+        <p id={ids.headline} data-testid="trend-headline" className="m-0 mt-3 max-w-3xl text-lede text-ink">
           {trendHeadline(catalog, state, comps)}
         </p>
       ) : null}
+      <p className="m-0 mt-2 text-sm">
+        <Link to={explorePath(cohort, indicator.id)} className="font-semibold text-primary-ink underline">
+          See the latest estimate and compare groups <span aria-hidden="true">→</span>
+        </Link>
+      </p>
       <Filters summary={`${info.label} · ${split ? split.label : 'No split'} · ${yearA} vs ${yearB}`}>
         <div className="min-w-0">
           <span className="mb-1 block text-sm font-semibold text-ink-2">Age group</span>
@@ -93,13 +100,6 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
                 <option key={g.id} value={g.id}>{g.label}</option>
               ))}
             </select>
-            <p className="m-0 mt-1 text-xs text-muted">
-              Race and ethnicity has more groups than fit on one chart;{' '}
-              <Link to={explorePath(cohort, indicator.id, { yearSet: String(yearB), group: 'race_ethnicity', level: 'white' })} className="text-primary-ink underline">
-                compare them on the Explore page
-              </Link>
-              .
-            </p>
           </div>
           <div className="min-w-0">
             <label htmlFor={ids.a} className="mb-1 block text-sm font-semibold text-ink-2">Compare from</label>
@@ -119,21 +119,22 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
           </div>
         </div>
       </Filters>
-      <Notices items={notices} />
       {suicide ? (
         <div className="mt-6">
           <CrisisNote />
         </div>
       ) : null}
 
-      <div className="mt-6 rounded-3xl bg-surface p-4 ring-1 ring-line sm:p-6">
+      <div className="mt-6 rounded-2xl bg-surface p-4 shadow-[0_2px_0_var(--line),0_12px_32px_-18px_rgba(30,34,64,0.35)] ring-1 ring-line sm:p-6">
         {shard.status === 'loading' ? (
           <Loading className="min-h-96" />
         ) : shard.status === 'error' || !data ? (
           <LoadError />
         ) : (
           <TrendChart
-            title={title}
+            title={heading}
+            measure={indicator.label}
+            describedBy={ids.headline}
             rows={data.rows}
             series={data.series}
             years={SURVEY_YEARS}
@@ -146,7 +147,6 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
               csv: toCsv(data.csv),
               filename: safeFilename(`${cohort}-${indicator.id}-trend${split ? `-by-${split.id}` : ''}`),
               citation: cite,
-              title: indicator.label,
               subtitle: capitalize(`${population} · ${span}`),
               url: absoluteUrl(normalized),
               crisis: suicide,
@@ -156,8 +156,8 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
       </div>
 
       {shard.status === 'ready' ? (
-        <section className="mt-6 rounded-3xl bg-surface p-4 ring-1 ring-line sm:p-6" aria-labelledby="compare-years">
-          <h2 id="compare-years" className="m-0 font-display text-lg font-bold text-ink">{yearA} compared with {yearB}</h2>
+        <section className="mt-10 border-t border-line pt-8 sm:mt-12" aria-labelledby="compare-years">
+          <h2 id="compare-years" className="m-0 font-display text-h2 font-bold text-ink">{yearA} compared with {yearB}</h2>
           <ScrollTable label={`${yearA} compared with ${yearB}, as a table`}>
             <table className="tabular mt-3 w-full border-collapse text-sm">
               <thead>
@@ -187,6 +187,13 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
             &ldquo;Fell&rdquo; and &ldquo;Rose&rdquo; mean the change is statistically significant: too large to be explained by chance differences in who was
             surveyed (p &lt; 0.05). They don&apos;t explain why a change happened. Points are percentage points.{' '}
             <Link to="/methods#key-terms" className="text-primary-ink underline">See Methods.</Link>
+          </p>
+          <p className="m-0 mt-3 text-sm text-ink-2">
+            Race and ethnicity has more groups than fit on one chart;{' '}
+            <Link to={explorePath(cohort, indicator.id, { yearSet: String(yearB), group: 'race_ethnicity', level: 'white' })} className="text-primary-ink underline">
+              compare them on the Explore page
+            </Link>
+            .
           </p>
         </section>
       ) : null}

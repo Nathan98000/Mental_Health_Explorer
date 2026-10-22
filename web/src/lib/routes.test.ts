@@ -1,5 +1,5 @@
 import { readCatalog } from '../test/fixtures'
-import { absoluteUrl, cohortFromLocation, exploreCohortPath, explorePath, resolveExplore, resolveTrends, splitGroups, trendsCohortPath, trendsPath } from './routes'
+import { absoluteUrl, cohortFromLocation, indicatorFromLocation, exploreCohortPath, explorePath, resolveExplore, resolveTrends, splitGroups, trendsCohortPath, trendsPath } from './routes'
 
 const catalog = readCatalog()
 const q = (s: string) => new URLSearchParams(s)
@@ -137,6 +137,13 @@ describe('cohort switching', () => {
     expect(cohortFromLocation('/', '?cohort=young_adult')).toBe('young_adult')
     expect(cohortFromLocation('/methods', '')).toBeNull()
     expect(cohortFromLocation('/explore/nope/mde_py', '')).toBeNull()
+  })
+  it('reads the indicator from an explore or trends path', () => {
+    expect(indicatorFromLocation('/explore/teen/suicide_plan')).toBe('suicide_plan')
+    expect(indicatorFromLocation('/trends/young_adult/ami_py')).toBe('ami_py')
+    expect(indicatorFromLocation('/explore/teen')).toBeNull()
+    expect(indicatorFromLocation('/methods')).toBeNull()
+    expect(indicatorFromLocation('/')).toBeNull()
   })
 })
 

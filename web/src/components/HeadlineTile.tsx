@@ -28,7 +28,7 @@ export function HeadlineTile({ indicator, shard, cohort, partOf }: Props) {
   const arrow = change && /^[↓↑] /.test(change) ? change[0] : null
   return (
     <li className={LINK_CARD}>
-      <h3 className="m-0 font-display text-base font-bold leading-snug text-ink">
+      <h3 className="m-0 font-display text-h3 font-bold text-ink">
         <Link to={explorePath(cohort.id, indicator.id)} className={LINK_STRETCH}>
           {indicator.label}
           <span aria-hidden="true" className="ml-1 inline-block transition group-hover:translate-x-0.5">→</span>
@@ -36,7 +36,7 @@ export function HeadlineTile({ indicator, shard, cohort, partOf }: Props) {
       </h3>
       {latest ? (
         <>
-          <p className="tabular m-0 mt-3 font-display text-5xl font-extrabold leading-none text-ink" data-testid="tile-value">{formatShare(latest.cell.p as number)}</p>
+          <p className="tabular m-0 mt-3 font-display text-display font-extrabold text-ink" data-testid="tile-value">{formatShare(latest.cell.p as number)}</p>
           <p className="m-0 mt-1 text-sm text-ink-2">
             of {withUniverse(cohort.phrase, indicator)}
             {indicator.universe_phrase ? ` (${latest.year})` : ` in ${latest.year}`}
@@ -50,7 +50,7 @@ export function HeadlineTile({ indicator, shard, cohort, partOf }: Props) {
             </p>
           </div>
           {kind && change ? (
-            <p className="m-0 mt-3 w-fit rounded-full bg-surface-tint px-3 py-1 text-sm font-semibold text-ink" data-change={kind}>
+            <p className="m-0 mt-3 w-fit rounded-full bg-surface-cool px-3 py-1 text-sm font-semibold text-ink" data-change={kind}>
               {arrow ? (
                 <>
                   <span aria-hidden="true">{arrow} </span>

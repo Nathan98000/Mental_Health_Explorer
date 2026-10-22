@@ -35,6 +35,18 @@ async function expectNoAxeViolations(page: Page) {
   expect(results.violations.map((v) => `${v.id}: ${v.help} (${v.nodes.map((n) => n.target.join(' ')).join('; ')})`)).toEqual([])
 }
 
+/** Every element in main with its own text (svg text included) is at least 12 px, the type scale's minimum. */
+async function expectMinimumTextSize(page: Page) {
+  const small = await page.evaluate(() =>
+    [...document.querySelectorAll('main *')]
+      .filter((el) => [...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent?.trim()))
+      .map((el) => ({ size: parseFloat(getComputedStyle(el).fontSize), text: `${el.tagName.toLowerCase()}: ${el.textContent?.trim().slice(0, 40)}` }))
+      .filter((d) => d.size < 12)
+      .map((d) => `${d.text} (${d.size}px)`),
+  )
+  expect(small).toEqual([])
+}
+
 async function expectNoHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow, 'horizontal overflow in px').toBeLessThanOrEqual(0)
@@ -48,6 +60,7 @@ for (const route of ROUTES) {
     await settled(page)
     await expectNoAxeViolations(page)
     await expectNoHorizontalScroll(page)
+    await expectMinimumTextSize(page)
     if (testInfo.project.name.startsWith('mobile')) {
       await page.setViewportSize({ width: 360, height: 780 })
       await expectNoHorizontalScroll(page)
@@ -208,13 +221,51 @@ test('a downloaded chart carries its notes, the 988 note and the page address', 
   expect(texts.join('')).toContain('/trends/young_adult/suicide_thoughts')
 })
 
-test('Methods puts key terms and how to cite near the top', async ({ page }, testInfo) => {
+test('Methods puts key terms and how to cite near the top, folds the long parts and stays short', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.startsWith('mobile'), 'desktop layout')
   await page.goto('methods')
   await settled(page)
   await expect(page.locator('#key-terms')).toHaveCount(1)
+  await expect(page.locator('#how-to-cite')).toHaveCount(1)
   const top = await page.locator('#how-to-cite').evaluate((el) => el.getBoundingClientRect().top + window.scrollY)
   expect(top).toBeLessThan(2500)
+  expect(await page.evaluate(() => document.body.scrollHeight)).toBeLessThan(7000)
+  const teens = page.locator('details[data-cohort="teen"]')
+  await expect(teens.locator('tbody tr').first()).toBeHidden()
+  await teens.locator('summary').click()
+  await expect(teens.locator('tbody tr').first()).toBeVisible()
+})
+
+test('the explorer shows the number high on the page and a labelled chart over time', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.startsWith('mobile'), 'desktop layout')
+  await page.goto('explore/teen/mde_py')
+  await settled(page)
+  const top = await page.getByTestId('estimate-value').evaluate((el) => el.getBoundingClientRect().top)
+  expect(top).toBeLessThan(450)
+  const overTime = page.getByRole('region', { name: 'Over time' }).getByRole('img')
+  await expect(overTime).toContainText('2021')
+  await expect(overTime).toContainText('2024')
+})
+
+test('navigation keeps the measure', async ({ page }) => {
+  await page.goto('explore/teen/suicide_plan')
+  await settled(page)
+  // On phones the menu is closed, so the links are hidden but present.
+  const nav = page.getByRole('navigation', { name: 'Main', includeHidden: true })
+  expect(await nav.getByRole('link', { name: 'Trends', includeHidden: true }).getAttribute('href')).toMatch(/\/trends\/teen\/suicide_plan$/)
+  await page.goto('explore/teen/mde_py?group=race_ethnicity&level=white')
+  await settled(page)
+  const cross = page.getByRole('link', { name: 'See how this changed over time' })
+  expect(await cross.getAttribute('href')).not.toContain('split')
+})
+
+test('a URL notice comes before the page title', async ({ page }) => {
+  await page.goto('explore/teen/nope')
+  await settled(page)
+  const notice = page.getByTestId('notices')
+  await expect(notice).toContainText("We couldn't find that measure")
+  const before = await notice.evaluate((el) => !!(el.compareDocumentPosition(document.querySelector('h1') as Node) & Node.DOCUMENT_POSITION_FOLLOWING))
+  expect(before).toBe(true)
 })
 
 test('the mobile menu is a disclosure', async ({ page }, testInfo) => {

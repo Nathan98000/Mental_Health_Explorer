@@ -69,15 +69,32 @@ describe('TrendChart', () => {
     expect((linePath.match(/M/g) ?? []).length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText('Not available in 2021.')).toBeInTheDocument()
   })
-  it('draws a survey change as a thin solid rule between the year before and the year it names', () => {
+  it('draws a survey change as a thin dashed rule between the year before and the year it names', () => {
     const rows = seriesRows('All teens', [0.1, 0.11, 0.115, 0.12])
     render(<TrendChart title="Changed" rows={rows} series={['All teens']} years={SURVEY_YEARS} annotations={[{ year: 2022, label: 'Questions moved in 2022.' }]} />)
     const svg = screen.getByRole('img', { name: 'Changed' })
     const rule = svg.querySelector('[data-survey-change="2022"]')
     expect(rule).not.toBeNull()
-    expect(rule).not.toHaveAttribute('stroke-dasharray')
+    expect(rule).toHaveAttribute('stroke-dasharray', '4 3')
+    expect(rule).toHaveAttribute('stroke-width', '1')
     expect(svg.textContent).toContain('Survey change')
     expect(screen.getByText(/Questions moved in 2022\./)).toHaveTextContent(/^Survey change/)
+  })
+  it('labels a gap year "Not available" at the baseline', () => {
+    render(<TrendChart title="Vaping" rows={rows} series={['All teens']} years={SURVEY_YEARS} />)
+    const svg = screen.getByRole('img', { name: 'Vaping' })
+    expect([...svg.querySelectorAll('[data-gap-year]')].map((t) => [t.getAttribute('data-gap-year'), t.textContent])).toEqual([['2021', 'Not available']])
+  })
+  it('names the chart with a level-2 heading, leads its image name with the measure, and takes extra descriptions', () => {
+    render(
+      <>
+        <p id="headline">It fell.</p>
+        <TrendChart title="Teens ages 12–17, 2021–2024" measure="Vaping" describedBy="headline" rows={rows} series={['All teens']} years={SURVEY_YEARS} notes={['Not available in 2021.']} />
+      </>,
+    )
+    expect(screen.getByRole('heading', { level: 2, name: 'Teens ages 12–17, 2021–2024' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Vaping: Teens ages 12–17, 2021–2024' })).toBeInTheDocument()
+    expect(screen.getByRole('figure').getAttribute('aria-describedby')?.split(' ')).toContain('headline')
   })
   it('shows the gaps in the table view', async () => {
     render(<TrendChart title="Vaping" rows={rows} series={['All teens']} years={SURVEY_YEARS} />)
@@ -192,8 +209,14 @@ describe('legend and intervals', () => {
     expect(screen.getByRole('table')).toBeInTheDocument()
   })
   it('keeps shaded bands for one or two series and takes explicit colors', () => {
-    render(<TrendChart title="Bands" rows={rows} series={['All teens']} years={SURVEY_YEARS} colors={['#c2410c']} />)
+    const two = [...seriesRows('Male', [0.1, 0.11, 0.115, 0.12]), ...seriesRows('Female', [0.2, 0.19, 0.15, 0.122])]
+    render(<TrendChart title="Bands" rows={two} series={['Male', 'Female']} years={SURVEY_YEARS} colors={['#0e6e6d', '#eb6834']} />)
     expect(screen.getByText(/Shaded bands show 95% confidence intervals/)).toBeInTheDocument()
-    expect(within(screen.getByRole('list', { name: 'Legend' })).getByText('All teens').closest('li')?.querySelector('line')).toHaveAttribute('stroke', '#c2410c')
+    expect(within(screen.getByRole('list', { name: 'Legend' })).getByText('Male').closest('li')?.querySelector('line')).toHaveAttribute('stroke', '#0e6e6d')
+  })
+  it('hides the legend for one series', () => {
+    render(<TrendChart title="Single" rows={rows} series={['All teens']} years={SURVEY_YEARS} colors={['#0e6e6d']} />)
+    expect(screen.queryByRole('list', { name: 'Legend' })).not.toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Single' }).querySelector('[stroke="#0e6e6d"]')).not.toBeNull()
   })
 })
