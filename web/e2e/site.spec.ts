@@ -287,7 +287,7 @@ test('the explorer shows the number high on the page and a labelled chart over t
   await settled(page)
   const top = await page.getByTestId('estimate-value').evaluate((el) => el.getBoundingClientRect().top)
   expect(top).toBeLessThan(520)
-  await expect(page.getByTestId('data-date')).toContainText('Data generated')
+  await expect(page.getByTestId('data-date')).toHaveText(/^Data generated [A-Z][a-z]+ \d{1,2}, \d{4}$/)
   const overTime = page.getByRole('region', { name: 'Over time' }).getByRole('img')
   await expect(overTime).toContainText('2021')
   await expect(overTime).toContainText('2024')
@@ -429,4 +429,16 @@ test('Methods sets "In short" apart with a background', async ({ page }) => {
   const background = await page.getByRole('note', { name: 'In short' }).evaluate((el) => getComputedStyle(el).backgroundColor)
   expect(background).not.toBe('rgba(0, 0, 0, 0)')
   expect(background).not.toBe('transparent')
+})
+
+test('Trends opens with the measure, without an eyebrow above it', async ({ page }) => {
+  await page.goto('trends/teen/mde_py')
+  await settled(page)
+  const h1Top = await page.getByRole('heading', { level: 1 }).evaluate((el) => el.getBoundingClientRect().top)
+  const above = await page.getByRole('main').getByText('TRENDS', { exact: true }).evaluateAll((els, top) => els.filter((el) => {
+    const r = el.getBoundingClientRect()
+    return r.height > 0 && r.bottom <= top
+  }).length, h1Top)
+  expect(above).toBe(0)
+  await expect(page.getByTestId('data-date')).toHaveText(/^Data generated [A-Z][a-z]+ \d{1,2}, \d{4}$/)
 })

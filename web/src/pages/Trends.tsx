@@ -12,7 +12,7 @@ import { TrendChart } from '../components/TrendChart'
 import { cohortInfo, firstYear, isSuicideMeasure, latestYear, SURVEY_YEARS, withUniverse, type Catalog } from '../lib/catalog'
 import { loadEstimates, loadManifest, type Cell } from '../lib/data'
 import { capitalize, citation, safeFilename, toCsv } from '../lib/exports'
-import { formatSharePair } from '../lib/format'
+import { formatDate, formatSharePair } from '../lib/format'
 import { absoluteUrl, explorePath, resolveTrends, splitGroups, trendsCohortPath, trendsPath, type TrendsState } from '../lib/routes'
 import { paletteKind, seriesColors, useChartTheme } from '../lib/theme'
 import { comparisons, trendData, trendHeadline, type Comparison } from '../lib/trends'
@@ -71,8 +71,7 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
     <>
       <DocumentTitle title={`Trends: ${indicator.label} · ${info.label}`} />
       <Notices items={notices} />
-      <p className="m-0 text-sm font-semibold uppercase tracking-wide text-primary-ink">Trends</p>
-      <h1 className="m-0 mt-1 font-display text-h1 font-extrabold tracking-tight text-ink">{indicator.label}</h1>
+      <h1 className="m-0 font-display text-h1 font-extrabold tracking-tight text-ink">{indicator.label}</h1>
       {shard.status === 'ready' ? (
         <p id={ids.headline} data-testid="trend-headline" className="m-0 mt-3 max-w-3xl text-lede text-ink">
           {trendHeadline(catalog, state, comps)}
@@ -83,7 +82,7 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
           See the latest estimate and compare groups <span aria-hidden="true">→</span>
         </Link>
       </p>
-      {manifest.status === 'ready' ? <p className="m-0 mt-1 text-sm text-muted" data-testid="data-date">Data generated {manifest.data.generated}</p> : null}
+      {manifest.status === 'ready' ? <p className="m-0 mt-1 text-sm text-muted" data-testid="data-date">Data generated {formatDate(manifest.data.generated)}</p> : null}
       <Filters summary={`${info.label} · ${split ? split.label : 'No split'} · ${yearA} vs ${yearB}`} className="lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start">
         <div className="min-w-0">
           <span className="mb-1 block text-sm font-semibold text-ink-2">Age group</span>

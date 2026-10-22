@@ -121,7 +121,16 @@ describe('Explore page', () => {
     renderAt('/explore/teen/mde_py?year=all')
     const card = within(await screen.findByRole('article', { name: 'Estimate' }))
     expect(card.getByText('about 4.5 million per year, on average')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: /^Major depressive episode in the past year: / }).querySelector('[data-shaded-years="2021 2022 2023 2024"]')).not.toBeNull()
+    // Every year is pooled, so there is nothing to set apart.
+    expect(document.querySelector('[data-shaded-years]')).toBeNull()
+    expect(screen.queryByText('Shaded: the years combined in this estimate.')).not.toBeInTheDocument()
+  })
+  it('shades the pooled years when they are a subset of the years shown', async () => {
+    renderAt('/explore/teen/mde_py?year=recent2')
+    const chart = await screen.findByRole('img', { name: /^Major depressive episode in the past year: / })
+    expect(chart.querySelectorAll('[data-shaded-years]')).toHaveLength(1)
+    expect(chart.querySelector('[data-shaded-years="2023 2024"]')).not.toBeNull()
+    expect(screen.getByText('Shaded: the years combined in this estimate.')).toBeInTheDocument()
   })
   it('normalizes an unknown indicator to the default one and says so', async () => {
     renderAt('/explore/teen/not_a_measure?year=2024')

@@ -13,6 +13,7 @@ import { Loading, LoadError } from '../components/Status'
 import { cohortInfo, firstYear, groupsFor, isSuicideMeasure, latestYear, levelsFor, SURVEY_YEARS, withUniverse, yearSetLabel, yearSetsFor, yearSetSpan, type Catalog } from '../lib/catalog'
 import { findCell, loadEstimates, loadManifest, seriesByYear, type EstimateShard } from '../lib/data'
 import { capitalize, citation, safeFilename, toCsv, type CsvRow } from '../lib/exports'
+import { formatDate } from '../lib/format'
 import { absoluteUrl, exploreCohortPath, explorePath, resolveExplore, splitGroups, trendsPath, type ExploreState } from '../lib/routes'
 import { describeSparkline } from '../lib/sparkline'
 import { exploreSummary } from '../lib/summary'
@@ -96,7 +97,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
       <DocumentTitle title={`${indicator.label} · ${info.label}`} />
       <Notices items={notices} />
       <h1 className="m-0 font-display text-h1 font-extrabold tracking-tight text-ink">{indicator.label}</h1>
-      {manifest.status === 'ready' ? <p className="m-0 mt-1 text-sm text-muted" data-testid="data-date">Data generated {manifest.data.generated}</p> : null}
+      {manifest.status === 'ready' ? <p className="m-0 mt-1 text-sm text-muted" data-testid="data-date">Data generated {formatDate(manifest.data.generated)}</p> : null}
       <Filters
         summary={`${info.label} · ${yearSetSpan(yearSet, indicator.years)} · ${level ? level.label : 'Everyone'}`}
         className="lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start"
@@ -180,7 +181,8 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
                   ))}
                 </ul>
               ) : null}
-              {pooled && anyShown ? <p className="m-0 mt-2 text-sm text-ink-2">Shaded: the years combined in this estimate.</p> : null}
+              {/* As in the chart: shading only marks a real subset of the years shown. */}
+              {pooled && pooledYears.length < points.filter((d) => d.p !== null).length ? <p className="m-0 mt-2 text-sm text-ink-2">Shaded: the years combined in this estimate.</p> : null}
               <p className="m-0 mt-3">
                 <Link to={trendsPath(cohort, indicator.id, { split: splitOk ? group.id : null })} className="font-semibold text-primary-ink underline">
                   See how this changed over time <span aria-hidden="true">→</span>

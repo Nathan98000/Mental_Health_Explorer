@@ -12,7 +12,7 @@ export default function NotFound() {
   ]
   return (
     <section className="py-20 text-center">
-      <h1 className="m-0 font-display text-4xl font-extrabold text-ink">We couldn&apos;t find that page</h1>
+      <h1 className="m-0 font-display text-h1 font-extrabold text-ink">We couldn&apos;t find that page</h1>
       <p className="mt-4 text-ink-2">Try one of these instead.</p>
       <ul className="m-0 mt-4 flex list-none flex-wrap justify-center gap-x-6 gap-y-2 p-0">
         {links.map((l) => (
