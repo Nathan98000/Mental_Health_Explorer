@@ -12,7 +12,7 @@ import { TrendChart } from '../components/TrendChart'
 import { cohortInfo, firstYear, isSuicideMeasure, latestYear, SURVEY_YEARS, withUniverse, type Catalog } from '../lib/catalog'
 import { loadEstimates, loadManifest, type Cell } from '../lib/data'
 import { capitalize, citation, safeFilename, toCsv } from '../lib/exports'
-import { formatSharePair } from '../lib/format'
+import { formatDate, formatSharePair } from '../lib/format'
 import { absoluteUrl, explorePath, resolveTrends, splitGroups, trendsCohortPath, trendsPath, type TrendsState } from '../lib/routes'
 import { paletteKind, seriesColors, useChartTheme } from '../lib/theme'
 import { comparisons, trendData, trendHeadline, type Comparison } from '../lib/trends'
@@ -71,8 +71,7 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
     <>
       <DocumentTitle title={`Trends: ${indicator.label} · ${info.label}`} />
       <Notices items={notices} />
-      <p className="m-0 text-sm font-semibold uppercase tracking-wide text-primary-ink">Trends</p>
-      <h1 className="m-0 mt-1 font-display text-h1 font-extrabold tracking-tight text-ink">{indicator.label}</h1>
+      <h1 className="m-0 font-display text-h1 font-extrabold tracking-tight text-ink">{indicator.label}</h1>
       {shard.status === 'ready' ? (
         <p id={ids.headline} data-testid="trend-headline" className="m-0 mt-3 max-w-3xl text-lede text-ink">
           {trendHeadline(catalog, state, comps)}
@@ -83,8 +82,8 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
           See the latest estimate and compare groups <span aria-hidden="true">→</span>
         </Link>
       </p>
-      {manifest.status === 'ready' ? <p className="m-0 mt-1 text-sm text-muted" data-testid="data-date">Data generated {manifest.data.generated}</p> : null}
-      <Filters summary={`${info.label} · ${split ? split.label : 'No split'} · ${yearA} vs ${yearB}`}>
+      {manifest.status === 'ready' ? <p className="m-0 mt-1 text-sm text-muted" data-testid="data-date">Data generated {formatDate(manifest.data.generated)}</p> : null}
+      <Filters summary={`${info.label} · ${split ? split.label : 'No split'} · ${yearA} vs ${yearB}`} className="lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start">
         <div className="min-w-0">
           <span className="mb-1 block text-sm font-semibold text-ink-2">Age group</span>
           <CohortSwitcher catalog={catalog} cohort={cohort} hrefFor={(c) => trendsCohortPath(catalog, state, c)} />
@@ -93,7 +92,7 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
           <label htmlFor={ids.indicator} className="mb-1 block text-sm font-semibold text-ink-2">Measure</label>
           <IndicatorSelect id={ids.indicator} catalog={catalog} cohort={cohort} value={indicator.id} onChange={(id) => go({ indicator: id })} />
         </div>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 lg:col-span-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <div className="min-w-0">
             <label htmlFor={ids.split} className="mb-1 block text-sm font-semibold text-ink-2">Split by</label>
             <select id={ids.split} value={split?.id ?? ''} title={split?.label ?? noSplit} onChange={(e) => go({ split: e.target.value || null })} className={selectClass}>
@@ -185,12 +184,12 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
               </tbody>
             </table>
           </ScrollTable>
-          <p className="m-0 mt-3 text-sm text-muted">
+          <p className="m-0 mt-3 max-w-3xl text-sm text-muted">
             &ldquo;Fell&rdquo; and &ldquo;Rose&rdquo; mean the change is statistically significant: too large to be explained by chance differences in who was
             surveyed (p &lt; 0.05). They don&apos;t explain why a change happened. Points are percentage points.{' '}
             <Link to="/methods#key-terms" className="text-primary-ink underline">See Methods.</Link>
           </p>
-          <p className="m-0 mt-3 text-sm text-ink-2">
+          <p className="m-0 mt-3 max-w-3xl text-sm text-ink-2">
             Race and ethnicity has more groups than fit on one chart;{' '}
             <Link to={explorePath(cohort, indicator.id, { yearSet: String(yearB), group: 'race_ethnicity', level: 'white' })} className="text-primary-ink underline">
               compare them on the Explore page

@@ -74,7 +74,7 @@ function Dictionary({ catalog }: { catalog: Catalog }) {
   const measureName = (i: Indicator) => (
     <>
       <span className="font-medium text-ink">{i.label}</span>{' '}
-      <Link to={explorePath(i.cohort, i.id)} className="whitespace-nowrap text-xs font-semibold text-primary-ink underline">
+      <Link to={explorePath(i.cohort, i.id)} className="inline-flex min-h-6 items-center whitespace-nowrap text-xs font-semibold text-primary-ink underline">
         Explore <span aria-hidden="true">→</span>
         <span className="sr-only"> {i.label}</span>
       </Link>
@@ -97,7 +97,7 @@ function Dictionary({ catalog }: { catalog: Catalog }) {
         // A search opens both lists; otherwise they start closed.
         return (
           <details key={cohort} open={q ? true : undefined} className="border-t border-line pt-3" data-cohort={cohort}>
-            <summary className="cursor-pointer font-display text-h3 font-bold text-ink">
+            <summary className="min-h-6 cursor-pointer font-display text-h3 font-bold text-ink">
               {info.label} ages {info.ages} <span className="font-sans text-sm font-normal text-ink-2">({mine.length})</span>
             </summary>
             {/* Phones: one entry per measure. */}
@@ -229,7 +229,7 @@ export default function Methods() {
       <p className="m-0 mt-3 max-w-3xl text-lede text-ink-2">
         Where the numbers come from, how they are computed, how sure we can be, and what every measure means.
       </p>
-      <div className="mt-8 max-w-3xl border-t border-line pt-8 text-ink" role="note" aria-label="In short">
+      <div className="mt-8 max-w-3xl rounded-2xl bg-surface-cool p-5 text-ink" role="note" aria-label="In short">
         <p className="m-0 font-display text-h3 font-bold">In short</p>
         <p className="m-0 mt-2">
           Every number on this site is the share of U.S. teens or young adults who answered yes to a question in SAMHSA&rsquo;s national survey, weighted so the
@@ -293,7 +293,7 @@ export default function Methods() {
               difference is called real only when a statistical test says it is unlikely to be chance.
             </p>
             <details>
-              <summary className="cursor-pointer font-semibold text-ink">Technical details</summary>
+              <summary className="min-h-6 cursor-pointer font-semibold text-ink">Technical details</summary>
               <div className="mt-3 space-y-3">
                 <p>
                   Every number is a weighted proportion: each respondent counts with their analysis weight, so the sample stands for the U.S. civilian,
@@ -364,7 +364,7 @@ export default function Methods() {
           <Section id="availability">
             {catalog.status === 'ready' && availability.status === 'ready' ? (
               <details>
-                <summary className="cursor-pointer font-semibold text-ink">Show the table</summary>
+                <summary className="min-h-6 cursor-pointer font-semibold text-ink">Show the table</summary>
                 <div className="mt-3">
                   <AvailabilityMatrix catalog={catalog.data} availability={availability.data} />
                 </div>

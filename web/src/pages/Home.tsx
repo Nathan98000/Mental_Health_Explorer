@@ -1,11 +1,12 @@
 import { Link, useSearchParams } from 'react-router'
 import { CohortSwitcher } from '../components/CohortSwitcher'
-import { HeadlineTile } from '../components/HeadlineTile'
+import { HeadlineTile, type TileTrend } from '../components/HeadlineTile'
 import { Loading, LoadError } from '../components/Status'
 import { cohortInfo, findIndicator, type Catalog } from '../lib/catalog'
-import { seriesByYear, type Cohort, type EstimateShard } from '../lib/data'
+import { seriesByYear, trendTest, type Cohort, type EstimateShard } from '../lib/data'
 import { HEADLINES, SUBSET_OF } from '../lib/headlines'
 import { DEFAULT_COHORT, explorePath, parseCohort, trendsPath } from '../lib/routes'
+import { changeKind, overviewSummary } from '../lib/takeaways'
 import { useCatalog } from '../lib/useCatalog'
 import { useDocumentTitle } from '../lib/useDocumentTitle'
 import { useEstimates } from '../lib/useEstimates'
@@ -22,21 +23,40 @@ function latestP(shard: EstimateShard | undefined): number | null {
   return shown.length ? (shown[shown.length - 1].cell.p as number) : null
 }
 
+/** The tiles' one rule: the first reported year against the latest, by the overall trend test. */
+function tileTrend(shard: EstimateShard): TileTrend {
+  const shown = seriesByYear(shard).filter((d) => !d.cell.suppressed)
+  const latest = shown[shown.length - 1]
+  const first = shown[0]
+  const test = latest && first && first.year !== latest.year ? trendTest(shard, null, null, first.year, latest.year) : null
+  return { first, latest, kind: test ? changeKind(test.diff, test.pValue) : null }
+}
+
 function Tiles({ catalog, cohort, shards }: { catalog: Catalog; cohort: Cohort; shards: Record<string, EstimateShard> }) {
   const info = cohortInfo(catalog, cohort)
-  const ids = HEADLINES[cohort]
+  const ids = HEADLINES[cohort].filter((id) => findIndicator(catalog, cohort, id) && shards[id])
+  const trends = new Map(ids.map((id) => [id, tileTrend(shards[id])]))
+  const latestYears = new Set([...trends.values()].flatMap((t) => (t.latest ? [t.latest.year] : [])))
+  const summary = overviewSummary([...trends.values()].map((t) => t.kind), latestYears.size === 1 ? [...latestYears][0] : null)
   return (
-    <ul className="mt-5 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
-      {ids.map((id) => {
-        const indicator = findIndicator(catalog, cohort, id)
-        const shard = shards[id]
-        const parentId = SUBSET_OF[id]
-        const parent = parentId && ids.includes(parentId) ? findIndicator(catalog, cohort, parentId) : undefined
-        const parentP = parent ? latestP(shards[parent.id]) : null
-        const partOf = parent && parentP !== null ? { p: parentP, phrase: parent.phrase } : null
-        return indicator && shard ? <HeadlineTile key={id} indicator={indicator} shard={shard} cohort={info} partOf={partOf} /> : null
-      })}
-    </ul>
+    <>
+      {summary ? (
+        <p data-testid="overview-summary" className="m-0 mt-3 max-w-3xl text-lede text-ink">
+          {summary}
+        </p>
+      ) : null}
+      <ul className="mt-5 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
+        {ids.map((id) => {
+          const indicator = findIndicator(catalog, cohort, id)
+          const shard = shards[id]
+          const parentId = SUBSET_OF[id]
+          const parent = parentId && ids.includes(parentId) ? findIndicator(catalog, cohort, parentId) : undefined
+          const parentP = parent ? latestP(shards[parent.id]) : null
+          const partOf = parent && parentP !== null ? { p: parentP, phrase: parent.phrase } : null
+          return indicator ? <HeadlineTile key={id} indicator={indicator} shard={shard} cohort={info} trend={trends.get(id) as TileTrend} partOf={partOf} /> : null
+        })}
+      </ul>
+    </>
   )
 }
 
@@ -67,7 +87,7 @@ export default function Home() {
 
       <section className="mt-10 sm:mt-12" aria-labelledby="at-a-glance">
         <h2 id="at-a-glance" className="m-0 font-display text-h2 font-bold text-ink">At a glance</h2>
-        <p className="m-0 mt-2 text-ink-2">The latest year for six headline measures, with the change since the first year each was asked. Select a measure to explore it.</p>
+        <p className="m-0 mt-2 max-w-3xl text-ink-2">The latest year for six headline measures, with the change since the first year each was asked. Select a measure to explore it.</p>
         {catalog.status === 'error' || estimates.status === 'error' ? (
           <LoadError />
         ) : catalog.status === 'loading' || estimates.status === 'loading' ? (

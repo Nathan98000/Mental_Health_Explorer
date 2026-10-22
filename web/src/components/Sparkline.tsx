@@ -32,7 +32,7 @@ export function Sparkline({ points, years, label, width = 150, height = 44 }: Pr
 type LabeledProps = Props & {
   /** The year being looked at: its dot is drawn larger. */
   highlightYear?: number
-  /** Years pooled into the estimate being looked at: shaded behind the line. */
+  /** Years pooled into the estimate being looked at: shaded behind the line when they are fewer than the years with a value. */
   shadeYears?: readonly number[]
   ref?: Ref<SVGSVGElement>
 }
@@ -42,7 +42,8 @@ export function LabeledSparkline({ points, years, label, highlightYear, shadeYea
   const pad = { x: 28, top: 26, bottom: 28 }
   const { segments, dots, x } = sparklineGeometry(points, years, width, height, pad)
   const baseline = height - pad.bottom
-  const shaded = shadeYears.filter((y) => years.includes(y))
+  const pooled = shadeYears.filter((y) => years.includes(y))
+  const shaded = pooled.length < points.filter((d) => d.p !== null).length ? pooled : []
   const half = (width - 2 * pad.x) / Math.max(1, years.length - 1) / 2
   const left = shaded.length ? Math.max(0, x(Math.min(...shaded)) - half) : 0
   return (

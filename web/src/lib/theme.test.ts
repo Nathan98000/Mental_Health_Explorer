@@ -55,6 +55,9 @@ describe('color roles', () => {
     expect(token('data')).toBe('#0e6e6d')
     expect(contrast(token('data'), token('surface'))).toBeGreaterThanOrEqual(4.5)
   })
+  it('keeps the soft data color for interval bars visible as a graphic on the card surface', () => {
+    expect(contrast(token('data-soft'), token('surface'))).toBeGreaterThanOrEqual(3)
+  })
   it('keeps the context color visible as a graphic on the card surface', () => {
     expect(contrast(token('data-context'), token('surface'))).toBeGreaterThanOrEqual(3)
   })

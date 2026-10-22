@@ -45,3 +45,10 @@ export function formatSharePair(a: number, b: number): [string, string] {
   const pair: [string, string] = [formatShare(a), formatShare(b)]
   return pair[0] === pair[1] ? [formatPct(a, 1), formatPct(b, 1)] : pair
 }
+
+/** A date in words, e.g. "2026-09-23" -> "September 23, 2026", read as a local date so no time zone moves it a day. */
+export function formatDate(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso)
+  if (!m) return iso
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}

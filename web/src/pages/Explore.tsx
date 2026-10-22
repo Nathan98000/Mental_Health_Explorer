@@ -13,6 +13,7 @@ import { Loading, LoadError } from '../components/Status'
 import { cohortInfo, firstYear, groupsFor, isSuicideMeasure, latestYear, levelsFor, SURVEY_YEARS, withUniverse, yearSetLabel, yearSetsFor, yearSetSpan, type Catalog } from '../lib/catalog'
 import { findCell, loadEstimates, loadManifest, seriesByYear, type EstimateShard } from '../lib/data'
 import { capitalize, citation, safeFilename, toCsv, type CsvRow } from '../lib/exports'
+import { formatDate } from '../lib/format'
 import { absoluteUrl, exploreCohortPath, explorePath, resolveExplore, splitGroups, trendsPath, type ExploreState } from '../lib/routes'
 import { describeSparkline } from '../lib/sparkline'
 import { exploreSummary } from '../lib/summary'
@@ -80,19 +81,26 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
     : []
 
   const manifest = useResource('manifest', loadManifest)
-  const overTimeRef = useRef<SVGSVGElement>(null)
+  const exportRef = useRef<SVGSVGElement>(null)
   const missing = SURVEY_YEARS.filter((y) => !points.some((d) => d.year === y && d.p !== null))
   const splitOk = group && splitGroups(catalog, cohort).some((g) => g.id === group.id)
+  const overTime = {
+    points,
+    years: SURVEY_YEARS,
+    highlightYear: indicator.years.includes(selectedYear) ? selectedYear : undefined,
+    shadeYears: pooledYears,
+    label: `${chartTitle}. ${describeSparkline(points, SURVEY_YEARS)}`,
+  }
 
   return (
     <>
       <DocumentTitle title={`${indicator.label} · ${info.label}`} />
       <Notices items={notices} />
       <h1 className="m-0 font-display text-h1 font-extrabold tracking-tight text-ink">{indicator.label}</h1>
-      {manifest.status === 'ready' ? <p className="m-0 mt-1 text-sm text-muted" data-testid="data-date">Data generated {manifest.data.generated}</p> : null}
+      {manifest.status === 'ready' ? <p className="m-0 mt-1 text-sm text-muted" data-testid="data-date">Data generated {formatDate(manifest.data.generated)}</p> : null}
       <Filters
         summary={`${info.label} · ${yearSetSpan(yearSet, indicator.years)} · ${level ? level.label : 'Everyone'}`}
-        className="lg:grid-cols-[auto_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1.5fr)] lg:items-start"
+        className="lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start"
       >
         <div className="min-w-0">
           <span className="mb-1 block text-sm font-semibold text-ink-2">Age group</span>
@@ -102,7 +110,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
           <label htmlFor={ids.indicator} className="mb-1 block text-sm font-semibold text-ink-2">Measure</label>
           <IndicatorSelect id={ids.indicator} catalog={catalog} cohort={cohort} value={indicator.id} onChange={(id) => go({ indicator: id })} />
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:contents">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
           <div className="min-w-0">
             <label htmlFor={ids.year} className="mb-1 block text-sm font-semibold text-ink-2">Years</label>
             <select id={ids.year} value={yearSet} title={yearSetLabel(yearSet, indicator.years)} onChange={(e) => go({ yearSet: e.target.value })} className={selectClass}>
@@ -138,52 +146,30 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
         </div>
       ) : null}
 
-      <div className="mt-6 max-w-3xl">
-        {shard.status === 'loading' ? (
-          <Loading variant="card" />
-        ) : shard.status === 'error' ? (
-          <LoadError />
-        ) : summary?.cell ? (
-          <EstimateCard when={summary.when} cell={summary.cell} population={summary.population} people={info.people} sentences={summary.sentences} nextSteps={nextSteps} pooled={pooled} />
-        ) : (
-          <p className="rounded-2xl bg-surface p-4 text-ink-2 ring-1 ring-line sm:p-6" role="status">There is no estimate for this combination of years and population.</p>
-        )}
-      </div>
-
-      {shard.status === 'ready' && summary ? (
-        <GroupComparison catalog={catalog} cohort={cohort} shard={shard.data} yearSet={yearSet} when={summary.when} people={withUniverse(info.people, indicator)} group={group} level={level} allYearsTo={allYearsTo} />
-      ) : null}
-
-      <div className="mt-10 grid gap-x-12 gap-y-10 sm:mt-12 lg:grid-cols-2">
-        <section className="min-w-0 border-t border-line pt-8" aria-labelledby="about-measure">
-          <h2 id="about-measure" className="m-0 font-display text-h2 font-bold text-ink">About this measure</h2>
-          <p className="m-0 mt-2 text-ink">{indicator.definition}</p>
-          <p className="m-0 mt-2 text-sm text-ink-2">
-            Measured as: {indicator.universe_phrase ? `among ${info.people} ${indicator.universe_phrase}, those who ${indicator.phrase}` : `${info.people} who ${indicator.phrase}`}. Source variable{' '}
-            <code className="rounded bg-surface-cool px-1">{indicator.source}</code> in the NSDUH public use file.
-          </p>
-          {indicator.caveats.length ? (
-            <ul className="mt-2 mb-0 list-disc space-y-1 pl-5 text-sm text-ink-2">
-              {indicator.caveats.map((c) => (
-                <li key={c}>{c}</li>
-              ))}
-            </ul>
-          ) : null}
-        </section>
-        <section className="min-w-0 border-t border-line pt-8" aria-labelledby="over-time">
+      {/* The answer and its history side by side on wide screens; on phones: card, Over time, groups, About. */}
+      <div className="mt-6 grid gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:items-start">
+        <div className="min-w-0">
+          {shard.status === 'loading' ? (
+            <Loading variant="card" />
+          ) : shard.status === 'error' ? (
+            <LoadError />
+          ) : summary?.cell ? (
+            <EstimateCard when={summary.when} cell={summary.cell} population={summary.population} people={info.people} sentences={summary.sentences} nextSteps={nextSteps} pooled={pooled} />
+          ) : (
+            <p className="rounded-2xl bg-surface p-4 text-ink-2 ring-1 ring-line sm:p-6" role="status">There is no estimate for this combination of years and population.</p>
+          )}
+        </div>
+        <section className="min-w-0" aria-labelledby="over-time">
           <h2 id="over-time" className="m-0 font-display text-h2 font-bold text-ink">Over time</h2>
           {shard.status === 'ready' && summary ? (
             <>
               {anyShown ? (
                 <div className="mt-3">
-                  <LabeledSparkline
-                    ref={overTimeRef}
-                    points={points}
-                    years={SURVEY_YEARS}
-                    highlightYear={indicator.years.includes(selectedYear) ? selectedYear : undefined}
-                    shadeYears={pooledYears}
-                    label={`${chartTitle}. ${describeSparkline(points, SURVEY_YEARS)}`}
-                  />
+                  <LabeledSparkline {...overTime} />
+                  {/* The image download, drawn at its own size (the frame needs room for the title). */}
+                  <div hidden>
+                    <LabeledSparkline ref={exportRef} {...overTime} width={520} height={200} />
+                  </div>
                 </div>
               ) : null}
               {missing.length ? (
@@ -195,14 +181,15 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
                   ))}
                 </ul>
               ) : null}
-              {pooled && anyShown ? <p className="m-0 mt-2 text-sm text-ink-2">Shaded: the years combined in this estimate.</p> : null}
+              {/* As in the chart: shading only marks a real subset of the years shown. */}
+              {pooled && pooledYears.length < points.filter((d) => d.p !== null).length ? <p className="m-0 mt-2 text-sm text-ink-2">Shaded: the years combined in this estimate.</p> : null}
               <p className="m-0 mt-3">
                 <Link to={trendsPath(cohort, indicator.id, { split: splitOk ? group.id : null })} className="font-semibold text-primary-ink underline">
                   See how this changed over time <span aria-hidden="true">→</span>
                 </Link>
               </p>
               <ChartExports
-                getSvg={anyShown ? () => exportCopy(overTimeRef.current) : undefined}
+                getSvg={anyShown ? () => exportRef.current : undefined}
                 csv={toCsv(csvRows(shard.data, state, summary.population))}
                 filename={safeFilename(`${cohort}-${indicator.id}-${summary.population}`)}
                 citation={cite}
@@ -212,19 +199,28 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
           ) : null}
         </section>
       </div>
+
+      {shard.status === 'ready' && summary ? (
+        <GroupComparison catalog={catalog} cohort={cohort} shard={shard.data} yearSet={yearSet} when={summary.when} people={withUniverse(info.people, indicator)} group={group} level={level} allYearsTo={allYearsTo} />
+      ) : null}
+
+      <section className="mt-10 max-w-3xl border-t border-line pt-8 sm:mt-12" aria-labelledby="about-measure">
+        <h2 id="about-measure" className="m-0 font-display text-h2 font-bold text-ink">About this measure</h2>
+        <p className="m-0 mt-2 text-ink">{indicator.definition}</p>
+        <p className="m-0 mt-2 text-sm text-ink-2">
+          Measured as: {indicator.universe_phrase ? `among ${info.people} ${indicator.universe_phrase}, those who ${indicator.phrase}` : `${info.people} who ${indicator.phrase}`}. Source variable{' '}
+          <code className="rounded bg-surface-cool px-1">{indicator.source}</code> in the NSDUH public use file.
+        </p>
+        {indicator.caveats.length ? (
+          <ul className="mt-2 mb-0 list-disc space-y-1 pl-5 text-sm text-ink-2">
+            {indicator.caveats.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
     </>
   )
-}
-
-/** The "Over time" chart scaled up for an image download (the frame needs room for the title). */
-function exportCopy(svg: SVGSVGElement | null): SVGSVGElement | null {
-  if (!svg) return null
-  const copy = svg.cloneNode(true) as SVGSVGElement
-  const width = Number(svg.getAttribute('width'))
-  const height = Number(svg.getAttribute('height'))
-  copy.setAttribute('width', '520')
-  copy.setAttribute('height', String(Math.round((height * 520) / width)))
-  return copy
 }
 
 export default function Explore() {

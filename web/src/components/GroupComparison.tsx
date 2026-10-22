@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { groupsFor, levelsFor, type Catalog, type Group, type Level } from '../lib/catalog'
 import { findCell, type Cohort, type EstimateShard } from '../lib/data'
+import { niceMaxPct, pooledWouldHelp, reported } from '../lib/groups'
 import { GroupDotPlot } from './GroupDotPlot'
 
 type Props = {
@@ -18,41 +19,39 @@ type Props = {
   allYearsTo: string
 }
 
-/** True when any level of the group has a suppressed estimate for the year set. */
-function hasSuppressedRow(catalog: Catalog, cohort: Cohort, shard: EstimateShard, group: Group, yearSet: string): boolean {
-  return levelsFor(catalog, cohort, group).some((l) => {
-    const cell = findCell(shard, yearSet, group.id, l.id)
-    return !!cell && (cell.suppressed || cell.p === null)
-  })
-}
+/** Groups shown open when everyone is selected; the rest fold under "More groups". */
+const OPEN_GROUPS = 3
 
-/** "Compared with other groups": one table per breakdown group, the selected group first and the rest folded away. */
+/**
+ * "Compared with other groups": one table per breakdown group on one shared scale. With a level selected its group comes
+ * first and the rest fold under "Other groups"; with everyone, the first few groups are open and the rest fold.
+ */
 export function GroupComparison({ catalog, cohort, shard, yearSet, when, people, group, level, allYearsTo }: Props) {
   const groups = groupsFor(catalog, cohort)
-  const plot = (g: Group) => <GroupDotPlot key={g.id} catalog={catalog} cohort={cohort} shard={shard} group={g} selected={g.id === group?.id ? level : null} yearSet={yearSet} people={people} />
-  const others = group ? groups.filter((g) => g.id !== group.id) : groups
-  const grid = 'grid gap-x-8 gap-y-6 lg:grid-cols-2'
-  const anySuppressed = yearSet !== 'all' && groups.some((g) => hasSuppressedRow(catalog, cohort, shard, g, yearSet))
+  const cells = [findCell(shard, yearSet), ...groups.flatMap((g) => levelsFor(catalog, cohort, g).map((l) => findCell(shard, yearSet, g.id, l.id)))]
+  const maxPct = niceMaxPct(cells.filter(reported).map((c) => c.hi))
+  const plot = (g: Group) => (
+    <GroupDotPlot key={g.id} catalog={catalog} cohort={cohort} shard={shard} group={g} selected={g.id === group?.id ? level : null} everyone={!level} yearSet={yearSet} people={people} maxPct={maxPct} />
+  )
+  const grid = 'grid items-start gap-x-8 gap-y-6 lg:grid-cols-2'
+  const summary = 'min-h-6 cursor-pointer font-display text-h3 font-bold text-ink'
+  const [open, folded] = group ? [[group], groups.filter((g) => g.id !== group.id)] : [groups.slice(0, OPEN_GROUPS), groups.slice(OPEN_GROUPS)]
   return (
     <section className="mt-10 border-t border-line pt-8 sm:mt-12" aria-labelledby="compare-groups">
       <h2 id="compare-groups" className="m-0 font-display text-h2 font-bold text-ink">Compared with other groups · {when}</h2>
-      {anySuppressed ? (
-        <p className="m-0 mt-2 text-sm text-ink-2">
+      {pooledWouldHelp(catalog, cohort, shard, yearSet) ? (
+        <p className="m-0 mt-2 max-w-3xl text-sm text-ink-2">
           Some groups have too few responses in {when}.{' '}
           <Link to={allYearsTo} className="font-semibold text-primary-ink underline">Try all years combined</Link>
         </p>
       ) : null}
-      {group ? (
-        <>
-          <div className="mt-4">{plot(group)}</div>
-          <details className="mt-8">
-            <summary className="cursor-pointer font-display text-h3 font-bold text-ink">Other groups</summary>
-            <div className={`mt-4 ${grid}`}>{others.map(plot)}</div>
-          </details>
-        </>
-      ) : (
-        <div className={`mt-4 ${grid}`}>{others.map(plot)}</div>
-      )}
+      <div className={group ? 'mt-4' : `mt-4 ${grid}`}>{open.map(plot)}</div>
+      {folded.length > 0 ? (
+        <details className="mt-8">
+          <summary className={summary}>{group ? 'Other groups' : `More groups (${folded.length})`}</summary>
+          <div className={`mt-4 ${grid}`}>{folded.map(plot)}</div>
+        </details>
+      ) : null}
     </section>
   )
 }

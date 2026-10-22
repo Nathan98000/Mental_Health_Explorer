@@ -1,4 +1,4 @@
-import { formatCount, formatPct, formatRange, formatShare, formatSharePair, oneInN } from './format'
+import { formatCount, formatDate, formatPct, formatRange, formatShare, formatSharePair, oneInN } from './format'
 
 describe('formatPct', () => {
   it('rounds to whole percent by default', () => {
@@ -42,5 +42,13 @@ describe('oneInN', () => {
 describe('formatCount', () => {
   it('adds thousands separators', () => {
     expect(formatCount(10917)).toBe('10,917')
+  })
+})
+
+describe('formatDate', () => {
+  it('writes the month in words and keeps the day in any time zone', () => {
+    expect(formatDate('2026-09-23')).toBe('September 23, 2026')
+    expect(formatDate('2026-01-01')).toBe('January 1, 2026')
+    expect(formatDate('not a date')).toBe('not a date')
   })
 })

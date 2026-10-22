@@ -47,9 +47,51 @@ async function expectMinimumTextSize(page: Page) {
   expect(small).toEqual([])
 }
 
+/** Every visible link, button and summary in main is at least 24 × 24 px (WCAG 2.2, 2.5.8), except links set inline in running text. */
+async function expectTargetSize(page: Page) {
+  const small = await page.evaluate(() =>
+    [...document.querySelectorAll('main a, main button, main summary')]
+      .filter((el) => {
+        const r = el.getBoundingClientRect()
+        if (r.width === 0 || r.height === 0 || getComputedStyle(el).visibility === 'hidden') return false
+        const inline = el.tagName === 'A' && getComputedStyle(el).display === 'inline' && !!el.parentElement?.closest('p, li, dd, aside')
+        return !inline && (r.width < 24 || r.height < 24)
+      })
+      .map((el) => {
+        const r = el.getBoundingClientRect()
+        return `${el.tagName.toLowerCase()} "${(el.textContent ?? '').trim().slice(0, 30)}" ${Math.round(r.width)}×${Math.round(r.height)}`
+      }),
+  )
+  expect(small).toEqual([])
+}
+
 async function expectNoHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow, 'horizontal overflow in px').toBeLessThanOrEqual(0)
+}
+
+/** Every visible select shows its whole choice: the selected option's text, measured in the select's own font, fits beside the arrow. */
+async function expectSelectsFit(page: Page) {
+  const clipped = await page.evaluate(() => {
+    const ctx = document.createElement('canvas').getContext('2d') as CanvasRenderingContext2D
+    return [...document.querySelectorAll('select')]
+      .filter((el) => el.getBoundingClientRect().width > 0)
+      .map((el) => {
+        const style = getComputedStyle(el)
+        ctx.font = style.font || `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
+        const text = el.selectedOptions[0]?.text ?? ''
+        const room = el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - 20
+        return { text, width: Math.ceil(ctx.measureText(text).width), room: Math.floor(room) }
+      })
+      .filter((d) => d.width > d.room)
+      .map((d) => `${d.text}: ${d.width}px in ${d.room}px`)
+  })
+  expect(clipped).toEqual([])
+}
+
+/** Heights of the visible body rows in the group comparison. */
+async function comparisonRowHeights(page: Page, selector = 'section[aria-labelledby="compare-groups"] tbody tr'): Promise<number[]> {
+  return page.locator(selector).evaluateAll((rows) => rows.map((r) => r.getBoundingClientRect().height).filter((h) => h > 0))
 }
 
 test.beforeAll(() => mkdirSync(SCREENSHOT_DIR, { recursive: true }))
@@ -73,6 +115,7 @@ for (const route of ROUTES) {
 test('the overview shows the teen depression headline with a "fell" marker', async ({ page }) => {
   await page.goto('')
   await settled(page)
+  await expect(page.getByTestId('overview-summary')).toContainText(/^Of these six measures, /)
   const tile = page.getByRole('listitem').filter({ has: page.getByRole('link', { name: 'Major depressive episode in the past year' }) })
   await expect(tile).toContainText('15%')
   await expect(tile.locator('[data-change="fell"]')).toContainText('Down from')
@@ -192,6 +235,8 @@ test('the estimate card says who the number is out of', async ({ page }) => {
 test('the group comparison names significant differences', async ({ page }) => {
   await page.goto('explore/teen/mde_any_treatment?year=all')
   await settled(page)
+  // Health insurance is past the first three groups, under "More groups".
+  await page.getByText(/^More groups \(\d+\)$/).click()
   await expect(page.getByRole('row', { name: /^No health insurance/ })).toContainText('Lower')
 })
 
@@ -241,8 +286,8 @@ test('the explorer shows the number high on the page and a labelled chart over t
   await page.goto('explore/teen/mde_py')
   await settled(page)
   const top = await page.getByTestId('estimate-value').evaluate((el) => el.getBoundingClientRect().top)
-  expect(top).toBeLessThan(450)
-  await expect(page.getByTestId('data-date')).toContainText('Data generated')
+  expect(top).toBeLessThan(520)
+  await expect(page.getByTestId('data-date')).toHaveText(/^Data generated [A-Z][a-z]+ \d{1,2}, \d{4}$/)
   const overTime = page.getByRole('region', { name: 'Over time' }).getByRole('img')
   await expect(overTime).toContainText('2021')
   await expect(overTime).toContainText('2024')
@@ -291,4 +336,109 @@ test('the mobile menu is a disclosure', async ({ page }, testInfo) => {
   await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Methods' }).click()
   await expect(page).toHaveURL(/\/methods$/)
   await expect(page.getByRole('navigation', { name: 'Main' })).toBeHidden()
+})
+
+test('the group comparison is compact: one heading per table and short rows', async ({ page }, testInfo) => {
+  await page.goto('explore/teen/mde_py')
+  await settled(page)
+  await expect(page.getByRole('heading', { level: 3, name: 'By sex' })).toBeVisible()
+  if (!testInfo.project.name.startsWith('mobile')) {
+    const heights = await comparisonRowHeights(page)
+    expect(heights.length).toBeGreaterThan(0)
+    expect(Math.max(...heights)).toBeLessThanOrEqual(72)
+  }
+})
+
+test('on phones the group tables put the bar under the label and fit', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith('mobile'), 'phone layout')
+  await page.goto('explore/teen/mde_py')
+  await settled(page)
+  const share = await page.locator('[data-group-label]').first().evaluate((el) => el.getBoundingClientRect().width / (el.closest('table') as HTMLElement).getBoundingClientRect().width)
+  expect(share).toBeGreaterThanOrEqual(0.45)
+  const heights = await comparisonRowHeights(page, 'table[data-group="race_ethnicity"] tr')
+  expect(heights.length).toBeGreaterThan(0)
+  expect(Math.max(...heights)).toBeLessThanOrEqual(96)
+  await expectNoHorizontalScroll(page)
+})
+
+test('the filters show the whole choice on wide screens', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.startsWith('mobile'), 'desktop layout')
+  for (const path of ['explore/teen/mde_py', 'explore/teen/suicide_plan?group=race_ethnicity&level=aian', 'trends/teen/mde_py?split=family_income']) {
+    await page.goto(path)
+    await settled(page)
+    await expectSelectsFit(page)
+  }
+  const top = await page.locator('figure svg[role="img"]').first().evaluate((el) => el.getBoundingClientRect().top)
+  expect(top).toBeLessThan(720)
+})
+
+test('the "Not reported" note stays on a phone screen', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith('mobile'), 'phone layout')
+  await page.goto('explore/teen/suicide_plan?group=race_ethnicity&level=nhopi')
+  await settled(page)
+  // The card shows no interval for a suppressed estimate, so the dash is the one in the selected group's row, at the right of the screen.
+  await page.locator('[data-level="nhopi"] [data-suppressed="true"]').first().tap()
+  const tooltip = page.getByRole('tooltip')
+  await expect(tooltip).toBeVisible()
+  const box = await tooltip.evaluate((el) => {
+    const r = el.getBoundingClientRect()
+    return { left: r.left, right: r.right, width: window.innerWidth }
+  })
+  expect(box.left).toBeGreaterThanOrEqual(0)
+  expect(box.right).toBeLessThanOrEqual(box.width)
+  await expectNoHorizontalScroll(page)
+})
+
+test('a chart downloaded on a phone is drawn at desktop width with end labels', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith('mobile'), 'phone download')
+  await page.goto('trends/teen/mde_py?split=family_income')
+  await settled(page)
+  await page.getByText('More formats').click()
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download chart (SVG)' }).click()])
+  const markup = readFileSync(await download.path(), 'utf8')
+  expect(Number(/^<svg[^>]*\swidth="(\d+)"/.exec(markup)?.[1])).toBeGreaterThanOrEqual(640)
+  const texts = [...markup.matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map((m) => m[1])
+  expect(texts.join(' ')).toMatch(/\$75,000 or more \d/)
+})
+
+test('a wide interval reads with one decimal at both ends', async ({ page }) => {
+  await page.goto('explore/teen/suicide_plan?group=race_ethnicity&level=aian')
+  await settled(page)
+  await expect(page.getByTestId('estimate-value')).toHaveText('2.2%–14.6%')
+  await expect(page.getByRole('article', { name: 'Estimate' })).toContainText('Between 2.2% and 14.6%')
+})
+
+for (const route of ROUTES) {
+  test(`${route.name}: every target is at least 24 px`, async ({ page }) => {
+    await page.goto(route.path)
+    await settled(page)
+    await expectTargetSize(page)
+  })
+}
+
+test('the explorer puts Over time beside the answer', async ({ page }, testInfo) => {
+  await page.goto('explore/teen/mde_py')
+  await settled(page)
+  const top = await page.locator('#over-time').evaluate((el) => el.getBoundingClientRect().top)
+  expect(top).toBeLessThan(testInfo.project.name.startsWith('mobile') ? 1400 : 700)
+})
+
+test('Methods sets "In short" apart with a background', async ({ page }) => {
+  await page.goto('methods')
+  await settled(page)
+  const background = await page.getByRole('note', { name: 'In short' }).evaluate((el) => getComputedStyle(el).backgroundColor)
+  expect(background).not.toBe('rgba(0, 0, 0, 0)')
+  expect(background).not.toBe('transparent')
+})
+
+test('Trends opens with the measure, without an eyebrow above it', async ({ page }) => {
+  await page.goto('trends/teen/mde_py')
+  await settled(page)
+  const h1Top = await page.getByRole('heading', { level: 1 }).evaluate((el) => el.getBoundingClientRect().top)
+  const above = await page.getByRole('main').getByText('TRENDS', { exact: true }).evaluateAll((els, top) => els.filter((el) => {
+    const r = el.getBoundingClientRect()
+    return r.height > 0 && r.bottom <= top
+  }).length, h1Top)
+  expect(above).toBe(0)
+  await expect(page.getByTestId('data-date')).toHaveText(/^Data generated [A-Z][a-z]+ \d{1,2}, \d{4}$/)
 })

@@ -3,7 +3,7 @@
  * only decide the wording. Change and difference wording is used only when the test says so;
  * nothing here is causal or alarming.
  */
-import { formatShare, formatSharePair, oneInN } from './format'
+import { formatPct, formatShare, formatSharePair, oneInN } from './format'
 
 export const SIGNIFICANCE = 0.05
 export const SUPPRESSED_TAKEAWAY = 'Not enough responses to report this reliably.'
@@ -43,10 +43,10 @@ export type LevelInput = {
 
 /**
  * "About 1 in 7 teens ages 12–17 had a major depressive episode in the past year (15%, 2024)."
- * A wide interval gives the range instead: "Between 2% and 15% of … (best estimate 6%, 2024)."
+ * A wide interval gives the range instead, both ends with one decimal like every interval: "Between 2.1% and 15.2% of … (best estimate 6.1%, 2024)."
  */
 export function levelSentence({ p, lo, hi, population, phrase, when }: LevelInput): string {
-  if (isWideInterval(lo, hi)) return `Between ${formatShare(lo as number)} and ${formatShare(hi as number)} of ${population} ${phrase} (best estimate ${formatShare(p)}, ${when}).`
+  if (isWideInterval(lo, hi)) return `Between ${formatPct(lo as number, 1)} and ${formatPct(hi as number, 1)} of ${population} ${phrase} (best estimate ${formatShare(p)}, ${when}).`
   const ratio = oneInN(p)
   if (ratio) return `About ${ratio} ${population} ${phrase} (${formatShare(p)}, ${when}).`
   return `${formatShare(p)} of ${population} ${phrase} (${when}).`
@@ -79,6 +79,28 @@ export function tileChange(kind: ChangeKind, priorP: number, priorYear: number, 
   if (kind === 'fell') return `↓ Down from ${prior} in ${priorYear}`
   if (kind === 'rose') return `↑ Up from ${prior} in ${priorYear}`
   return `About the same as in ${priorYear} (${prior})`
+}
+
+/** The overview's clause for each change kind, in the order the clauses are read. */
+const SUMMARY_CLAUSE: Record<ChangeKind, (n: number) => string> = {
+  fell: (n) => `${countWord(n)} fell`,
+  rose: (n) => `${countWord(n)} rose`,
+  same: (n) => `${countWord(n)} ${n === 1 ? 'was' : 'were'} about the same`,
+}
+
+/**
+ * The overview's answer, from each tile's change kind (null when it has no test):
+ * "Of these six measures, one fell and five were about the same between the first year each was asked and 2024."
+ * `latestYear` is null when the tiles' latest years differ; the result is null when no tile has a test.
+ */
+export function overviewSummary(kinds: (ChangeKind | null)[], latestYear: number | null): string | null {
+  const testable = kinds.filter((k): k is ChangeKind => k !== null)
+  if (!testable.length) return null
+  const clauses = (['fell', 'rose', 'same'] as const).map((kind) => ({ kind, n: testable.filter((k) => k === kind).length })).filter((c) => c.n > 0).map((c) => SUMMARY_CLAUSE[c.kind](c.n))
+  const joined = clauses.length === 1 ? clauses[0] : `${clauses.slice(0, -1).join(', ')} and ${clauses[clauses.length - 1]}`
+  const untestable = kinds.length - testable.length
+  const tail = untestable ? `; ${countWord(untestable)} could not be compared` : ''
+  return `Of these ${countWord(kinds.length)} measures, ${joined} between the first year each was asked and ${latestYear ?? 'the latest year'}${tail}.`
 }
 
 export type VsOverallInput = {
@@ -165,7 +187,7 @@ export function trendHeadlineSentence({ cohort, people, universe, phrase, yearA,
     const clause = changeClause(s.kind, s.a, s.b, yearA, yearB)
     return universe ? `Among ${cohort} ${universe}, the share who ${phrase} ${clause}.` : `The share of ${people} who ${phrase} ${clause}.`
   }
-  const lead = `From ${yearA} to ${yearB}, the share of ${people} who ${phrase}`
+  const lead = universe ? `From ${yearA} to ${yearB}, among ${cohort} ${universe}, the share who ${phrase}` : `From ${yearA} to ${yearB}, the share of ${people} who ${phrase}`
   const testable = series.filter((s) => s.kind !== null)
   const untestable = series.length - testable.length
   if (!testable.length) return `The ${yearA} and ${yearB} estimates for ${people} can't be compared in any group shown.`

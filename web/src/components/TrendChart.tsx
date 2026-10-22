@@ -1,8 +1,9 @@
 import * as Plot from '@observablehq/plot'
-import { useEffect, useId, useRef, useState } from 'react'
+import { createElement, useCallback, useEffect, useId, useRef, useState } from 'react'
 import type { ExportLegendItem } from '../lib/exports'
 import { formatPct, formatRange, formatShare } from '../lib/format'
 import { dodgeLabels, LABEL_GAP, LABEL_MARGIN_RIGHT, NARROW_MARGIN_RIGHT, NARROW_WIDTH, truncateLabel } from '../lib/labels'
+import { SYMBOLS, symbolShape, type SymbolName } from '../lib/symbols'
 import { useChartTheme, type ChartTheme } from '../lib/theme'
 import { ChartExports } from './ChartExports'
 import { ScrollTable } from './ScrollTable'
@@ -50,8 +51,8 @@ const MARGIN = { top: 16, bottom: 32, left: 44 }
 const SVG_NS = 'http://www.w3.org/2000/svg'
 /** With this many series or more, each series' dots get their own shape, so lines can be told apart without color. */
 const SYMBOL_MIN_SERIES = 3
-const SYMBOLS = ['circle', 'square', 'triangle', 'diamond', 'star'] as const
-type SymbolName = (typeof SYMBOLS)[number]
+/** Downloaded images are drawn at least this wide, so a phone download has end labels and room for its title. */
+const EXPORT_MIN_WIDTH = 640
 
 function defined(row: TrendRow): row is TrendRow & { p: number; lo: number; hi: number } {
   return row.p !== null && row.lo !== null && row.hi !== null
@@ -135,17 +136,11 @@ function seriesStyle(series: string[], theme: ChartTheme, colors?: string[]): st
 
 /** The legend swatch shape for a series, matching its dots on the chart. */
 function Swatch({ symbol, color }: { symbol: SymbolName; color: string }) {
-  const shape = {
-    circle: <circle cx="11" cy="6" r="4" fill={color} />,
-    square: <rect x="7.5" y="2.5" width="7" height="7" fill={color} />,
-    triangle: <polygon points="11,1.5 15.5,9.5 6.5,9.5" fill={color} />,
-    diamond: <polygon points="11,1 16,6 11,11 6,6" fill={color} />,
-    star: <polygon points="11,0.8 12.4,4.3 16.2,4.5 13.2,6.9 14.2,10.6 11,8.5 7.8,10.6 8.8,6.9 5.8,4.5 9.6,4.3" fill={color} />,
-  }[symbol]
+  const shape = symbolShape(symbol, 11, 6)
   return (
     <svg width="22" height="12" aria-hidden="true" data-symbol={symbol}>
       <line x1="1" y1="6" x2="21" y2="6" stroke={color} strokeWidth="2.5" />
-      {shape}
+      {createElement(shape.tag, { ...shape.attrs, fill: color })}
     </svg>
   )
 }
@@ -180,75 +175,84 @@ export function TrendChart({ title, measure, describedBy, rows, series, years, c
     return () => ro.disconnect()
   }, [showTable])
 
+  /** The whole chart at a given width: marks, compared points, survey-change rules, gap-year labels and end labels. */
+  const buildChart = useCallback(
+    (width: number): Chart => {
+      const colors = seriesStyle(series, theme, seriesColors)
+      const narrow = width < NARROW_WIDTH
+      const shown = rows.filter(defined)
+      const yMax = Math.max(0.05, ...shown.map((r) => r.hi)) * 1.15
+      // 95% intervals: shaded bands for one or two series, per-point rules (offset a few px per series) when bands would overlap.
+      const intervals: Plot.Markish[] =
+        series.length <= BAND_MAX_SERIES
+          ? [Plot.areaY(rows, { x: 'year', y1: 'lo', y2: 'hi', fill: 'series', fillOpacity: 0.16 })]
+          : series.map((s, i) =>
+              Plot.ruleX(
+                shown.filter((r) => r.series === s),
+                { x: 'year', y1: 'lo', y2: 'hi', stroke: 'series', strokeWidth: 1.5, strokeOpacity: 0.9, dx: (i - (series.length - 1) / 2) * 4 },
+              ),
+            )
+      const marks: Plot.Markish[] = [
+        Plot.gridY({ stroke: theme.grid, strokeOpacity: 1, ticks: 5 }),
+        Plot.ruleY([0], { stroke: theme.grid, strokeOpacity: 1 }),
+        ...intervals,
+        Plot.lineY(rows, { x: 'year', y: 'p', stroke: 'series', strokeWidth: 2.5 }),
+        Plot.dot(shown, { x: 'year', y: 'p', fill: 'series', r: 4, stroke: theme.surface, strokeWidth: 2, ...(symbols ? { symbol: 'series' } : {}) }),
+        Plot.ruleX(shown, Plot.pointerX({ x: 'year', stroke: theme.muted, strokeDasharray: '3 3' })),
+        Plot.tip(
+          shown,
+          Plot.pointerX({
+            x: 'year',
+            y: 'p',
+            fill: theme.surface,
+            stroke: theme.grid,
+            title: (d: TrendRow) => `${d.series}, ${d.year}\n${formatPct(d.p as number, 1)}  (95% confidence interval: ${formatRange(d.lo as number, d.hi as number)})`,
+          }),
+        ),
+      ]
+      const chart = Plot.plot({
+        width,
+        height: HEIGHT,
+        marginLeft: MARGIN.left,
+        marginRight: narrow ? NARROW_MARGIN_RIGHT : LABEL_MARGIN_RIGHT,
+        marginTop: MARGIN.top,
+        marginBottom: MARGIN.bottom,
+        style: { fontFamily: 'Inter Variable, system-ui, sans-serif', fontSize: '13px', color: theme.ink2, background: 'transparent' },
+        ariaLabel: measure ? `${measure}: ${title}` : title,
+        x: { type: 'point', domain: [...years], tickFormat: (d: number) => String(d), label: null, padding: 0.3, tickSize: 0 },
+        y: { domain: [0, yMax], tickFormat: (d: number) => `${Math.round(d * 100)}%`, label: null, ticks: 5, tickSize: 0 },
+        color: { domain: series, range: colors },
+        ...(symbols ? { symbol: { domain: series, range: series.map((_, i) => SYMBOLS[i % SYMBOLS.length]) } } : {}),
+        marks,
+      })
+      chart.setAttribute('role', 'img')
+      // Plot labels each mark's <g>; ARIA prohibits aria-label there, and the svg's own label plus the table view carry the meaning.
+      for (const node of chart.querySelectorAll('[aria-label], [aria-description]')) {
+        node.removeAttribute('aria-label')
+        node.removeAttribute('aria-description')
+      }
+      // Only the final year gets an end label; a series with no point there gets none.
+      const ends = shown.filter((r) => r.year === years[years.length - 1])
+      if (!narrow && ends.length) chart.append(endLabels(chart, ends, series.length === 1, theme))
+      if (comparison) {
+        const both = series.filter((s) => [comparison.yearA, comparison.yearB].every((y) => shown.some((r) => r.series === s && r.year === y)))
+        const points = shown.filter((r) => both.includes(r.series) && (r.year === comparison.yearA || r.year === comparison.yearB))
+        chart.append(comparedPoints(chart, points, new Map(series.map((s, i) => [s, colors[i]])), theme))
+      }
+      if (annotations.length) chart.append(surveyChangeRules(chart, annotations, years, theme))
+      chart.append(gapYearLabels(chart, rows, years, theme))
+      return chart
+    },
+    [rows, series, years, annotations, comparison, seriesColors, theme, title, measure, symbols],
+  )
+
   useEffect(() => {
     const el = plotRef.current
     if (!el || showTable) return
-    const colors = seriesStyle(series, theme, seriesColors)
-    const narrow = width < NARROW_WIDTH
-    const shown = rows.filter(defined)
-    const yMax = Math.max(0.05, ...shown.map((r) => r.hi)) * 1.15
-    // 95% intervals: shaded bands for one or two series, per-point rules (offset a few px per series) when bands would overlap.
-    const intervals: Plot.Markish[] =
-      series.length <= BAND_MAX_SERIES
-        ? [Plot.areaY(rows, { x: 'year', y1: 'lo', y2: 'hi', fill: 'series', fillOpacity: 0.16 })]
-        : series.map((s, i) =>
-            Plot.ruleX(
-              shown.filter((r) => r.series === s),
-              { x: 'year', y1: 'lo', y2: 'hi', stroke: 'series', strokeWidth: 1.5, strokeOpacity: 0.9, dx: (i - (series.length - 1) / 2) * 4 },
-            ),
-          )
-    const marks: Plot.Markish[] = [
-      Plot.gridY({ stroke: theme.grid, strokeOpacity: 1, ticks: 5 }),
-      Plot.ruleY([0], { stroke: theme.grid, strokeOpacity: 1 }),
-      ...intervals,
-      Plot.lineY(rows, { x: 'year', y: 'p', stroke: 'series', strokeWidth: 2.5 }),
-      Plot.dot(shown, { x: 'year', y: 'p', fill: 'series', r: 4, stroke: theme.surface, strokeWidth: 2, ...(symbols ? { symbol: 'series' } : {}) }),
-      Plot.ruleX(shown, Plot.pointerX({ x: 'year', stroke: theme.muted, strokeDasharray: '3 3' })),
-      Plot.tip(
-        shown,
-        Plot.pointerX({
-          x: 'year',
-          y: 'p',
-          fill: theme.surface,
-          stroke: theme.grid,
-          title: (d: TrendRow) => `${d.series}, ${d.year}\n${formatPct(d.p as number, 1)}  (95% confidence interval: ${formatRange(d.lo as number, d.hi as number)})`,
-        }),
-      ),
-    ]
-    const chart = Plot.plot({
-      width,
-      height: HEIGHT,
-      marginLeft: MARGIN.left,
-      marginRight: narrow ? NARROW_MARGIN_RIGHT : LABEL_MARGIN_RIGHT,
-      marginTop: MARGIN.top,
-      marginBottom: MARGIN.bottom,
-      style: { fontFamily: 'Inter Variable, system-ui, sans-serif', fontSize: '13px', color: theme.ink2, background: 'transparent' },
-      ariaLabel: measure ? `${measure}: ${title}` : title,
-      x: { type: 'point', domain: [...years], tickFormat: (d: number) => String(d), label: null, padding: 0.3, tickSize: 0 },
-      y: { domain: [0, yMax], tickFormat: (d: number) => `${Math.round(d * 100)}%`, label: null, ticks: 5, tickSize: 0 },
-      color: { domain: series, range: colors },
-      ...(symbols ? { symbol: { domain: series, range: series.map((_, i) => SYMBOLS[i % SYMBOLS.length]) } } : {}),
-      marks,
-    })
-    chart.setAttribute('role', 'img')
-    // Plot labels each mark's <g>; ARIA prohibits aria-label there, and the svg's own label plus the table view carry the meaning.
-    for (const node of chart.querySelectorAll('[aria-label], [aria-description]')) {
-      node.removeAttribute('aria-label')
-      node.removeAttribute('aria-description')
-    }
-    // Only the final year gets an end label; a series with no point there gets none.
-    const ends = shown.filter((r) => r.year === years[years.length - 1])
-    if (!narrow && ends.length) chart.append(endLabels(chart, ends, series.length === 1, theme))
-    if (comparison) {
-      const both = series.filter((s) => [comparison.yearA, comparison.yearB].every((y) => shown.some((r) => r.series === s && r.year === y)))
-      const points = shown.filter((r) => both.includes(r.series) && (r.year === comparison.yearA || r.year === comparison.yearB))
-      chart.append(comparedPoints(chart, points, new Map(series.map((s, i) => [s, colors[i]])), theme))
-    }
-    if (annotations.length) chart.append(surveyChangeRules(chart, annotations, years, theme))
-    chart.append(gapYearLabels(chart, rows, years, theme))
+    const chart = buildChart(width)
     el.replaceChildren(chart)
     return () => chart.remove()
-  }, [rows, series, years, annotations, comparison, seriesColors, theme, width, title, measure, showTable, symbols])
+  }, [buildChart, width, showTable])
 
   const tableCell = (row: TrendRow | undefined) => {
     if (!row || row.status === 'not_collected') return <span className="text-muted">Not available</span>
@@ -258,7 +262,8 @@ export function TrendChart({ title, measure, describedBy, rows, series, years, c
 
   const intervalText = bands ? 'Shaded bands show 95% confidence intervals.' : 'Vertical bars at each point show 95% confidence intervals.'
   const captionText = [caption, intervalText, comparison ? `Larger dots mark ${comparison.yearA} and ${comparison.yearB}, the years compared in the table.` : null].filter(Boolean).join(' ')
-  const legend: ExportLegendItem[] | undefined = series.length > 1 ? series.filter((s) => drawn.includes(s)).map((s) => ({ label: s, color: colors[series.indexOf(s)] })) : undefined
+  const legend: ExportLegendItem[] | undefined =
+    series.length > 1 ? series.filter((s) => drawn.includes(s)).map((s) => ({ label: s, color: colors[series.indexOf(s)], ...(symbols ? { symbol: symbolOf(s) } : {}) })) : undefined
   const exportNotes = [
     intervalText,
     comparison ? `Larger dots mark ${comparison.yearA} and ${comparison.yearB}.` : null,
@@ -342,7 +347,7 @@ export function TrendChart({ title, measure, describedBy, rows, series, years, c
       ) : null}
       {exports ? (
         <ChartExports
-          getSvg={() => plotRef.current?.querySelector('svg') ?? null}
+          getSvg={() => buildChart(Math.max(width, EXPORT_MIN_WIDTH)) as SVGSVGElement}
           csv={exports.csv}
           filename={exports.filename}
           citation={exports.citation}

@@ -56,8 +56,11 @@ describe('Explore page', () => {
     const card = within(await screen.findByRole('article', { name: 'Estimate' }))
     expect(card.getByTestId('estimate-value')).toHaveTextContent('Not reported')
     expect(card.getByTestId('estimate-of')).toHaveTextContent('of non-Hispanic Native Hawaiian or Pacific Islander teens ages 12–17 · 2024')
-    expect(card.getAllByRole('tooltip')[0]).toHaveTextContent(SUPPRESSED_TAKEAWAY)
     expect(card.getByText(SUPPRESSED_TAKEAWAY, { selector: 'p' })).toBeInTheDocument()
+    // No interval or population count for a number that isn't reported; the response count stays.
+    expect(card.queryByText('95% confidence interval')).not.toBeInTheDocument()
+    expect(card.queryByText('Estimated number of people')).not.toBeInTheDocument()
+    expect(card.getByText(/^answers from /)).toBeInTheDocument()
     expect(card.queryByText(/about 1 in/)).not.toBeInTheDocument()
     // The pooled estimate is suppressed too, so the card does not offer it.
     expect(card.queryByRole('link', { name: 'Try all years combined' })).not.toBeInTheDocument()
@@ -118,7 +121,16 @@ describe('Explore page', () => {
     renderAt('/explore/teen/mde_py?year=all')
     const card = within(await screen.findByRole('article', { name: 'Estimate' }))
     expect(card.getByText('about 4.5 million per year, on average')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: /^Major depressive episode in the past year: / }).querySelector('[data-shaded-years="2021 2022 2023 2024"]')).not.toBeNull()
+    // Every year is pooled, so there is nothing to set apart.
+    expect(document.querySelector('[data-shaded-years]')).toBeNull()
+    expect(screen.queryByText('Shaded: the years combined in this estimate.')).not.toBeInTheDocument()
+  })
+  it('shades the pooled years when they are a subset of the years shown', async () => {
+    renderAt('/explore/teen/mde_py?year=recent2')
+    const chart = await screen.findByRole('img', { name: /^Major depressive episode in the past year: / })
+    expect(chart.querySelectorAll('[data-shaded-years]')).toHaveLength(1)
+    expect(chart.querySelector('[data-shaded-years="2023 2024"]')).not.toBeNull()
+    expect(screen.getByText('Shaded: the years combined in this estimate.')).toBeInTheDocument()
   })
   it('normalizes an unknown indicator to the default one and says so', async () => {
     renderAt('/explore/teen/not_a_measure?year=2024')
@@ -146,8 +158,8 @@ describe('Explore page', () => {
     renderAt('/explore/teen/mde_py?group=race_ethnicity&level=aian')
     const card = within(await screen.findByRole('article', { name: 'Estimate' }))
     expect(card.getByTestId('wide-margin')).toHaveTextContent('Wide margin of error')
-    expect(card.getByText(/^Between 2\.1% and 15% of non-Hispanic American Indian or Alaska Native teens ages 12–17 /)).toBeInTheDocument()
-    expect(card.getByTestId('estimate-value')).toHaveTextContent('2.1%–15%')
+    expect(card.getByText(/^Between 2\.1% and 15\.2% of non-Hispanic American Indian or Alaska Native teens ages 12–17 /)).toBeInTheDocument()
+    expect(card.getByTestId('estimate-value')).toHaveTextContent('2.1%–15.2%')
     expect(card.getByText('best estimate 6.1%')).toBeInTheDocument()
     expect(card.queryByText(/about 1 in/)).not.toBeInTheDocument()
   })
@@ -155,6 +167,10 @@ describe('Explore page', () => {
     renderAt('/explore/teen/mde_py?year=2024')
     expect(await screen.findByRole('heading', { level: 2, name: 'Compared with other groups · 2024' })).toBeInTheDocument()
     expect(screen.getAllByRole('table')).toHaveLength(8)
+    // One scale for every table, and the groups after the first three folded away.
+    expect(new Set([...document.querySelectorAll('[data-axis-max]')].map((n) => n.getAttribute('data-axis-max'))).size).toBe(1)
+    expect(screen.getByText('More groups (5)', { selector: 'summary' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: 'By sex' })).toBeInTheDocument()
     // Only sex has a significant group test in the fixture: female is higher and male lower.
     const sex = within(screen.getByRole('table', { name: 'By sex' }))
     expect(sex.getByRole('row', { name: /^Female/ })).toHaveTextContent('Higher')
@@ -167,6 +183,7 @@ describe('Explore page', () => {
     renderAt('/explore/young_adult/mde_py')
     expect(await screen.findByRole('heading', { level: 2, name: /^Compared with other groups/ })).toBeInTheDocument()
     expect(screen.getAllByRole('table')).toHaveLength(9)
+    expect(new Set([...document.querySelectorAll('[data-axis-max]')].map((n) => n.getAttribute('data-axis-max'))).size).toBe(1)
     expect(screen.queryByText('Higher')).not.toBeInTheDocument()
     expect(screen.queryByText('Lower')).not.toBeInTheDocument()
   })

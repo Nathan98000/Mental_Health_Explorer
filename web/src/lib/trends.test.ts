@@ -72,6 +72,16 @@ describe('trendHeadline with a split', () => {
       'From 2021 to 2024, the share of teens ages 12–17 who had a major depressive episode in the past year fell in two of the four groups shown and was about the same in one; one could not be compared.',
     )
   })
+  it('names the smaller group once, before the share, for a measure asked of only some of the cohort', () => {
+    const cells = ['insured', 'uninsured'].flatMap((level) => ['2021', '2024'].map((yearSet) => ({ yearSet, group: 'insurance', level, p: 0.45 })))
+    const trends = [
+      { group: 'insurance', level: 'insured', yearA: 2021, yearB: 2024, diff: 0.08, p: 0.001 },
+      { group: 'insurance', level: 'uninsured', yearA: 2021, yearB: 2024, diff: null, p: null },
+    ]
+    expect(headline('mde_any_treatment', 'split=insurance', cells, trends)).toBe(
+      'From 2021 to 2024, among teens ages 12–17 who had a major depressive episode in the past year, the share who got treatment or medication for depression in the past year rose in one of the two groups shown; one could not be compared.',
+    )
+  })
   it('joins three kinds with commas and "and"', () => {
     const levels = ['under_20k', 'from_20k_to_49k', 'from_50k_to_74k', 'from_75k']
     const cells = levels.flatMap((level) => ['2021', '2024'].map((yearSet) => ({ yearSet, group: 'family_income', level, p: 0.2 })))

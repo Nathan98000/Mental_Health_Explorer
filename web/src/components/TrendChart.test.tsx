@@ -170,6 +170,44 @@ describe('end labels', () => {
   })
 })
 
+describe('image download', () => {
+  it('draws a narrow chart at desktop width, with end labels, for the SVG download', async () => {
+    class NarrowObserver {
+      cb: (entries: { contentRect: { width: number } }[]) => void
+      constructor(cb: (entries: { contentRect: { width: number } }[]) => void) {
+        this.cb = cb
+      }
+      observe() {
+        this.cb([{ contentRect: { width: 400 } }])
+      }
+      disconnect() {}
+    }
+    vi.stubGlobal('ResizeObserver', NarrowObserver)
+    const blobs: Blob[] = []
+    const { createObjectURL, revokeObjectURL } = URL
+    URL.createObjectURL = (blob: Blob) => {
+      blobs.push(blob)
+      return 'blob:chart'
+    }
+    URL.revokeObjectURL = () => {}
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+    try {
+      render(<TrendChart title="Narrow" rows={rows} series={['All teens']} years={SURVEY_YEARS} exports={{ csv: '', filename: 'narrow', citation: '' }} />)
+      expect(screen.getByRole('img', { name: 'Narrow' }).querySelectorAll('[data-end-label]')).toHaveLength(0)
+      await userEvent.click(screen.getByRole('button', { name: 'Download chart (SVG)' }))
+      expect(blobs).toHaveLength(1)
+      const markup = await blobs[0].text()
+      expect(Number(/^<svg[^>]*\swidth="(\d+)"/.exec(markup)?.[1])).toBeGreaterThanOrEqual(640)
+      expect(markup).toContain('data-end-label')
+    } finally {
+      click.mockRestore()
+      URL.createObjectURL = createObjectURL
+      URL.revokeObjectURL = revokeObjectURL
+      vi.unstubAllGlobals()
+    }
+  })
+})
+
 describe('comparison styling', () => {
   it('draws every series solid and marks the compared years with larger dots', () => {
     // A third series has no 2021 point, so it gets no compared dots.

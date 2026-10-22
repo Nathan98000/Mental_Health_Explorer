@@ -50,7 +50,8 @@ describe('serializeSvg', () => {
       lookup,
     )
     expect(out).not.toContain('var(')
-    expect(out).toContain('>Major depressive episode in the past year</text>')
+    // A 240-px chart wraps the title; its lines read back as the whole title.
+    expect(exportText(out, 'title')).toBe('Major depressive episode in the past year')
     expect(out).toContain('>Teens ages 12–17 · 2021–2024</text>')
     expect(out).toContain('>Male</text>')
     expect(out).toContain('>Female</text>')
@@ -63,8 +64,24 @@ describe('serializeSvg', () => {
   })
 })
 
-/** The text of an export's notes or source line, its wrapped lines joined back together. */
-function exportText(markup: string, kind: 'note' | 'source'): string {
+describe('export header', () => {
+  it('wraps a long title on a narrow chart', () => {
+    const narrow = chart()
+    narrow.setAttribute('width', '300')
+    const title = 'Major depressive episode in the past year, by family income.'
+    expect(title).toHaveLength(60)
+    const out = serializeSvg(narrow, '#fffdf8', { title }, lookup)
+    expect(out.match(/data-export-title=""/g)?.length ?? 0).toBeGreaterThanOrEqual(2)
+  })
+  it("draws a legend item's dot shape on its swatch line", () => {
+    const out = serializeSvg(chart(), '#fffdf8', { title: 'T', legend: [{ label: 'A', color: '#2a78d6', symbol: 'triangle' }, { label: 'B', color: '#eb6834' }] }, lookup)
+    expect(out).toMatch(/<polygon[^>]*fill="#2a78d6"/)
+    expect(out.match(/<polygon/g)).toHaveLength(1)
+  })
+})
+
+/** The text of an export's title, notes or source line, its wrapped lines joined back together. */
+function exportText(markup: string, kind: 'title' | 'note' | 'source'): string {
   return [...markup.matchAll(new RegExp(`<text[^>]*data-export-${kind}="[^"]*"[^>]*>([^<]*)</text>`, 'g'))].map((m) => m[1].replace(/&amp;/g, '&')).join(' ')
 }
 
