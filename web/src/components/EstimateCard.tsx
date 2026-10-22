@@ -70,7 +70,7 @@ export function EstimateCard({ when, cell, population, people, sentences, nextSt
             <dt className="font-medium">95% confidence interval</dt>
             <dd className="m-0">
               {cell.lo !== null && cell.hi !== null ? formatRange(cell.lo, cell.hi) : <SuppressedValue reason={cell.reason} />}{' '}
-              <button type="button" className="ml-1 text-sm font-semibold text-primary-ink underline" aria-expanded={explain} aria-controls={explainId} onClick={() => setExplain((v) => !v)}>
+              <button type="button" className="ml-1 inline-flex min-h-6 items-center text-sm font-semibold text-primary-ink underline" aria-expanded={explain} aria-controls={explainId} onClick={() => setExplain((v) => !v)}>
                 What&apos;s this?
               </button>
             </dd>

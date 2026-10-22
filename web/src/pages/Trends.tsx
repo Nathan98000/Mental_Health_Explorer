@@ -185,12 +185,12 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
               </tbody>
             </table>
           </ScrollTable>
-          <p className="m-0 mt-3 text-sm text-muted">
+          <p className="m-0 mt-3 max-w-3xl text-sm text-muted">
             &ldquo;Fell&rdquo; and &ldquo;Rose&rdquo; mean the change is statistically significant: too large to be explained by chance differences in who was
             surveyed (p &lt; 0.05). They don&apos;t explain why a change happened. Points are percentage points.{' '}
             <Link to="/methods#key-terms" className="text-primary-ink underline">See Methods.</Link>
           </p>
-          <p className="m-0 mt-3 text-sm text-ink-2">
+          <p className="m-0 mt-3 max-w-3xl text-sm text-ink-2">
             Race and ethnicity has more groups than fit on one chart;{' '}
             <Link to={explorePath(cohort, indicator.id, { yearSet: String(yearB), group: 'race_ethnicity', level: 'white' })} className="text-primary-ink underline">
               compare them on the Explore page

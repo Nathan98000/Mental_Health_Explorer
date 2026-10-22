@@ -1,4 +1,4 @@
-import { changeKind, changeSentence, countWord, IMPRECISE_TAKEAWAY, isWideInterval, levelSentence, SAME_ANSWER_TAKEAWAY, SUPPRESSED_TAKEAWAY, suppressedTakeaway, takeaway, tileChange, vsOverallKind, vsOverallSentence } from './takeaways'
+import { changeKind, changeSentence, countWord, IMPRECISE_TAKEAWAY, isWideInterval, levelSentence, overviewSummary, SAME_ANSWER_TAKEAWAY, SUPPRESSED_TAKEAWAY, suppressedTakeaway, takeaway, tileChange, vsOverallKind, vsOverallSentence } from './takeaways'
 
 const level = { p: 0.14837, population: 'teens ages 12–17', phrase: 'had a major depressive episode in the past year', when: '2024' }
 
@@ -59,6 +59,27 @@ describe('tileChange', () => {
     expect(tileChange('rose', 0.052, 2022, 0.071)).toBe('↑ Up from 5.2% in 2022')
     expect(tileChange('same', 0.11, 2021, 0.104)).toBe('About the same as in 2021 (11%)')
     expect(tileChange('same', 0.104, 2021, 0.0996)).toBe('About the same as in 2021 (10.4%)')
+  })
+})
+
+describe('overviewSummary', () => {
+  it('counts the tiles by kind, fell first, joining three clauses with a comma and "and"', () => {
+    expect(overviewSummary(['fell', 'same', 'rose', 'fell', 'same', 'same'], 2024)).toBe(
+      'Of these six measures, two fell, one rose and three were about the same between the first year each was asked and 2024.',
+    )
+    expect(overviewSummary(['same', 'fell'], 2024)).toBe('Of these two measures, one fell and one was about the same between the first year each was asked and 2024.')
+  })
+  it('says so when every tile was about the same', () => {
+    expect(overviewSummary(['same', 'same', 'same'], 2024)).toBe('Of these three measures, three were about the same between the first year each was asked and 2024.')
+  })
+  it('names the tiles that could not be compared, and gives up when none can', () => {
+    expect(overviewSummary(['fell', null, 'same', 'same'], 2024)).toBe(
+      'Of these four measures, one fell and two were about the same between the first year each was asked and 2024; one could not be compared.',
+    )
+    expect(overviewSummary([null, null], 2024)).toBeNull()
+  })
+  it('says "the latest year" when the tiles end in different years', () => {
+    expect(overviewSummary(['rose', 'same'], null)).toBe('Of these two measures, one rose and one was about the same between the first year each was asked and the latest year.')
   })
 })
 
@@ -149,6 +170,8 @@ describe('wording', () => {
       tileChange('fell', 0.2, 2021, 0.15),
       tileChange('rose', 0.2, 2021, 0.25),
       tileChange('same', 0.2, 2021, 0.19),
+      overviewSummary(['fell', 'rose', 'same', null], 2024) as string,
+      overviewSummary(['same'], null) as string,
       SUPPRESSED_TAKEAWAY,
       IMPRECISE_TAKEAWAY,
       SAME_ANSWER_TAKEAWAY,

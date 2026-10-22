@@ -81,6 +81,28 @@ export function tileChange(kind: ChangeKind, priorP: number, priorYear: number, 
   return `About the same as in ${priorYear} (${prior})`
 }
 
+/** The overview's clause for each change kind, in the order the clauses are read. */
+const SUMMARY_CLAUSE: Record<ChangeKind, (n: number) => string> = {
+  fell: (n) => `${countWord(n)} fell`,
+  rose: (n) => `${countWord(n)} rose`,
+  same: (n) => `${countWord(n)} ${n === 1 ? 'was' : 'were'} about the same`,
+}
+
+/**
+ * The overview's answer, from each tile's change kind (null when it has no test):
+ * "Of these six measures, one fell and five were about the same between the first year each was asked and 2024."
+ * `latestYear` is null when the tiles' latest years differ; the result is null when no tile has a test.
+ */
+export function overviewSummary(kinds: (ChangeKind | null)[], latestYear: number | null): string | null {
+  const testable = kinds.filter((k): k is ChangeKind => k !== null)
+  if (!testable.length) return null
+  const clauses = (['fell', 'rose', 'same'] as const).map((kind) => ({ kind, n: testable.filter((k) => k === kind).length })).filter((c) => c.n > 0).map((c) => SUMMARY_CLAUSE[c.kind](c.n))
+  const joined = clauses.length === 1 ? clauses[0] : `${clauses.slice(0, -1).join(', ')} and ${clauses[clauses.length - 1]}`
+  const untestable = kinds.length - testable.length
+  const tail = untestable ? `; ${countWord(untestable)} could not be compared` : ''
+  return `Of these ${countWord(kinds.length)} measures, ${joined} between the first year each was asked and ${latestYear ?? 'the latest year'}${tail}.`
+}
+
 export type VsOverallInput = {
   overallP: number
   /** The level's own value, formatted with the overall value under the pair rule. */

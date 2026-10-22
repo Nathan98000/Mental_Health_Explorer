@@ -74,12 +74,12 @@ export function ChartExports({ getSvg, csv, filename, citation, frame }: Props) 
       <div className="mt-2 flex flex-wrap gap-x-6 gap-y-2">
         {getSvg ? (
           <details>
-            <summary className="cursor-pointer text-xs font-semibold text-ink-2">More formats</summary>
+            <summary className="cursor-pointer py-1 text-xs font-semibold text-ink-2">More formats</summary>
             <button type="button" className={`${buttonClass} mt-2`} onClick={withSvg((svg) => downloadSvg(svg, `${filename}.svg`, theme.surface, exportFrame))}>Download chart (SVG)</button>
           </details>
         ) : null}
         <details>
-          <summary className="cursor-pointer text-xs font-semibold text-ink-2">Cite this</summary>
+          <summary className="cursor-pointer py-1 text-xs font-semibold text-ink-2">Cite this</summary>
           <p className="m-0 mt-1 wrap-anywhere text-xs leading-relaxed text-muted">{citation}</p>
         </details>
       </div>

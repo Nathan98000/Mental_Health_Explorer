@@ -47,6 +47,24 @@ async function expectMinimumTextSize(page: Page) {
   expect(small).toEqual([])
 }
 
+/** Every visible link, button and summary in main is at least 24 × 24 px (WCAG 2.2, 2.5.8), except links set inline in running text. */
+async function expectTargetSize(page: Page) {
+  const small = await page.evaluate(() =>
+    [...document.querySelectorAll('main a, main button, main summary')]
+      .filter((el) => {
+        const r = el.getBoundingClientRect()
+        if (r.width === 0 || r.height === 0 || getComputedStyle(el).visibility === 'hidden') return false
+        const inline = el.tagName === 'A' && getComputedStyle(el).display === 'inline' && !!el.parentElement?.closest('p, li, dd, aside')
+        return !inline && (r.width < 24 || r.height < 24)
+      })
+      .map((el) => {
+        const r = el.getBoundingClientRect()
+        return `${el.tagName.toLowerCase()} "${(el.textContent ?? '').trim().slice(0, 30)}" ${Math.round(r.width)}×${Math.round(r.height)}`
+      }),
+  )
+  expect(small).toEqual([])
+}
+
 async function expectNoHorizontalScroll(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
   expect(overflow, 'horizontal overflow in px').toBeLessThanOrEqual(0)
@@ -97,6 +115,7 @@ for (const route of ROUTES) {
 test('the overview shows the teen depression headline with a "fell" marker', async ({ page }) => {
   await page.goto('')
   await settled(page)
+  await expect(page.getByTestId('overview-summary')).toContainText(/^Of these six measures, /)
   const tile = page.getByRole('listitem').filter({ has: page.getByRole('link', { name: 'Major depressive episode in the past year' }) })
   await expect(tile).toContainText('15%')
   await expect(tile.locator('[data-change="fell"]')).toContainText('Down from')
@@ -387,4 +406,27 @@ test('a wide interval reads with one decimal at both ends', async ({ page }) => 
   await settled(page)
   await expect(page.getByTestId('estimate-value')).toHaveText('2.2%–14.6%')
   await expect(page.getByRole('article', { name: 'Estimate' })).toContainText('Between 2.2% and 14.6%')
+})
+
+for (const route of ROUTES) {
+  test(`${route.name}: every target is at least 24 px`, async ({ page }) => {
+    await page.goto(route.path)
+    await settled(page)
+    await expectTargetSize(page)
+  })
+}
+
+test('the explorer puts Over time beside the answer', async ({ page }, testInfo) => {
+  await page.goto('explore/teen/mde_py')
+  await settled(page)
+  const top = await page.locator('#over-time').evaluate((el) => el.getBoundingClientRect().top)
+  expect(top).toBeLessThan(testInfo.project.name.startsWith('mobile') ? 1400 : 700)
+})
+
+test('Methods sets "In short" apart with a background', async ({ page }) => {
+  await page.goto('methods')
+  await settled(page)
+  const background = await page.getByRole('note', { name: 'In short' }).evaluate((el) => getComputedStyle(el).backgroundColor)
+  expect(background).not.toBe('rgba(0, 0, 0, 0)')
+  expect(background).not.toBe('transparent')
 })

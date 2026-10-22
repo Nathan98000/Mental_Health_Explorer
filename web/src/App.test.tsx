@@ -38,6 +38,7 @@ describe('App', () => {
     expect(screen.getByRole('link', { name: SITE_NAME })).toBeInTheDocument()
     expect(await screen.findByRole('heading', { level: 1, name: /how are young people/i })).toBeInTheDocument()
     const mde = (await screen.findByRole('link', { name: 'Major depressive episode in the past year' })).closest('li')!
+    expect(screen.getByTestId('overview-summary')).toHaveTextContent('Of these six measures, one fell and five were about the same between the first year each was asked and 2024.')
     expect(mde).toHaveTextContent('15%')
     expect(mde).toHaveTextContent('of teens ages 12–17 in 2024')
     expect(mde.querySelector('[data-change="fell"]')).toHaveTextContent('↓ Down from 21% in 2021')

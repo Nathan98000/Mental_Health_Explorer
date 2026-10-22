@@ -29,7 +29,7 @@ export function SuppressedValue({ reason, className = '' }: { reason: string | n
         aria-expanded={open && !dismissed}
         aria-describedby={id}
         data-suppressed="true"
-        className={`peer cursor-help rounded px-0.5 ${className}`}
+        className={`peer inline-flex min-h-6 min-w-6 cursor-help items-center justify-center rounded px-0.5 ${className}`}
         onClick={(e) => {
           measure(e.currentTarget)
           setOpen((v) => !v)

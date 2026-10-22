@@ -145,39 +145,20 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
         </div>
       ) : null}
 
-      <div className="mt-6 max-w-3xl">
-        {shard.status === 'loading' ? (
-          <Loading variant="card" />
-        ) : shard.status === 'error' ? (
-          <LoadError />
-        ) : summary?.cell ? (
-          <EstimateCard when={summary.when} cell={summary.cell} population={summary.population} people={info.people} sentences={summary.sentences} nextSteps={nextSteps} pooled={pooled} />
-        ) : (
-          <p className="rounded-2xl bg-surface p-4 text-ink-2 ring-1 ring-line sm:p-6" role="status">There is no estimate for this combination of years and population.</p>
-        )}
-      </div>
-
-      {shard.status === 'ready' && summary ? (
-        <GroupComparison catalog={catalog} cohort={cohort} shard={shard.data} yearSet={yearSet} when={summary.when} people={withUniverse(info.people, indicator)} group={group} level={level} allYearsTo={allYearsTo} />
-      ) : null}
-
-      <div className="mt-10 grid gap-x-12 gap-y-10 sm:mt-12 lg:grid-cols-2">
-        <section className="min-w-0 border-t border-line pt-8" aria-labelledby="about-measure">
-          <h2 id="about-measure" className="m-0 font-display text-h2 font-bold text-ink">About this measure</h2>
-          <p className="m-0 mt-2 text-ink">{indicator.definition}</p>
-          <p className="m-0 mt-2 text-sm text-ink-2">
-            Measured as: {indicator.universe_phrase ? `among ${info.people} ${indicator.universe_phrase}, those who ${indicator.phrase}` : `${info.people} who ${indicator.phrase}`}. Source variable{' '}
-            <code className="rounded bg-surface-cool px-1">{indicator.source}</code> in the NSDUH public use file.
-          </p>
-          {indicator.caveats.length ? (
-            <ul className="mt-2 mb-0 list-disc space-y-1 pl-5 text-sm text-ink-2">
-              {indicator.caveats.map((c) => (
-                <li key={c}>{c}</li>
-              ))}
-            </ul>
-          ) : null}
-        </section>
-        <section className="min-w-0 border-t border-line pt-8" aria-labelledby="over-time">
+      {/* The answer and its history side by side on wide screens; on phones: card, Over time, groups, About. */}
+      <div className="mt-6 grid gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:items-start">
+        <div className="min-w-0">
+          {shard.status === 'loading' ? (
+            <Loading variant="card" />
+          ) : shard.status === 'error' ? (
+            <LoadError />
+          ) : summary?.cell ? (
+            <EstimateCard when={summary.when} cell={summary.cell} population={summary.population} people={info.people} sentences={summary.sentences} nextSteps={nextSteps} pooled={pooled} />
+          ) : (
+            <p className="rounded-2xl bg-surface p-4 text-ink-2 ring-1 ring-line sm:p-6" role="status">There is no estimate for this combination of years and population.</p>
+          )}
+        </div>
+        <section className="min-w-0" aria-labelledby="over-time">
           <h2 id="over-time" className="m-0 font-display text-h2 font-bold text-ink">Over time</h2>
           {shard.status === 'ready' && summary ? (
             <>
@@ -216,6 +197,26 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
           ) : null}
         </section>
       </div>
+
+      {shard.status === 'ready' && summary ? (
+        <GroupComparison catalog={catalog} cohort={cohort} shard={shard.data} yearSet={yearSet} when={summary.when} people={withUniverse(info.people, indicator)} group={group} level={level} allYearsTo={allYearsTo} />
+      ) : null}
+
+      <section className="mt-10 max-w-3xl border-t border-line pt-8 sm:mt-12" aria-labelledby="about-measure">
+        <h2 id="about-measure" className="m-0 font-display text-h2 font-bold text-ink">About this measure</h2>
+        <p className="m-0 mt-2 text-ink">{indicator.definition}</p>
+        <p className="m-0 mt-2 text-sm text-ink-2">
+          Measured as: {indicator.universe_phrase ? `among ${info.people} ${indicator.universe_phrase}, those who ${indicator.phrase}` : `${info.people} who ${indicator.phrase}`}. Source variable{' '}
+          <code className="rounded bg-surface-cool px-1">{indicator.source}</code> in the NSDUH public use file.
+        </p>
+        {indicator.caveats.length ? (
+          <ul className="mt-2 mb-0 list-disc space-y-1 pl-5 text-sm text-ink-2">
+            {indicator.caveats.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
     </>
   )
 }
