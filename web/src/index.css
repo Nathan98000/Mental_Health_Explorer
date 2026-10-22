@@ -4,8 +4,9 @@
   Design tokens. Every color is defined once here and used by role; the site has a single light
   color scheme (no dark mode).
   Contrast checked: ink/page 14.7:1, ink-2/page 7.6:1, muted/surface 4.9:1,
-  white on primary 5.2:1, primary-ink on page 5.4:1, data on surface 6.0:1, data-context on surface 3.2:1.
-  Color roles: teal (data) draws single-series charts, sparklines and the selected group; blue-grey
+  white on primary 5.2:1, primary-ink on page 5.4:1, data on surface 6.0:1, data-soft on surface 3.4:1, data-context on surface 3.2:1.
+  Color roles: teal (data) draws single-series charts, sparklines and the selected group, with data-soft
+  for its interval bars; blue-grey
   (data-context) the other groups; orange (primary) is for links, the active nav, toggles, focus and
   the logo only; peach (surface-tint) is kept for the 988 note.
   Chart series slots come from the validated categorical palette (adjacent CVD ΔE ≥ 8.4), darkened
@@ -28,6 +29,7 @@
   --on-primary: #ffffff;
   --accent: #0e6e6d;
   --data: #0e6e6d;
+  --data-soft: #4f9795;
   --data-context: #8a8fa8;
   --sun: #ffc857;
   --grid: #ede6da;
@@ -90,6 +92,7 @@
   --color-on-primary: var(--on-primary);
   --color-accent: var(--accent);
   --color-data: var(--data);
+  --color-data-soft: var(--data-soft);
   --color-data-context: var(--data-context);
   --color-sun: var(--sun);
   /* Type tokens: display (overview hero), h1, number (the big estimate), lede, h2, h3, body, small, micro (the minimum anywhere). */

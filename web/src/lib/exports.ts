@@ -4,6 +4,7 @@
  */
 import { CRISIS_TEXT } from '../components/CrisisNote'
 import { EARLY_PREVIEW, SITE_NAME } from './site'
+import { symbolShape, type SymbolName } from './symbols'
 
 export type CsvRow = {
   cohort: string
@@ -105,7 +106,8 @@ export function resolveCssVars(text: string, lookup: CssVarLookup): string {
   return out
 }
 
-export type ExportLegendItem = { label: string; color: string }
+/** A legend entry; `symbol` draws the series' dot shape on the swatch line. */
+export type ExportLegendItem = { label: string; color: string; symbol?: SymbolName }
 
 export type ExportFrame = {
   title: string
@@ -139,6 +141,9 @@ function chartSize(svg: SVGSVGElement): { width: number; height: number } {
 const PAD = 20
 const CHAR_WIDTH = 6.5
 const NOTE_LINE = 16
+/** Rough character widths of the 18 px title and the 13 px subtitle, for wrapping. */
+const TITLE_CHAR_WIDTH = 10
+const SUBTITLE_CHAR_WIDTH = 7
 
 /** Upper-case the first letter, e.g. "teens ages 12–17 · 2024" -> "Teens ages 12–17 · 2024". */
 export function capitalize(text: string): string {
@@ -194,11 +199,16 @@ export function framedSvg(svg: SVGSVGElement, background: string, frame?: Export
   if (frame) {
     const ink = frame.ink ?? TOKEN_FALLBACKS['--ink']
     const muted = frame.muted ?? TOKEN_FALLBACKS['--muted']
-    let y = PAD + 18
-    root.append(svgEl('text', { x: PAD, y, fill: ink, 'font-size': 18, 'font-weight': 700, 'data-export-title': '' }, frame.title))
+    let y = PAD
+    wrapText(frame.title, Math.max(12, Math.floor((width - 2 * PAD) / TITLE_CHAR_WIDTH))).forEach((text, i) => {
+      y += i === 0 ? 18 : 22
+      root.append(svgEl('text', { x: PAD, y, fill: ink, 'font-size': 18, 'font-weight': 700, 'data-export-title': '' }, text))
+    })
     if (frame.subtitle) {
-      y += 20
-      root.append(svgEl('text', { x: PAD, y, fill: muted, 'font-size': 13, 'data-export-subtitle': '' }, frame.subtitle))
+      wrapText(frame.subtitle, Math.max(16, Math.floor((width - 2 * PAD) / SUBTITLE_CHAR_WIDTH))).forEach((text, i) => {
+        y += i === 0 ? 20 : 17
+        root.append(svgEl('text', { x: PAD, y, fill: muted, 'font-size': 13, 'data-export-subtitle': '' }, text))
+      })
     }
     if (frame.legend?.length) {
       y += 24
@@ -210,6 +220,10 @@ export function framedSvg(svg: SVGSVGElement, background: string, frame?: Export
           y += 18
         }
         root.append(svgEl('line', { x1: x, y1: y - 4, x2: x + 18, y2: y - 4, stroke: item.color, 'stroke-width': 2.5 }))
+        if (item.symbol) {
+          const shape = symbolShape(item.symbol, x + 9, y - 4)
+          root.append(svgEl(shape.tag, { ...shape.attrs, fill: item.color }))
+        }
         root.append(svgEl('text', { x: x + 24, y, fill: ink, 'font-size': 12, 'data-export-legend': '' }, item.label))
         x += itemWidth
       }

@@ -183,7 +183,7 @@ describe('restricted denominators and wide intervals', () => {
     expect(isWideInterval(0.1, undefined)).toBe(false)
   })
   it('gives the range instead of "1 in N" when the interval is wide', () => {
-    expect(levelSentence({ ...level, p: 0.061, lo: 0.021, hi: 0.152 })).toBe('Between 2.1% and 15% of teens ages 12–17 had a major depressive episode in the past year (best estimate 6.1%, 2024).')
+    expect(levelSentence({ ...level, p: 0.061, lo: 0.021, hi: 0.152 })).toBe('Between 2.1% and 15.2% of teens ages 12–17 had a major depressive episode in the past year (best estimate 6.1%, 2024).')
     expect(levelSentence({ ...level, p: 0.14837, lo: 0.13754, hi: 0.15991 })).toMatch(/^About 1 in 7 /)
   })
 })

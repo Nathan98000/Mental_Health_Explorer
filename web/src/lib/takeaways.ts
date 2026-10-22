@@ -3,7 +3,7 @@
  * only decide the wording. Change and difference wording is used only when the test says so;
  * nothing here is causal or alarming.
  */
-import { formatShare, formatSharePair, oneInN } from './format'
+import { formatPct, formatShare, formatSharePair, oneInN } from './format'
 
 export const SIGNIFICANCE = 0.05
 export const SUPPRESSED_TAKEAWAY = 'Not enough responses to report this reliably.'
@@ -43,10 +43,10 @@ export type LevelInput = {
 
 /**
  * "About 1 in 7 teens ages 12–17 had a major depressive episode in the past year (15%, 2024)."
- * A wide interval gives the range instead: "Between 2% and 15% of … (best estimate 6%, 2024)."
+ * A wide interval gives the range instead, both ends with one decimal like every interval: "Between 2.1% and 15.2% of … (best estimate 6.1%, 2024)."
  */
 export function levelSentence({ p, lo, hi, population, phrase, when }: LevelInput): string {
-  if (isWideInterval(lo, hi)) return `Between ${formatShare(lo as number)} and ${formatShare(hi as number)} of ${population} ${phrase} (best estimate ${formatShare(p)}, ${when}).`
+  if (isWideInterval(lo, hi)) return `Between ${formatPct(lo as number, 1)} and ${formatPct(hi as number, 1)} of ${population} ${phrase} (best estimate ${formatShare(p)}, ${when}).`
   const ratio = oneInN(p)
   if (ratio) return `About ${ratio} ${population} ${phrase} (${formatShare(p)}, ${when}).`
   return `${formatShare(p)} of ${population} ${phrase} (${when}).`
@@ -165,7 +165,7 @@ export function trendHeadlineSentence({ cohort, people, universe, phrase, yearA,
     const clause = changeClause(s.kind, s.a, s.b, yearA, yearB)
     return universe ? `Among ${cohort} ${universe}, the share who ${phrase} ${clause}.` : `The share of ${people} who ${phrase} ${clause}.`
   }
-  const lead = `From ${yearA} to ${yearB}, the share of ${people} who ${phrase}`
+  const lead = universe ? `From ${yearA} to ${yearB}, among ${cohort} ${universe}, the share who ${phrase}` : `From ${yearA} to ${yearB}, the share of ${people} who ${phrase}`
   const testable = series.filter((s) => s.kind !== null)
   const untestable = series.length - testable.length
   if (!testable.length) return `The ${yearA} and ${yearB} estimates for ${people} can't be compared in any group shown.`

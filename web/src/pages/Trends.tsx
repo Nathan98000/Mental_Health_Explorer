@@ -84,7 +84,7 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
         </Link>
       </p>
       {manifest.status === 'ready' ? <p className="m-0 mt-1 text-sm text-muted" data-testid="data-date">Data generated {manifest.data.generated}</p> : null}
-      <Filters summary={`${info.label} · ${split ? split.label : 'No split'} · ${yearA} vs ${yearB}`}>
+      <Filters summary={`${info.label} · ${split ? split.label : 'No split'} · ${yearA} vs ${yearB}`} className="lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start">
         <div className="min-w-0">
           <span className="mb-1 block text-sm font-semibold text-ink-2">Age group</span>
           <CohortSwitcher catalog={catalog} cohort={cohort} hrefFor={(c) => trendsCohortPath(catalog, state, c)} />
@@ -93,7 +93,7 @@ function TrendsView({ catalog, state, normalized, notices }: ViewProps) {
           <label htmlFor={ids.indicator} className="mb-1 block text-sm font-semibold text-ink-2">Measure</label>
           <IndicatorSelect id={ids.indicator} catalog={catalog} cohort={cohort} value={indicator.id} onChange={(id) => go({ indicator: id })} />
         </div>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 lg:col-span-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <div className="min-w-0">
             <label htmlFor={ids.split} className="mb-1 block text-sm font-semibold text-ink-2">Split by</label>
             <select id={ids.split} value={split?.id ?? ''} title={split?.label ?? noSplit} onChange={(e) => go({ split: e.target.value || null })} className={selectClass}>

@@ -80,9 +80,16 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
     : []
 
   const manifest = useResource('manifest', loadManifest)
-  const overTimeRef = useRef<SVGSVGElement>(null)
+  const exportRef = useRef<SVGSVGElement>(null)
   const missing = SURVEY_YEARS.filter((y) => !points.some((d) => d.year === y && d.p !== null))
   const splitOk = group && splitGroups(catalog, cohort).some((g) => g.id === group.id)
+  const overTime = {
+    points,
+    years: SURVEY_YEARS,
+    highlightYear: indicator.years.includes(selectedYear) ? selectedYear : undefined,
+    shadeYears: pooledYears,
+    label: `${chartTitle}. ${describeSparkline(points, SURVEY_YEARS)}`,
+  }
 
   return (
     <>
@@ -92,7 +99,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
       {manifest.status === 'ready' ? <p className="m-0 mt-1 text-sm text-muted" data-testid="data-date">Data generated {manifest.data.generated}</p> : null}
       <Filters
         summary={`${info.label} · ${yearSetSpan(yearSet, indicator.years)} · ${level ? level.label : 'Everyone'}`}
-        className="lg:grid-cols-[auto_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1.5fr)] lg:items-start"
+        className="lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start"
       >
         <div className="min-w-0">
           <span className="mb-1 block text-sm font-semibold text-ink-2">Age group</span>
@@ -102,7 +109,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
           <label htmlFor={ids.indicator} className="mb-1 block text-sm font-semibold text-ink-2">Measure</label>
           <IndicatorSelect id={ids.indicator} catalog={catalog} cohort={cohort} value={indicator.id} onChange={(id) => go({ indicator: id })} />
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:contents">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
           <div className="min-w-0">
             <label htmlFor={ids.year} className="mb-1 block text-sm font-semibold text-ink-2">Years</label>
             <select id={ids.year} value={yearSet} title={yearSetLabel(yearSet, indicator.years)} onChange={(e) => go({ yearSet: e.target.value })} className={selectClass}>
@@ -176,14 +183,11 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
             <>
               {anyShown ? (
                 <div className="mt-3">
-                  <LabeledSparkline
-                    ref={overTimeRef}
-                    points={points}
-                    years={SURVEY_YEARS}
-                    highlightYear={indicator.years.includes(selectedYear) ? selectedYear : undefined}
-                    shadeYears={pooledYears}
-                    label={`${chartTitle}. ${describeSparkline(points, SURVEY_YEARS)}`}
-                  />
+                  <LabeledSparkline {...overTime} />
+                  {/* The image download, drawn at its own size (the frame needs room for the title). */}
+                  <div hidden>
+                    <LabeledSparkline ref={exportRef} {...overTime} width={520} height={200} />
+                  </div>
                 </div>
               ) : null}
               {missing.length ? (
@@ -202,7 +206,7 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
                 </Link>
               </p>
               <ChartExports
-                getSvg={anyShown ? () => exportCopy(overTimeRef.current) : undefined}
+                getSvg={anyShown ? () => exportRef.current : undefined}
                 csv={toCsv(csvRows(shard.data, state, summary.population))}
                 filename={safeFilename(`${cohort}-${indicator.id}-${summary.population}`)}
                 citation={cite}
@@ -214,17 +218,6 @@ function ExploreView({ catalog, state, normalized, notices }: ViewProps) {
       </div>
     </>
   )
-}
-
-/** The "Over time" chart scaled up for an image download (the frame needs room for the title). */
-function exportCopy(svg: SVGSVGElement | null): SVGSVGElement | null {
-  if (!svg) return null
-  const copy = svg.cloneNode(true) as SVGSVGElement
-  const width = Number(svg.getAttribute('width'))
-  const height = Number(svg.getAttribute('height'))
-  copy.setAttribute('width', '520')
-  copy.setAttribute('height', String(Math.round((height * 520) / width)))
-  return copy
 }
 
 export default function Explore() {

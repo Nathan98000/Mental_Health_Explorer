@@ -1,7 +1,7 @@
 import { useId, useState } from 'react'
 import { Link } from 'react-router'
 import type { Cell } from '../lib/data'
-import { formatCount, formatPeople, formatRange, formatShare } from '../lib/format'
+import { formatCount, formatPct, formatPeople, formatRange, formatShare } from '../lib/format'
 import { isWideInterval } from '../lib/takeaways'
 import { SuppressedValue } from './SuppressedValue'
 
@@ -28,9 +28,9 @@ export function EstimateCard({ when, cell, population, people, sentences, nextSt
   const [explain, setExplain] = useState(false)
   const explainId = useId()
   const suppressed = cell.suppressed || cell.p === null
-  // One rule for an imprecise estimate (lib/takeaways.ts): the number becomes the range, badged, and the sentence gives the range too.
+  // One rule for an imprecise estimate (lib/takeaways.ts): the number becomes the range (one decimal, like every interval), badged, and the sentence gives the range too.
   const wide = !suppressed && isWideInterval(cell.lo, cell.hi)
-  const value = suppressed ? 'Not reported' : wide ? `${formatShare(cell.lo as number)}–${formatShare(cell.hi as number)}` : formatShare(cell.p as number)
+  const value = suppressed ? 'Not reported' : wide ? `${formatPct(cell.lo as number, 1)}–${formatPct(cell.hi as number, 1)}` : formatShare(cell.p as number)
   return (
     <article className="rounded-2xl bg-surface p-4 shadow-[0_2px_0_var(--line),0_12px_32px_-18px_rgba(30,34,64,0.35)] ring-1 ring-line sm:p-6" aria-label="Estimate">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -65,20 +65,28 @@ export function EstimateCard({ when, cell, population, people, sentences, nextSt
         </p>
       ) : null}
       <dl className="m-0 mt-4 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-sm text-ink-2">
-        <dt className="font-medium">95% confidence interval</dt>
-        <dd className="m-0">
-          {cell.lo !== null && cell.hi !== null ? formatRange(cell.lo, cell.hi) : <SuppressedValue reason={cell.reason} />}{' '}
-          <button type="button" className="ml-1 text-sm font-semibold text-primary-ink underline" aria-expanded={explain} aria-controls={explainId} onClick={() => setExplain((v) => !v)}>
-            What&apos;s this?
-          </button>
-        </dd>
-        <dd id={explainId} hidden={!explain} className="col-span-2 m-0 mb-1 rounded-xl bg-surface-cool px-3 py-2 text-ink">
-          {CI_EXPLAINER}
-        </dd>
+        {suppressed ? null : (
+          <>
+            <dt className="font-medium">95% confidence interval</dt>
+            <dd className="m-0">
+              {cell.lo !== null && cell.hi !== null ? formatRange(cell.lo, cell.hi) : <SuppressedValue reason={cell.reason} />}{' '}
+              <button type="button" className="ml-1 text-sm font-semibold text-primary-ink underline" aria-expanded={explain} aria-controls={explainId} onClick={() => setExplain((v) => !v)}>
+                What&apos;s this?
+              </button>
+            </dd>
+            <dd id={explainId} hidden={!explain} className="col-span-2 m-0 mb-1 rounded-xl bg-surface-cool px-3 py-2 text-ink">
+              {CI_EXPLAINER}
+            </dd>
+          </>
+        )}
         <dt className="font-medium">Based on</dt>
         <dd className="m-0">answers from {formatCount(cell.n)} {people}</dd>
-        <dt className="font-medium">Estimated number of people</dt>
-        <dd className="m-0">{cell.pop !== null ? `about ${formatPeople(cell.pop)}${pooled ? ' per year, on average' : ''}` : <SuppressedValue reason={cell.reason} />}</dd>
+        {suppressed ? null : (
+          <>
+            <dt className="font-medium">Estimated number of people</dt>
+            <dd className="m-0">{cell.pop !== null ? `about ${formatPeople(cell.pop)}${pooled ? ' per year, on average' : ''}` : <SuppressedValue reason={cell.reason} />}</dd>
+          </>
+        )}
       </dl>
     </article>
   )
